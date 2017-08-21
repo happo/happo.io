@@ -22,5 +22,20 @@
   "bugs": {
     "url": "https://github.com/enduire/enduire/issues"
   },
-  "homepage": "https://github.com/enduire/enduire#readme"
+  "homepage": "https://github.com/enduire/enduire#readme",
+  "jest": {
+    "testMatch": [
+      "**/*-test.js*"
+    ]
+  },
+  "dependencies": {
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1"
+  },
+  "devDependencies": {
+    "babel-jest": "^20.0.3",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "jest": "^20.0.4"
+  }
 }
