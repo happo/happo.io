@@ -5,6 +5,10 @@ export default function snap(name, jsx) {
     throw new Error(`A snap named "${name}" has already been added`);
   }
   snaps[name] = jsx;
+  return {
+    name,
+    jsx,
+  };
 }
 
 export function clearSnaps() {
