@@ -34,4 +34,5 @@ describe('with aphrodite', () => {
 
 describe('with css-loader through webpack', () => {
   // todo
+  // this might help: https://www.npmjs.com/package/babel-plugin-webpack-loaders
 });
