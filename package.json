@@ -3,8 +3,12 @@
   "version": "0.0.1",
   "description": "Visual diffing for UI components",
   "main": "index.js",
+  "bin": {
+    "enduire": "./build/cli.js"
+  },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "babel src --ignore 'test\/.*' --out-dir build"
   },
   "repository": {
     "type": "git",
@@ -29,12 +33,15 @@
     ]
   },
   "dependencies": {
+    "commander": "^2.11.0",
+    "glob": "^7.1.2",
     "react": "^15.6.1",
     "react-dom": "^15.6.1"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-jest": "^20.0.3",
-    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-env": "^1.6.0",
     "babel-preset-react": "^6.24.1",
     "jest": "^20.0.4",
     "styled-components": "^2.1.2"
