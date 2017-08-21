@@ -1,0 +1,26 @@
+{
+  "name": "enduire",
+  "version": "0.0.1",
+  "description": "Visual diffing for UI components",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/enduire/enduire.git"
+  },
+  "keywords": [
+    "visual",
+    "diffing",
+    "ui",
+    "testing",
+    "snapshots"
+  ],
+  "author": "Henric Trotzig",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/enduire/enduire/issues"
+  },
+  "homepage": "https://github.com/enduire/enduire#readme"
+}
