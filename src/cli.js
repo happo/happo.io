@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import commander from 'commander';
+import requireRelative from 'require-relative';
 
 import { getSnaps } from './snap';
 import findTestFiles from './findTestFiles';
@@ -13,5 +14,8 @@ commander
 
 
 findTestFiles().then((files) => {
-  console.log(files);
+  files.forEach((file) => {
+    const exported = requireRelative(`./${file}`, process.cwd());
+    console.log(file, exported);
+  });
 });
