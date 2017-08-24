@@ -1,20 +1,20 @@
-let snaps = {};
+global.snaps = {};
 
-export default function snap(name, jsx) {
-  if (snaps[name]) {
+export default function snap(name, renderFunc) {
+  if (global.snaps[name]) {
     throw new Error(`A snap named "${name}" has already been added`);
   }
-  snaps[name] = jsx;
+  global.snaps[name] = renderFunc);
   return {
     name,
-    jsx,
+    renderFunc),
   };
 }
 
 export function clearSnaps() {
-  snaps = {};
+  global.snaps = {};
 }
 
 export function getSnaps() {
-  return snaps;
+  return global.snaps;
 }

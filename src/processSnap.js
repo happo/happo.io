@@ -8,11 +8,11 @@ function extractCSSBlocks() {
   return result;
 }
 
-export default function processSnap({ name, jsx }) {
+export default function processSnap({ name, renderFunc }) {
   document.body.innerHTML = '';
   const rootElement = document.createElement('div');
   document.body.appendChild(rootElement);
-  ReactDOM.render(jsx, rootElement);
+  ReactDOM.render(renderFunc(), rootElement);
 
   return {
     css: extractCSSBlocks().join('\n'),
