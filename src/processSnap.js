@@ -1,12 +1,6 @@
 import ReactDOM from 'react-dom';
 
-function extractCSSBlocks() {
-  const result = [];
-  document.querySelectorAll('style').forEach((styleElement) => {
-    result.push(styleElement.innerHTML);
-  });
-  return result;
-}
+import extractCSS from './extractCSS';
 
 export default function processSnap({ name, renderFunc }) {
   document.body.innerHTML = '';
@@ -15,7 +9,7 @@ export default function processSnap({ name, renderFunc }) {
   ReactDOM.render(renderFunc(), rootElement);
 
   return {
-    css: extractCSSBlocks().join('\n'),
+    css: extractCSS(),
     html: rootElement.innerHTML,
   }
 }

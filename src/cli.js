@@ -1,60 +1,37 @@
 #!/usr/bin/env node
 
-import os from 'os';
-import path from 'path';
-
-import { JSDOM } from 'jsdom';
 import commander from 'commander';
-import requireRelative from 'require-relative';
-import webpack from 'webpack';
 
 import createDynamicEntryPoint from './createDynamicEntryPoint';
+import createWebpackBundle from './createWebpackBundle';
+import extractCSS from './extractCSS';
 import packageJson from '../package.json';
 import processSnap from './processSnap';
-import snap from './snap';
-
-const OUTFILE = 'enduire.js';
-
-const webpackConfig = requireRelative('./webpack.enduire.js', process.cwd());
+import withJSDom from './withJSDom';
 
 commander.version(packageJson.version).usage('[options] <regexForTestName>').parse(process.argv);
 
-createDynamicEntryPoint().then(entry => {
-  webpack(
-    Object.assign(
-      {
-        entry,
-        resolve: {
-          extensions: ['*', '.js', '.jsx', '.json'],
-        },
-        output: {
-          filename: OUTFILE,
-          path: os.tmpdir(),
-        },
-        target: 'node',
-        externals: {
-          enduire: 'global.enduire',
-        },
-      },
-      webpackConfig,
-    ),
-    (err, stats) => {
-      if (err) {
-        console.error(err);
-        process.exit(1);
-      }
-      const dom = new JSDOM();
-      global.window = dom.window;
-      global.XMLHttpRequest = dom.window.XMLHttpRequest;
-      global.document = dom.window.document;
-      global.enduire = { snap };
-      require(path.join(os.tmpdir(), OUTFILE));
-      Object.keys(global.snaps).forEach((name) => {
+createDynamicEntryPoint()
+  .then(createWebpackBundle)
+  .then((webpackBundle) => {
+    let globalCSS;
+    withJSDom(() => {
+      require(webpackBundle);
+      globalCSS = extractCSS();
+    });
+
+    console.log('global css', globalCSS);
+
+    Object.keys(global.snaps).forEach((name) => {
+      withJSDom(() => {
         console.log(processSnap({
           name,
           renderFunc: global.snaps[name],
         }));
-      });
-    },
-  );
-});
+      })
+    });
+  })
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
