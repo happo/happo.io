@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 
-import { snap } from '../src';
 import processSnap from '../src/processSnap';
 
 describe('with styled-components', () => {
@@ -21,7 +20,7 @@ describe('with styled-components', () => {
       }
     }
 
-    const snapshot = snap('foo', <Foo />);
+    const snapshot = () => <Foo />;
     const payload = processSnap(snapshot);
     expect(payload.css).toMatch(/-webkit-transform:.*color:red;/);
     expect(payload.html).toMatch(/<div.*><h1.*>Test<\/h1>/);

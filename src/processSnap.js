@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom';
 
 import extractCSS from './extractCSS';
 
-export default function processSnap({ name, renderFunc }) {
+export default function processSnap(renderFunc) {
   document.body.innerHTML = '';
   const rootElement = document.createElement('div');
   document.body.appendChild(rootElement);

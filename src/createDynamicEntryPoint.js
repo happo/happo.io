@@ -14,7 +14,6 @@ export default function createDynamicEntryPoint() {
       ),
     );
     fs.writeFileSync(TMP_FILE, strings.join('\n'));
-    console.log('STRINGS', strings);
     return TMP_FILE;
   });
 }
