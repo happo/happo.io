@@ -14,9 +14,16 @@ export default function processSnapsInBundle(webpackBundle) {
       };
 
       Object.keys(global.snaps).forEach(file => {
+        console.log(`Processing ${file}`);
         Object.keys(global.snaps[file]).forEach(name => {
+          console.log(`  - ${name}`);
           withJSDom(() => {
-            result.snapPayloads.push(processSnap(global.snaps[file][name]));
+            result.snapPayloads.push(
+              Object.assign({}, processSnap(global.snaps[file][name]), {
+                file,
+                name,
+              })
+            );
           });
         });
       });

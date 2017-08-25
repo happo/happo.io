@@ -12,8 +12,14 @@ import processSnapsInBundle from './processSnapsInBundle';
 commander.version(packageJson.version).usage('[options] <regexForTestName>').parse(process.argv);
 
 (async function () {
+  console.log('Generating entry point...');
   const entryFile = await createDynamicEntryPoint();
+
+  console.log('Producing bundle...');
   const bundleFile = await createWebpackBundle(entryFile);
+
+  console.log('Executing bundle...');
   const snaps = await processSnapsInBundle(bundleFile);
-  console.log(snaps);
+
+ // console.log(snaps);
 })();
