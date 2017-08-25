@@ -14,21 +14,23 @@ commander.version(packageJson.version).usage('[options] <regexForTestName>').par
 createDynamicEntryPoint()
   .then(createWebpackBundle)
   .then((webpackBundle) => {
-    let globalCSS;
     withJSDom(() => {
       require(webpackBundle);
-      globalCSS = extractCSS();
-    });
+      const globalCSS = extractCSS();
 
-    console.log('global css', globalCSS);
+      console.log('global css', globalCSS);
 
-    Object.keys(global.snaps).forEach((name) => {
-      withJSDom(() => {
-        console.log(processSnap({
-          name,
-          renderFunc: global.snaps[name],
-        }));
-      })
+      console.log(global.snaps);
+      Object.keys(global.snaps).forEach((file) => {
+        Object.keys(global.snaps[file]).forEach((name) => {
+          withJSDom(() => {
+            console.log(processSnap({
+              name: file + name,
+              renderFunc: global.snaps[file][name],
+            }));
+          })
+        })
+      });
     });
   })
   .catch((err) => {
