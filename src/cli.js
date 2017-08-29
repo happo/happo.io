@@ -1,17 +1,24 @@
 #!/usr/bin/env node
 
-import 'babel-polyfill'
+import 'babel-polyfill';
 
 import commander from 'commander';
 
+import PreviewServer from './PreviewServer';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
 import createWebpackBundle from './createWebpackBundle';
 import packageJson from '../package.json';
 import processSnapsInBundle from './processSnapsInBundle';
 
-commander.version(packageJson.version).usage('[options] <regexForTestName>').parse(process.argv);
+commander
+  .version(packageJson.version)
+  .usage('[options] <regexForTestName>')
+  .parse(process.argv);
 
-(async function () {
+const previewServer = new PreviewServer();
+previewServer.start();
+
+(async function() {
   console.log('Generating entry point...');
   const entryFile = await createDynamicEntryPoint();
 
@@ -21,5 +28,5 @@ commander.version(packageJson.version).usage('[options] <regexForTestName>').par
   console.log('Executing bundle...');
   const snaps = await processSnapsInBundle(bundleFile);
 
- // console.log(snaps);
+  previewServer.updateSnaps(snaps);
 })();

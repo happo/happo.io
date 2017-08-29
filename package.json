@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "jest",
-    "build": "babel src --ignore 'test/.*' --out-dir build"
+    "build": "babel src --ignore 'test/.*' --out-dir build --copy-files"
   },
   "repository": {
     "type": "git",
@@ -38,6 +38,8 @@
   },
   "dependencies": {
     "commander": "^2.11.0",
+    "ejs": "^2.5.7",
+    "express": "^4.15.4",
     "glob": "^7.1.2",
     "jsdom": "^11.2.0",
     "jsdom-global": "^3.0.2",
