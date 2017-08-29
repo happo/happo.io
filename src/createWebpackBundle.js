@@ -6,28 +6,25 @@ import webpack from 'webpack';
 
 const OUTFILE = 'enduire.js';
 
-const webpackConfig = requireRelative('./webpack.enduire.js', process.cwd());
+const userConfig = requireRelative('./.enduire.js', process.cwd());
 
 export default function createWebpackBundle(entry) {
   return new Promise((resolve, reject) => {
     webpack(
-      Object.assign(
-        {
-          entry,
-          resolve: {
-            extensions: ['*', '.js', '.jsx', '.json'],
-          },
-          output: {
-            filename: OUTFILE,
-            path: os.tmpdir(),
-          },
-          target: 'node',
-          externals: {
-            enduire: 'global.enduire',
-          },
+      {
+        entry,
+        resolve: {
+          extensions: ['*', '.js', '.jsx', '.json'],
         },
-        webpackConfig,
-      ),
+        output: {
+          filename: OUTFILE,
+          path: os.tmpdir(),
+        },
+        target: 'node',
+        module: {
+          rules: userConfig.webpackLoaders,
+        },
+      },
       (err, stats) => {
         if (err) {
           reject(err);
