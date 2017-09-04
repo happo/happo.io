@@ -3,6 +3,7 @@
 import 'babel-polyfill';
 
 import commander from 'commander';
+import requireRelative from 'require-relative';
 
 import PreviewServer from './PreviewServer';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
@@ -15,15 +16,17 @@ commander
   .usage('[options] <regexForTestName>')
   .parse(process.argv);
 
+const userConfig = requireRelative('./.enduire.js', process.cwd());
+
 const previewServer = new PreviewServer();
 previewServer.start();
 
 (async function() {
   console.log('Generating entry point...');
-  const entryFile = await createDynamicEntryPoint();
+  const entryFile = await createDynamicEntryPoint(userConfig);
 
   console.log('Producing bundle...');
-  const bundleFile = await createWebpackBundle(entryFile);
+  const bundleFile = await createWebpackBundle(entryFile, userConfig);
 
   console.log('Executing bundle...');
   const snaps = await processSnapsInBundle(bundleFile);

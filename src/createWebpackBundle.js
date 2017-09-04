@@ -6,9 +6,7 @@ import webpack from 'webpack';
 
 const OUTFILE = 'enduire.js';
 
-const userConfig = requireRelative('./.enduire.js', process.cwd());
-
-export default function createWebpackBundle(entry) {
+export default function createWebpackBundle(entry, userConfig) {
   return new Promise((resolve, reject) => {
     webpack(
       {
