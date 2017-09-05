@@ -6,7 +6,7 @@ import webpack from 'webpack';
 
 const OUTFILE = 'enduire.js';
 
-export default function createWebpackBundle(entry, userConfig) {
+export default function createWebpackBundle(entry, { webpackLoaders }) {
   return new Promise((resolve, reject) => {
     webpack(
       {
@@ -20,7 +20,7 @@ export default function createWebpackBundle(entry, userConfig) {
         },
         target: 'node',
         module: {
-          rules: userConfig.webpackLoaders,
+          rules: webpackLoaders,
         },
       },
       (err, stats) => {

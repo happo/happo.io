@@ -16,17 +16,20 @@ commander
   .usage('[options] <regexForTestName>')
   .parse(process.argv);
 
-const userConfig = requireRelative('./.enduire.js', process.cwd());
+const {
+  setupScript,
+  webpackLoaders,
+} = requireRelative('./.enduire.js', process.cwd());
 
 const previewServer = new PreviewServer();
 previewServer.start();
 
 (async function() {
   console.log('Generating entry point...');
-  const entryFile = await createDynamicEntryPoint(userConfig);
+  const entryFile = await createDynamicEntryPoint({ setupScript });
 
   console.log('Producing bundle...');
-  const bundleFile = await createWebpackBundle(entryFile, userConfig);
+  const bundleFile = await createWebpackBundle(entryFile, { webpackLoaders });
 
   console.log('Executing bundle...');
   const snaps = await processSnapsInBundle(bundleFile);

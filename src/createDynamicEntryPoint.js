@@ -6,10 +6,10 @@ import findTestFiles from './findTestFiles';
 
 const TMP_FILE = path.join(os.tmpdir(), 'enduireEntry.js');
 
-export default function createDynamicEntryPoint(userConfig) {
+export default function createDynamicEntryPoint({ setupScript }) {
   return findTestFiles().then(files => {
     const strings = [
-      (userConfig.setupScript ? `require('${userConfig.setupScript}');` : ''),
+      (setupScript ? `require('${setupScript}');` : ''),
       'global.snaps = {};'
     ].concat(
       files.map(file =>
