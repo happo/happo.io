@@ -3,11 +3,12 @@
 import 'babel-polyfill';
 
 import commander from 'commander';
-import requireRelative from 'require-relative';
 
 import PreviewServer from './PreviewServer';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
 import createWebpackBundle from './createWebpackBundle';
+import loadCSSFile from './loadCSSFile';
+import loadUserConfig from './loadUserConfig';
 import packageJson from '../package.json';
 import processSnapsInBundle from './processSnapsInBundle';
 
@@ -19,7 +20,8 @@ commander
 const {
   setupScript,
   webpackLoaders,
-} = requireRelative('./.enduire.js', process.cwd());
+  stylesheets = [],
+} = loadUserConfig();
 
 const previewServer = new PreviewServer();
 previewServer.start();
@@ -31,8 +33,12 @@ previewServer.start();
   console.log('Producing bundle...');
   const bundleFile = await createWebpackBundle(entryFile, { webpackLoaders });
 
+  const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
+
   console.log('Executing bundle...');
-  const snaps = await processSnapsInBundle(bundleFile);
+  const snaps = await processSnapsInBundle(bundleFile, {
+    globalCSS: cssBlocks.join(''),
+  });
 
   previewServer.updateSnaps(snaps);
 })();
