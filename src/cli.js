@@ -3,6 +3,7 @@
 import 'babel-polyfill';
 
 import commander from 'commander';
+import request from 'request-promise-native';
 
 import PreviewServer from './PreviewServer';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
@@ -23,8 +24,8 @@ const {
   stylesheets = [],
 } = loadUserConfig();
 
-const previewServer = new PreviewServer();
-previewServer.start();
+// const previewServer = new PreviewServer();
+// previewServer.start();
 
 (async function() {
   console.log('Generating entry point...');
@@ -37,8 +38,18 @@ previewServer.start();
 
   console.log('Executing bundle...');
   const snaps = await processSnapsInBundle(bundleFile, {
-    globalCSS: cssBlocks.join(''),
+    globalCSS: cssBlocks.join('').replace(/\n/g, ''),
   });
 
-  previewServer.updateSnaps(snaps);
+  request.post({
+    url: 'http://localhost:4433/snap',
+    method: 'POST',
+    json: true,
+    body: snaps,
+  }).then((response) => {
+    console.log(response);
+  });
+
+  // previewServer.updateSnaps(snaps);
+
 })();

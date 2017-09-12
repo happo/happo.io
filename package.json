@@ -45,6 +45,7 @@
     "jsdom-global": "^3.0.2",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
+    "request-promise-native": "^1.0.4",
     "require-relative": "^0.8.7",
     "webpack": "^3.5.5"
   },

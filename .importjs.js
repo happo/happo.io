@@ -4,6 +4,9 @@ module.exports = {
   excludes: [
     './build/**',
   ],
+  aliases: {
+    'request': 'request-promise-native',
+  },
   declarationKeyword: 'import',
   importDevDependencies: true,
 };
