@@ -15,7 +15,7 @@ export default function processSnapsInBundle(webpackBundle, { globalCSS }) {
       };
 
       Object.keys(global.snaps).forEach(file => {
-        console.log(`Processing ${file}`);
+        // console.log(`Processing ${file}`);
         Object.keys(global.snaps[file]).forEach(name => {
           const hash = createHash(`${file}|${name}`);
           const renderFunc = global.snaps[file][name];
@@ -24,7 +24,7 @@ export default function processSnapsInBundle(webpackBundle, { globalCSS }) {
             // Ignore those that aren't functions.
             return;
           }
-          console.log(`  - ${name} | http://localhost:2999/${hash}`);
+          // console.log(`  - ${name} | http://localhost:2999/${hash}`);
           withJSDom(() => {
             result.snapPayloads.push(
               Object.assign({}, processSnap(renderFunc), {

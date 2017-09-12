@@ -5,13 +5,14 @@ import 'babel-polyfill';
 import commander from 'commander';
 import request from 'request-promise-native';
 
-import PreviewServer from './PreviewServer';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
 import createWebpackBundle from './createWebpackBundle';
+import getCurrentSnapshots from './getCurrentSnapshots';
 import loadCSSFile from './loadCSSFile';
 import loadUserConfig from './loadUserConfig';
 import packageJson from '../package.json';
 import processSnapsInBundle from './processSnapsInBundle';
+import saveCurrentSnapshots from './saveCurrentSnapshots';
 
 commander
   .version(packageJson.version)
@@ -41,15 +42,37 @@ const {
     globalCSS: cssBlocks.join('').replace(/\n/g, ''),
   });
 
-  request.post({
+  console.log('Sending payload to remote service...');
+  const result = await request.post({
     url: 'http://localhost:4433/snap',
     method: 'POST',
     json: true,
     body: snaps,
-  }).then((response) => {
-    console.log(response);
   });
 
-  // previewServer.updateSnaps(snaps);
+  console.log('\n\nResults: \n');
 
+  const currentSnapshots = getCurrentSnapshots();
+
+  let currentFile;
+  result.forEach(({ name, file, url }) => {
+    if (currentFile !== file) {
+      console.log(file);
+      currentFile = file;
+    }
+    if (!currentSnapshots[file]) {
+      currentSnapshots[file] = {};
+    }
+    const oldUrl = currentSnapshots[file][name];
+    if (!oldUrl) {
+      currentSnapshots[file][name] = url;
+      console.log(`  + ${name} | ${url}`);
+    } else if (oldUrl !== url) {
+      currentSnapshots[file][name] = url;
+      console.log(`  • ${name} | ${url}`);
+    } else {
+      console.log(`  - ${name} | ${url}`);
+    }
+  });
+  await saveCurrentSnapshots(currentSnapshots);
 })();
