@@ -37,6 +37,7 @@
     ]
   },
   "dependencies": {
+    "colors": "^1.1.2",
     "commander": "^2.11.0",
     "ejs": "^2.5.7",
     "express": "^4.15.4",

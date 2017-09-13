@@ -2,6 +2,7 @@
 
 import 'babel-polyfill';
 
+import colors from 'colors/safe';
 import commander from 'commander';
 import request from 'request-promise-native';
 
@@ -66,12 +67,12 @@ const {
     const oldUrl = currentSnapshots[file][name];
     if (!oldUrl) {
       currentSnapshots[file][name] = url;
-      console.log(`  + ${name} | ${url}`);
+      console.log(colors.cyan(`  + ${name} | ${url}`));
     } else if (oldUrl !== url) {
       currentSnapshots[file][name] = url;
-      console.log(`  • ${name} | ${url}`);
+      console.log(colors.red(`  • ${name} | ${url}`));
     } else {
-      console.log(`  - ${name} | ${url}`);
+      console.log(colors.green(`  ✓ ${name} | ${url}`));
     }
   });
   await saveCurrentSnapshots(currentSnapshots);
