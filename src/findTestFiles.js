@@ -1,9 +1,9 @@
 import glob from 'glob';
 
-export default function findTestFiles() {
+export default function findTestFiles(pattern) {
   return new Promise((resolve, reject) => {
     glob(
-      '**/@(*-snaps|snaps).@(js|jsx)',
+      pattern,
       {
         ignore: [
           '**/node_modules/**',

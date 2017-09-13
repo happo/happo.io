@@ -24,6 +24,7 @@ const {
   setupScript,
   webpackLoaders,
   stylesheets = [],
+  include = '**/@(*-snaps|snaps).@(js|jsx)',
 } = loadUserConfig();
 
 // const previewServer = new PreviewServer();
@@ -31,7 +32,7 @@ const {
 
 (async function() {
   console.log('Generating entry point...');
-  const entryFile = await createDynamicEntryPoint({ setupScript });
+  const entryFile = await createDynamicEntryPoint({ setupScript, include });
 
   console.log('Producing bundle...');
   const bundleFile = await createWebpackBundle(entryFile, { webpackLoaders });

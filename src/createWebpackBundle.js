@@ -18,7 +18,6 @@ export default function createWebpackBundle(entry, { webpackLoaders }) {
           filename: OUTFILE,
           path: os.tmpdir(),
         },
-        target: 'node',
         module: {
           rules: webpackLoaders,
         },

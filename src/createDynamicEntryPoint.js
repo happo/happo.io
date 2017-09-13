@@ -5,15 +5,18 @@ import path from 'path';
 import findTestFiles from './findTestFiles';
 
 const TMP_FILE = path.join(os.tmpdir(), 'enduireEntry.js');
+const pathToReactDom = path.join(__dirname, '../node_modules/react-dom');
 
-export default function createDynamicEntryPoint({ setupScript }) {
-  return findTestFiles().then(files => {
+export default function createDynamicEntryPoint({ setupScript, include }) {
+  return findTestFiles(include).then(files => {
+    console.log(`Found ${files.length} files.`);
     const strings = [
+      `window.ReactDOM = require('${pathToReactDom}');`,
       (setupScript ? `require('${setupScript}');` : ''),
-      'global.snaps = {};'
+      'window.snaps = {};'
     ].concat(
       files.map(file =>
-        `global.snaps['${file}'] = require('${path.join(process.cwd(), file)}');`
+        `window.snaps['${file}'] = require('${path.join(process.cwd(), file)}');`
       ),
     );
     fs.writeFileSync(TMP_FILE, strings.join('\n'));
