@@ -2,7 +2,7 @@
   "name": "enduire",
   "version": "0.0.1",
   "description": "Visual diffing for UI components",
-  "main": "index.js",
+  "main": "./build/index.js",
   "bin": {
     "enduire": "./build/cli.js"
   },

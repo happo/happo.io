@@ -2,18 +2,16 @@
 
 import 'babel-polyfill';
 
-import colors from 'colors/safe';
 import commander from 'commander';
-import request from 'request-promise-native';
 
+import constructReport from './constructReport';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
 import createWebpackBundle from './createWebpackBundle';
-import getCurrentSnapshots from './getCurrentSnapshots';
 import loadCSSFile from './loadCSSFile';
 import loadUserConfig from './loadUserConfig';
 import packageJson from '../package.json';
 import processSnapsInBundle from './processSnapsInBundle';
-import saveCurrentSnapshots from './saveCurrentSnapshots';
+import saveReport from './saveReport';
 
 commander
   .version(packageJson.version)
@@ -25,6 +23,7 @@ const {
   webpackLoaders,
   stylesheets = [],
   include = '**/@(*-snaps|snaps).@(js|jsx)',
+  targets = {},
 } = loadUserConfig();
 
 // const previewServer = new PreviewServer();
@@ -44,37 +43,17 @@ const {
     globalCSS: cssBlocks.join('').replace(/\n/g, ''),
   });
 
-  console.log('Sending payload to remote service...');
-  const result = await request.post({
-    url: 'http://localhost:4433/snap',
-    method: 'POST',
-    json: true,
-    body: snaps,
-  });
+  console.log('Sending payload to targets...');
+  const results = await Promise.all(Object.keys(targets).map(async (name) => {
+    const target = targets[name];
+    const result = await target.execute(snaps);
+    return {
+      name,
+      result,
+    };
+  }));
 
   console.log('\n\nResults: \n');
-
-  const currentSnapshots = getCurrentSnapshots();
-
-  let currentFile;
-  result.forEach(({ name, file, url }) => {
-    if (currentFile !== file) {
-      console.log(file);
-      currentFile = file;
-    }
-    if (!currentSnapshots[file]) {
-      currentSnapshots[file] = {};
-    }
-    const oldUrl = currentSnapshots[file][name];
-    if (!oldUrl) {
-      currentSnapshots[file][name] = url;
-      console.log(colors.cyan(`  + ${name} | ${url}`));
-    } else if (oldUrl !== url) {
-      currentSnapshots[file][name] = url;
-      console.log(colors.red(`  • ${name} | ${url}`));
-    } else {
-      console.log(colors.green(`  ✓ ${name} | ${url}`));
-    }
-  });
-  await saveCurrentSnapshots(currentSnapshots);
+  const report = constructReport(results);
+  await saveReport(report);
 })();
