@@ -1,4 +1,5 @@
 import colors from 'colors/safe';
+import request from 'request-promise-native';
 
 import getReport from './getReport';
 
@@ -27,10 +28,27 @@ function printSummary(summary) {
   console.log(colors.cyan(`+ ${summary.counts.additions} new snapshots`));
   console.log(colors.green(`✓ ${summary.counts.equals} unchanged snapshots`));
 
+  console.log('REPORT:', summary.reportPage);
+
 }
 
-export default function constructReport(results) {
-  const currentReport = getReport();
+function uploadReports(oldReport, currentReport) {
+  return request.post({
+    url: 'http://localhost:4432/generate-report',
+    method: 'POST',
+    json: true,
+    body: {
+      beforeId: 'xyz123',
+      afterId: 'abc987',
+      before: oldReport,
+      after: currentReport,
+    },
+  });
+}
+
+export default async function constructReport(results) {
+  const oldReport = getReport();
+  const currentReport = {};
 
   const summary = {
     allGreen: true,
@@ -51,8 +69,13 @@ export default function constructReport(results) {
       if (!currentReport[file]) currentReport[file] = {};
       if (!currentReport[file][name]) currentReport[file][name] = {};
 
-      const oldUrl = currentReport[file][name][targetName];
+      const oldUrl =
+        oldReport[file] &&
+        oldReport[file][name] &&
+        oldReport[file][name][targetName];
+
       if (oldUrl === url) {
+        currentReport[file][name][targetName] = url;
         summary.counts.equals++;
         return;
       }
@@ -74,6 +97,12 @@ export default function constructReport(results) {
     });
   });
 
+  summary.reportPage = await uploadReports(oldReport, currentReport);
+
   printSummary(summary);
-  return { report: currentReport, summary };
+
+  return {
+    report: currentReport,
+    summary,
+  };
 }

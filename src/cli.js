@@ -54,7 +54,7 @@ const {
   }));
 
   console.log('\n\nResults: \n');
-  const { summary, report } = constructReport(results);
+  const { summary, report } = await constructReport(results);
   if (summary.allGreen) {
     process.exit(0);
   } else {

@@ -7,7 +7,7 @@ export { pathToSnapshotsFile };
 
 export default function saveCurrentSnapshots(snapshots) {
   return new Promise((resolve, reject) => {
-    fs.writeFile(pathToSnapshotsFile, JSON.stringify(snapshots), (err) => {
+    fs.writeFile(pathToSnapshotsFile, JSON.stringify(snapshots, null, 2), (err) => {
       if (err) {
         reject(err);
         return;
