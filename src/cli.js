@@ -43,7 +43,7 @@ const {
     globalCSS: cssBlocks.join('').replace(/\n/g, ''),
   });
 
-  console.log('Sending payload to targets...');
+  console.log('Generating screenshots...');
   const results = await Promise.all(Object.keys(targets).map(async (name) => {
     const target = targets[name];
     const result = await target.execute(snaps);
