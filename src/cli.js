@@ -14,6 +14,7 @@ import loadUserConfig from './loadUserConfig';
 import packageJson from '../package.json';
 import processSnapsInBundle from './processSnapsInBundle';
 import saveReport from './saveReport';
+import uploadReport from './uploadReport';
 
 commander
   .version(packageJson.version)
@@ -26,6 +27,8 @@ const {
   stylesheets = [],
   include = '**/@(*-snaps|snaps).@(js|jsx)',
   targets = {},
+  viewerEndpoint = 'http://localhost:4432',
+  //viewerEndpoint = 'https://enduire-view-xvgynuythv.now.sh',
 } = loadUserConfig();
 
 // const previewServer = new PreviewServer();
