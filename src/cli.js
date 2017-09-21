@@ -27,8 +27,8 @@ const {
   stylesheets = [],
   include = '**/@(*-snaps|snaps).@(js|jsx)',
   targets = {},
-  viewerEndpoint = 'http://localhost:4432',
-  //viewerEndpoint = 'https://enduire-view-xvgynuythv.now.sh',
+  //viewerEndpoint = 'http://localhost:4432',
+  viewerEndpoint = 'https://happo.now.sh',
 } = loadUserConfig();
 
 // const previewServer = new PreviewServer();
@@ -62,7 +62,7 @@ const {
   }));
 
   const report = await constructReport(results);
-  const url = await uploadReport({
+  await uploadReport({
     report,
     sha,
     previousSha,
@@ -71,5 +71,9 @@ const {
 
   setPreviousSha(sha);
   await saveReport(report);
-  console.log(url);
+  if (previousSha) {
+    console.log(`${viewerEndpoint}/report?q=${previousSha}..${sha}`);
+  } else {
+    console.log('No previous report found');
+  }
 })();

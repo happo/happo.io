@@ -2,7 +2,7 @@ import request from 'request-promise-native';
 
 export default function uploadReport({ report, sha, previousSha, endpoint }) {
   return request.post({
-    url: `${endpoint}/generate-report`,
+    url: `${endpoint}/reports`,
     method: 'POST',
     json: true,
     body: {
