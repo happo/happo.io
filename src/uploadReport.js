@@ -1,6 +1,6 @@
 import request from 'request-promise-native';
 
-export default function uploadReport({ report, sha, previousSha, endpoint }) {
+export default function uploadReport({ report, sha, endpoint }) {
   return request.post({
     url: `${endpoint}/reports`,
     method: 'POST',
@@ -8,7 +8,6 @@ export default function uploadReport({ report, sha, previousSha, endpoint }) {
     body: {
       report,
       sha,
-      previousSha,
     },
   });
 }

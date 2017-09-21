@@ -65,7 +65,6 @@ const {
   await uploadReport({
     report,
     sha,
-    previousSha,
     endpoint: viewerEndpoint,
   });
 
