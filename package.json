@@ -44,6 +44,7 @@
     "glob": "^7.1.2",
     "jsdom": "^11.2.0",
     "jsdom-global": "^3.0.2",
+    "nodegit": "^0.20.2",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "request-promise-native": "^1.0.4",

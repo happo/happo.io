@@ -4,9 +4,11 @@ import 'babel-polyfill';
 
 import commander from 'commander';
 
+import { getPreviousSha, setPreviousSha } from './previousSha';
 import constructReport from './constructReport';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
 import createWebpackBundle from './createWebpackBundle';
+import getSha from './getSha';
 import loadCSSFile from './loadCSSFile';
 import loadUserConfig from './loadUserConfig';
 import packageJson from '../package.json';
@@ -30,6 +32,9 @@ const {
 // previewServer.start();
 
 (async function() {
+  const sha = await getSha();
+  const previousSha = getPreviousSha();
+
   console.log('Generating entry point...');
   const entryFile = await createDynamicEntryPoint({ setupScript, include });
 
@@ -53,12 +58,15 @@ const {
     };
   }));
 
-  console.log('\n\nResults: \n');
-  const { summary, report } = await constructReport(results);
-  if (summary.allGreen) {
-    process.exit(0);
-  } else {
-    await saveReport(report);
-    process.exit(1);
-  }
+  const report = await constructReport(results);
+  const url = await uploadReport({
+    report,
+    sha,
+    previousSha,
+    endpoint: viewerEndpoint,
+  });
+
+  setPreviousSha(sha);
+  await saveReport(report);
+  console.log(url);
 })();
