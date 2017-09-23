@@ -13,7 +13,6 @@ import loadCSSFile from './loadCSSFile';
 import loadUserConfig from './loadUserConfig';
 import packageJson from '../package.json';
 import processSnapsInBundle from './processSnapsInBundle';
-import saveReport from './saveReport';
 import uploadReport from './uploadReport';
 
 commander
@@ -47,29 +46,29 @@ const {
   const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
 
   console.log('Executing bundle...');
-  const snaps = await processSnapsInBundle(bundleFile, {
+  const snapPayloads = await processSnapsInBundle(bundleFile, {
     globalCSS: cssBlocks.join('').replace(/\n/g, ''),
   });
 
   console.log('Generating screenshots...');
   const results = await Promise.all(Object.keys(targets).map(async (name) => {
     const target = targets[name];
-    const result = await target.execute(snaps);
+    const result = await target.execute(snapPayloads);
     return {
       name,
       result,
     };
   }));
 
-  const report = await constructReport(results);
+  const snaps = await constructReport(results);
   await uploadReport({
-    report,
+    snaps,
     sha,
     endpoint: viewerEndpoint,
   });
 
   setPreviousSha(sha);
-  await saveReport(report);
+
   if (previousSha) {
     console.log(`${viewerEndpoint}/report?q=${previousSha}..${sha}`);
   } else {

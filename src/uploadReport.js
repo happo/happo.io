@@ -1,12 +1,12 @@
 import request from 'request-promise-native';
 
-export default function uploadReport({ report, sha, endpoint }) {
+export default function uploadReport({ snaps, sha, endpoint }) {
   return request.post({
-    url: `${endpoint}/reports`,
+    url: `${endpoint}/api/reports/${sha}`,
     method: 'POST',
     json: true,
     body: {
-      report,
+      snaps,
       sha,
     },
   });

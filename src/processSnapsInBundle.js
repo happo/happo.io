@@ -24,21 +24,20 @@ export default function processSnapsInBundle(webpackBundle, { globalCSS }) {
       snapPayloads: [],
     };
 
-    Object.keys(dom.window.snaps).forEach(file => {
-      // console.log(`Processing ${file}`);
-      Object.keys(dom.window.snaps[file]).forEach(name => {
-        const hash = createHash(`${file}|${name}`);
-        const renderFunc = dom.window.snaps[file][name];
+    Object.keys(dom.window.snaps).forEach(component => {
+      Object.keys(dom.window.snaps[component]).forEach(variant => {
+        const hash = createHash(`${component}|${variant}`);
+        const renderFunc = dom.window.snaps[component][variant];
         if (typeof renderFunc !== 'function') {
           // Some babel loaders add additional properties to the exports.
           // Ignore those that aren't functions.
           return;
         }
-        // console.log(`  - ${name} | http://localhost:2999/${hash}`);
+        // console.log(`  - ${variant} | http://localhost:2999/${hash}`);
         result.snapPayloads.push(
-          Object.assign({}, processSnap(dom, { file, name }), {
-            file,
-            name,
+          Object.assign({}, processSnap(dom, { component, variant }), {
+            component,
+            variant,
             hash,
           })
         );

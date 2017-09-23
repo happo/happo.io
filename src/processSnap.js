@@ -1,17 +1,17 @@
 import extractCSS from './extractCSS';
 
-export default function processSnap(dom, { file, name }) {
-  const safeFile = JSON.stringify(file);
-  const safeName = JSON.stringify(name);
+export default function processSnap(dom, { component, variant }) {
+  const safeComponent = JSON.stringify(component);
+  const safeVariant = JSON.stringify(variant);
   const html = dom.window.eval(`
     document.body.innerHTML = \'\';
     const rootElement = document.createElement(\'div\');
     document.body.appendChild(rootElement);
-    let component = window.snaps[${safeFile}][${safeName}]();
-    if (typeof component === \'string\') {
-      throw new Error(\'Component ${safeFile}, ${safeName} is a string\');
+    let reactComponent = window.snaps[${safeComponent}][${safeVariant}]();
+    if (typeof reactComponent === \'string\') {
+      throw new Error(\'Component ${safeComponent}, ${safeVariant} is a string\');
     }
-    ReactDOM.render(component, rootElement);
+    ReactDOM.render(reactComponent, rootElement);
     rootElement.innerHTML;
   `);
 
