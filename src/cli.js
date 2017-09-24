@@ -21,6 +21,8 @@ commander
   .parse(process.argv);
 
 const {
+  apiKey,
+  apiSecret,
   setupScript,
   webpackLoaders,
   stylesheets = [],
@@ -65,6 +67,8 @@ const {
     snaps,
     sha,
     endpoint: viewerEndpoint,
+    apiKey,
+    apiSecret,
   });
 
   setPreviousSha(sha);
