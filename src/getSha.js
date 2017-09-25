@@ -15,9 +15,13 @@ export default async function getSha() {
   }
 
   // Construct a hash based on the file content of the unstaged files
-  const statusHash = createHash(
-    status.map(s => createHash(fs.readFileSync(s.path()))).join('')
-  ).slice(0, 10);
+  const stagedContent = status.map(s => {
+    if (s.isDeleted()) {
+      return s.path();
+    }
+    return createHash(fs.readFileSync(s.path()));
+  }).join('')
+  const statusHash = createHash(stagedContent).slice(0, 10);
 
   return `${sha.slice(0, 15)}-LOCAL-${statusHash}`;
 }
