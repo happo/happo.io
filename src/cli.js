@@ -54,16 +54,12 @@ const {
 
   console.log('Generating screenshots...');
   const results = await Promise.all(Object.keys(targets).map(async (name) => {
-    const target = targets[name];
-    const result = await target.execute({
+    const result = await targets[name].execute({
       snaps: snapPayloads,
       apiKey,
       apiSecret,
     });
-    return {
-      name,
-      result,
-    };
+    return { name, result };
   }));
 
   const snaps = await constructReport(results);
@@ -75,11 +71,10 @@ const {
     apiSecret,
   });
 
-  setPreviousSha(sha);
-
   if (previousSha) {
     console.log(`${viewerEndpoint}/compare?q=${previousSha}..${sha}`);
   } else {
     console.log('No previous report found');
   }
+  setPreviousSha(sha);
 })();
