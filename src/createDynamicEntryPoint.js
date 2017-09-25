@@ -4,7 +4,7 @@ import path from 'path';
 
 import findTestFiles from './findTestFiles';
 
-const TMP_FILE = path.join(os.tmpdir(), 'enduireEntry.js');
+const TMP_FILE = path.join(os.tmpdir(), 'happoEntry.js');
 const pathToReactDom = path.join(__dirname, '../node_modules/react-dom');
 
 export default function createDynamicEntryPoint({ setupScript, include }) {

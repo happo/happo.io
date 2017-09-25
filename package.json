@@ -1,10 +1,10 @@
 {
-  "name": "enduire",
-  "version": "0.0.1",
+  "name": "happo.io",
+  "version": "0.1.0-beta.0",
   "description": "Visual diffing for UI components",
   "main": "./build/index.js",
   "bin": {
-    "enduire": "./build/cli.js"
+    "happo": "./build/cli.js"
   },
   "scripts": {
     "test": "jest",
