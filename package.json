@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "jest",
-    "build": "babel src --ignore 'test/.*' --out-dir build --copy-files"
+    "build": "babel src --ignore 'test/.*' --out-dir build --copy-files",
+    "prepublish": "yarn build"
   },
   "repository": {
     "type": "git",
