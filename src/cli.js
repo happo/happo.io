@@ -28,7 +28,6 @@ const {
   stylesheets = [],
   include = '**/@(*-snaps|snaps).@(js|jsx)',
   targets = {},
-  //viewerEndpoint = 'http://localhost:4432',
   viewerEndpoint = 'https://happo.now.sh',
 } = loadUserConfig();
 
