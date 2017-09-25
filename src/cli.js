@@ -55,7 +55,11 @@ const {
   console.log('Generating screenshots...');
   const results = await Promise.all(Object.keys(targets).map(async (name) => {
     const target = targets[name];
-    const result = await target.execute(snapPayloads);
+    const result = await target.execute({
+      snaps: snapPayloads,
+      apiKey,
+      apiSecret,
+    });
     return {
       name,
       result,
