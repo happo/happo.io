@@ -74,7 +74,7 @@ const {
   setPreviousSha(sha);
 
   if (previousSha) {
-    console.log(`${viewerEndpoint}/report?q=${previousSha}..${sha}`);
+    console.log(`${viewerEndpoint}/compare?q=${previousSha}..${sha}`);
   } else {
     console.log('No previous report found');
   }
