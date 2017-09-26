@@ -4,74 +4,28 @@ import 'babel-polyfill';
 
 import commander from 'commander';
 
+import { configFile, viewerEndpoint } from './DEFAULTS';
 import { getPreviousSha, setPreviousSha } from './previousSha';
-import constructReport from './constructReport';
-import createDynamicEntryPoint from './createDynamicEntryPoint';
-import createWebpackBundle from './createWebpackBundle';
 import getSha from './getSha';
-import loadCSSFile from './loadCSSFile';
 import loadUserConfig from './loadUserConfig';
 import packageJson from '../package.json';
-import processSnapsInBundle from './processSnapsInBundle';
-import uploadReport from './uploadReport';
+import runForSha from './runForSha';
 
 commander
   .version(packageJson.version)
-  .usage('[options] <regexForTestName>')
+  .option('-c, --config <path>', 'set config path', configFile)
+  .usage('[options]')
   .parse(process.argv);
 
-const {
-  apiKey,
-  apiSecret,
-  setupScript,
-  webpackLoaders,
-  stylesheets = [],
-  include = '**/@(*-snaps|snaps).@(js|jsx)',
-  targets = {},
-  viewerEndpoint = 'https://happo.now.sh',
-} = loadUserConfig();
-
-// const previewServer = new PreviewServer();
-// previewServer.start();
-
 (async function() {
+  const config = loadUserConfig(commander.config);
   const sha = await getSha();
+  await runForSha(sha, { config });
+
   const previousSha = getPreviousSha();
 
-  console.log('Generating entry point...');
-  const entryFile = await createDynamicEntryPoint({ setupScript, include });
-
-  console.log('Producing bundle...');
-  const bundleFile = await createWebpackBundle(entryFile, { webpackLoaders });
-
-  const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
-
-  console.log('Executing bundle...');
-  const snapPayloads = await processSnapsInBundle(bundleFile, {
-    globalCSS: cssBlocks.join('').replace(/\n/g, ''),
-  });
-
-  console.log('Generating screenshots...');
-  const results = await Promise.all(Object.keys(targets).map(async (name) => {
-    const result = await targets[name].execute({
-      snaps: snapPayloads,
-      apiKey,
-      apiSecret,
-    });
-    return { name, result };
-  }));
-
-  const snaps = await constructReport(results);
-  await uploadReport({
-    snaps,
-    sha,
-    endpoint: viewerEndpoint,
-    apiKey,
-    apiSecret,
-  });
-
   if (previousSha) {
-    console.log(`${viewerEndpoint}/compare?q=${previousSha}..${sha}`);
+    console.log(`${config.viewerEndpoint}/compare?q=${previousSha}..${sha}`);
   } else {
     console.log('No previous report found');
   }

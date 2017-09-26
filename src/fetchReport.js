@@ -1,7 +1,7 @@
 import { viewerEndpoint } from './DEFAULTS';
 import makeRequest from './makeRequest';
 
-export default function uploadReport({
+export default function fetchReport({
   snaps,
   sha,
   endpoint = viewerEndpoint,
@@ -10,10 +10,7 @@ export default function uploadReport({
 }) {
   return makeRequest({
     url: `${endpoint}/api/reports/${sha}`,
-    method: 'POST',
+    method: 'GET',
     json: true,
-    body: {
-      snaps,
-    },
   }, { apiKey, apiSecret });
 }

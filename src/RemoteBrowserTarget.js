@@ -1,7 +1,8 @@
+import { snapEndpoint } from './DEFAULTS';
 import makeRequest from './makeRequest';
 
 export default class RemoteBrowserTarget {
-  constructor(browserName, { viewport, endpoint = 'https://happo-snap.now.sh' }) {
+  constructor(browserName, { viewport, endpoint = snapEndpoint }) {
     this.browserName = browserName;
     this.viewport = viewport;
     this.endpoint = endpoint;
