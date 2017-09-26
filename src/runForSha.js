@@ -8,54 +8,18 @@ import processSnapsInBundle from './processSnapsInBundle';
 import uploadReport from './uploadReport';
 
 export default async function runForSha(sha, {
-  config: {
+  config,
+}) {
+  const {
     apiKey,
     apiSecret,
-    setupScript,
-    webpackLoaders,
-    stylesheets,
-    include,
-    targets,
     viewerEndpoint,
-  },
-}) {
-  try {
-    console.log(`Checking for previous report for ${sha}...`);
-    const existingReport = await fetchReport({
-      sha,
-      apiKey,
-      apiSecret,
-      endpoint: viewerEndpoint,
-    });
-    console.log('Found one!');
-  } catch (e) {
-    console.log('...none exist');
-  }
-
-  console.log('Generating entry point...');
-  const entryFile = await createDynamicEntryPoint({ setupScript, include });
-
-  console.log('Producing bundle...');
-  const bundleFile = await createWebpackBundle(entryFile, { webpackLoaders });
-
-  const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
-
-  console.log('Executing bundle...');
-  const snapPayloads = await processSnapsInBundle(bundleFile, {
-    globalCSS: cssBlocks.join('').replace(/\n/g, ''),
-  });
-
-  console.log('Generating screenshots...');
-  const results = await Promise.all(Object.keys(targets).map(async (name) => {
-    const result = await targets[name].execute({
-      snaps: snapPayloads,
-      apiKey,
-      apiSecret,
-    });
-    return { name, result };
-  }));
-
-  const snaps = await constructReport(results);
+    hooks: {
+      run,
+    },
+  } = config;
+  const snaps = await run(config);
+  console.log(`Uploading report for ${sha}...`);
   await uploadReport({
     snaps,
     sha,
