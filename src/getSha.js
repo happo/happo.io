@@ -1,11 +1,10 @@
 import fs from 'fs';
 
-import Git from 'nodegit';
-
 import createHash from './createHash';
+import findRepository from './findRepository';
 
 export default async function getSha() {
-  const repo = await Git.Repository.open('.');
+  const repo = await findRepository();
   const headCommit = await repo.getHeadCommit();
   const sha = headCommit.sha();
   const status = await repo.getStatus();

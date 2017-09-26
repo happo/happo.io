@@ -1,7 +1,9 @@
 import Git from 'nodegit';
 
+import findRepository from './findRepository';
+
 export default async function moveToSha(sha, { force }) {
-  const repo = await Git.Repository.open('.');
+  const repo = await findRepository();
 
   const originalHeadCommit = await repo.getHeadCommit();
   const moveToCommit = await repo.getCommit(sha);
