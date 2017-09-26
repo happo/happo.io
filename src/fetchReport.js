@@ -2,7 +2,6 @@ import { viewerEndpoint } from './DEFAULTS';
 import makeRequest from './makeRequest';
 
 export default function fetchReport({
-  snaps,
   sha,
   endpoint = viewerEndpoint,
   apiKey,
