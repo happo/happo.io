@@ -4,67 +4,49 @@ import 'babel-polyfill';
 
 import commander from 'commander';
 
-import { configFile, viewerEndpoint } from './DEFAULTS';
-import fetchReport from './fetchReport';
-import getSha from './getSha';
+import { configFile } from './DEFAULTS';
+import hasReportCommand from './commands/hasReport';
 import loadUserConfig from './loadUserConfig';
-import moveToSha from './moveToSha';
 import packageJson from '../package.json';
-import runForSha from './runForSha';
+import compareReportsCommand from './commands/compareReports';
+import runCommand from './commands/run';
 
 commander
   .version(packageJson.version)
   .option('-c, --config <path>', 'set config path', configFile)
   .option('-f, --force', 'force recreation of reports even if they already exist')
-  .option('-C, --compare-against <sha>', 'set the base commit to compare with')
-  .usage('[options]')
-  .parse(process.argv);
+  .usage('[options]');
 
-(async function() {
+commander
+  .command('has-report <sha>')
+  .description('check if there is a report for a specific sha')
+  .action(async (sha) => {
+    if (await hasReportCommand(sha, loadUserConfig(commander.config))) {
+      process.exit(0);
+    } else {
+      process.exit(1);
+    };
+  });
 
-  async function checkForPreviousReport(sha, { apiKey, apiSecret, viewerEndpoint }) {
-    try {
-      console.log(`Checking for previous report for ${sha}...`);
-      const existingReport = await fetchReport({
-        sha,
-        apiKey,
-        apiSecret,
-        endpoint: viewerEndpoint,
-      });
-      console.log('Found one that we can reuse ' +
-        '(use `--force` to force-generate a new report)');
-      return existingReport;
-    } catch (e) {
-      console.log('None found.');
+commander
+  .command('run')
+  .description('execute a full happo run')
+  .action(async () => {
+    await runCommand(loadUserConfig(commander.config));
+  });
+
+commander
+  .command('compare <sha1> <sha2>')
+  .description('compare reports for two different shas')
+  .action(async (sha1, sha2) => {
+    const result = await compareReportsCommand(sha1, sha2,
+      loadUserConfig(commander.config));
+    console.log(result.summary);
+    if (result.equal) {
+      process.exit(0);
+    } else {
+      process.exit(1);
     }
-  }
+  });
 
-  const config = loadUserConfig(commander.config);
-  const previousSha = commander.compareAgainst;
-  let previousReport;
-  if (previousSha) {
-    if (!commander.force) {
-      const { apiKey, apiSecret, viewerEndpoint } = config;
-      previousReport = await
-        checkForPreviousReport(previousSha, { apiKey, apiSecret, viewerEndpoint });
-    }
-    if (!previousReport) {
-      const { fullSha, cleanup } = await moveToSha(previousSha, {
-        force: commander.force,
-      });
-      try {
-        previousReport = await runForSha(previousSha, { config, force: commander.force });
-      } catch (e) {
-        await cleanup();
-        throw new Error(e);
-      }
-      await cleanup();
-    }
-  }
-  const sha = await getSha();
-  await runForSha(sha, { config });
-
-  if (previousSha) {
-    console.log(`${viewerEndpoint}/compare?q=${previousSha}..${sha}`);
-  }
-})();
+commander.parse(process.argv);
