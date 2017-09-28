@@ -8,7 +8,7 @@ export default async function reactDOMRunner({
   apiKey,
   apiSecret,
   setupScript,
-  webpackLoaders,
+  customizeWebpackConfig,
   stylesheets,
   include,
   targets,
@@ -18,7 +18,7 @@ export default async function reactDOMRunner({
   const entryFile = await createDynamicEntryPoint({ setupScript, include });
 
   console.log('Producing bundle...');
-  const bundleFile = await createWebpackBundle(entryFile, { webpackLoaders });
+  const bundleFile = await createWebpackBundle(entryFile, { customizeWebpackConfig });
 
   const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
 

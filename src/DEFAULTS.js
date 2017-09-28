@@ -12,3 +12,8 @@ export const hooks = {
     console.log(result);
   }
 }
+export function customizeWebpackConfig(config) {
+  // provide a default no-op for this config option so that we can assume it's
+  // always there.
+  return config;
+}
