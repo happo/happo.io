@@ -5,12 +5,14 @@ const POLL_INTERVAL = 5000; // 5 secs
 function waitFor({ requestId, endpoint, apiKey, apiSecret }) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
+      process.stdout.write('.');
       makeRequest({
         url: `${endpoint}/api/snap-requests/${requestId}`,
         method: 'GET',
         json: true,
       }, { apiKey, apiSecret }).then(({ status, result }) => {
         if (status === 'done') {
+          process.stdout.write('\n');
           resolve(result);
         } else {
           waitFor({ requestId, endpoint, apiKey, apiSecret })
