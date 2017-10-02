@@ -5,6 +5,7 @@ export default function processSnap(dom, { component, variant }) {
   const safeVariant = JSON.stringify(variant);
   const html = dom.window.eval(`
     document.body.innerHTML = \'\';
+    document.head.innerHTML = \'\';
     const rootElement = document.createElement(\'div\');
     document.body.appendChild(rootElement);
     let reactComponent = window.snaps[${safeComponent}][${safeVariant}]();
