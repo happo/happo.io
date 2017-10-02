@@ -1,12 +1,12 @@
 import fetchReport from '../fetchReport';
 
-export default async function hasReport(sha, { apiKey, apiSecret, viewerEndpoint }) {
+export default async function hasReport(sha, { apiKey, apiSecret, endpoint }) {
   try {
     const existingReport = await fetchReport({
       sha,
       apiKey,
       apiSecret,
-      endpoint: viewerEndpoint,
+      endpoint,
     });
     return true;
   } catch (e) {

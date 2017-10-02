@@ -11,8 +11,8 @@ export default async function reactDOMRunner({
   customizeWebpackConfig,
   stylesheets,
   include,
+  endpoint,
   targets,
-  viewerEndpoint,
 }) {
   console.log('Generating entry point...');
   const entryFile = await createDynamicEntryPoint({ setupScript, include });
@@ -23,16 +23,18 @@ export default async function reactDOMRunner({
   const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
 
   console.log('Executing bundle...');
-  const snapPayloads = await processSnapsInBundle(bundleFile, {
+  const { globalCSS, snapPayloads } = await processSnapsInBundle(bundleFile, {
     globalCSS: cssBlocks.join('').replace(/\n/g, ''),
   });
 
   console.log('Generating screenshots...');
   const results = await Promise.all(Object.keys(targets).map(async (name) => {
     const result = await targets[name].execute({
-      snaps: snapPayloads,
+      globalCSS,
+      snapPayloads,
       apiKey,
       apiSecret,
+      endpoint,
     });
     return { name, result };
   }));

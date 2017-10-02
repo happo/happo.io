@@ -6,7 +6,7 @@ export default async function runCommand(config) {
   const {
     apiKey,
     apiSecret,
-    viewerEndpoint,
+    endpoint,
     hooks: {
       run,
     },
@@ -16,7 +16,7 @@ export default async function runCommand(config) {
   await uploadReport({
     snaps,
     sha,
-    endpoint: viewerEndpoint,
+    endpoint,
     apiKey,
     apiSecret,
   });

@@ -1,10 +1,9 @@
-import { viewerEndpoint } from './DEFAULTS';
 import makeRequest from './makeRequest';
 
 export default function uploadReport({
   snaps,
   sha,
-  endpoint = viewerEndpoint,
+  endpoint,
   apiKey,
   apiSecret,
 }) {

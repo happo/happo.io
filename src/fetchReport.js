@@ -1,9 +1,8 @@
-import { viewerEndpoint } from './DEFAULTS';
 import makeRequest from './makeRequest';
 
 export default function fetchReport({
   sha,
-  endpoint = viewerEndpoint,
+  endpoint,
   apiKey,
   apiSecret,
 }) {
