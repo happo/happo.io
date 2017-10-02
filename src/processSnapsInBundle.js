@@ -43,6 +43,7 @@ export default function processSnapsInBundle(webpackBundle, { globalCSS }) {
         );
       });
     });
+    dom.window.close();
     resolve(result);
   });
 }
