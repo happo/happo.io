@@ -26,12 +26,12 @@ export const primary = () => <Button type="primary">Primary</Button>;
 export const secondary = () => <Button type="secondary">Secondary</Button>;
 ```
 
-Then, we need to add some configuration. You need API tokens used to
-authenticate you with the remote happo.io service: `apiKey` and `apiSecret`.
-These can be found on your account page at https://happo.io/me. You also need
-to tell happo what browsers you want to target. In this example, we're using
-two Firefox targets. One at 1024 x 768 screen ("desktop") and one on a 320 x
-640 screen ("mobile").
+Then, we need to add some configuration. API tokens are used to authenticate
+you with the remote happo.io service: `apiKey` and `apiSecret`.  These can be
+found on your account page at https://happo.io/me. You also need to tell happo
+what browsers you want to target. In this example, we're using two Firefox
+targets. One at 1024 x 768 screen ("desktop") and one on a 320 x 640 screen
+("mobile").
 
 
 ```js
