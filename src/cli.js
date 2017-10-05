@@ -14,7 +14,6 @@ import runCommand from './commands/run';
 commander
   .version(packageJson.version)
   .option('-c, --config <path>', 'set config path', configFile)
-  .option('-f, --force', 'force recreation of reports even if they already exist')
   .usage('[options]');
 
 commander

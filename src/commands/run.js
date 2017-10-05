@@ -20,4 +20,5 @@ export default async function runCommand(config) {
     apiKey,
     apiSecret,
   });
+  console.log(`Done ${sha}`);
 }
