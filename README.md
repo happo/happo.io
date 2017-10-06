@@ -123,6 +123,54 @@ full happo run. Normally, you won't run all these commands locally. Instead,
 you'll configure your CI environment to do it for you, on every
 PR/commit/branch pushed. Let's look at how you can do that next.
 
+## Defining examples
+
+The default way of defining happo examples for a component is through a
+`ComponentName-happo.jsx` file, with an ES export for each variant you are
+looking to test:
+
+```jsx
+export const primary = () => <Button type="primary">Primary</Button>;
+export const secondary = () => <Button type="secondary">Secondary</Button>;
+```
+
+If you are more comfortable with CommonJS syntax, you can export an object
+instead:
+
+```jsx
+module.exports = {
+  primary: () => <Button type="primary">Primary</Button>,
+  secondary: () => <Button type="secondary">Secondary</Button>,
+};
+```
+
+Happo will infer the component name from the file. In the example above, if the
+file is named `Button-happo.jsx`, the inferred name will be `Button`.
+
+If you want to group multiple components in one file you can export an array
+instead, with objects defining the component and its variants. This can be
+handy if you for some reason want to auto-generate happo examples from another
+source (e.g. a style-guide, component-gallery).
+
+```jsx
+export default [
+  {
+    component: 'Button',
+    variants: {
+      primary: () => <Button type="primary">Primary</Button>,
+      secondary: () => <Button type="secondary">Secondary</Button>,
+    },
+  },
+  {
+    component: 'Icon',
+    variants: {
+      small: () => <Icon size="small" />,
+      large: () => <Icon size="large" />,
+    },
+  },
+]
+```
+
 ## Integrating with your CI environment
 
 Once you've gone through the Getting Started guide, you should have a good
