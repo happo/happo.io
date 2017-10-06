@@ -17,6 +17,13 @@ commander
   .usage('[options]');
 
 commander
+  .command('run')
+  .description('execute a full happo run')
+  .action(async () => {
+    await runCommand(loadUserConfig(commander.config));
+  });
+
+commander
   .command('has-report <sha>')
   .description('check if there is a report for a specific sha')
   .action(async (sha) => {
@@ -25,13 +32,6 @@ commander
     } else {
       process.exit(1);
     };
-  });
-
-commander
-  .command('run')
-  .description('execute a full happo run')
-  .action(async () => {
-    await runCommand(loadUserConfig(commander.config));
   });
 
 commander
