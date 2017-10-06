@@ -48,4 +48,8 @@ commander
     }
   });
 
+if (!process.argv.slice(2).length) {
+  commander.help();
+}
+
 commander.parse(process.argv);
