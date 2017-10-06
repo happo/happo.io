@@ -10,6 +10,7 @@ import loadUserConfig from './loadUserConfig';
 import packageJson from '../package.json';
 import compareReportsCommand from './commands/compareReports';
 import runCommand from './commands/run';
+import getSha from './getSha';
 
 commander
   .version(packageJson.version)
@@ -17,10 +18,11 @@ commander
   .usage('[options]');
 
 commander
-  .command('run')
+  .command('run [sha]')
   .description('execute a full happo run')
-  .action(async () => {
-    await runCommand(loadUserConfig(commander.config));
+  .action(async (sha) => {
+    const usedSha = sha || await getSha();
+    await runCommand(usedSha, loadUserConfig(commander.config));
   });
 
 commander

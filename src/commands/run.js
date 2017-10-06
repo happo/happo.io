@@ -1,8 +1,6 @@
-import getSha from '../getSha';
 import uploadReport from '../uploadReport';
 
-export default async function runCommand(config) {
-  const sha = await getSha();
+export default async function runCommand(sha, config) {
   const {
     apiKey,
     apiSecret,
