@@ -9,7 +9,6 @@ import getComponentNameFromFileName from './getComponentNameFromFileName';
 function renderCurrentExample(dom) {
   const html = dom.window.eval(`
     document.body.innerHTML = \'\';
-    document.head.innerHTML = \'\';
     const rootElement = document.createElement(\'div\');
     document.body.appendChild(rootElement);
     const reactComponent = window.renderCurrentComponent();
@@ -21,7 +20,7 @@ function renderCurrentExample(dom) {
   `);
 
   return {
-    css: extractCSS(dom),
+    css: '', // todo: look into removing this
     html,
   }
 }
@@ -59,7 +58,6 @@ export default function processSnapsInBundle(webpackBundle, { globalCSS }) {
     dom.window.eval(bundleContent);
 
     const result = {
-      globalCSS: globalCSS + extractCSS(dom),
       snapPayloads: [],
     };
 
@@ -82,6 +80,7 @@ export default function processSnapsInBundle(webpackBundle, { globalCSS }) {
         }));
       }
     });
+    result.globalCSS = globalCSS + extractCSS(dom);
     dom.window.close();
     resolve(result);
   });
