@@ -235,7 +235,6 @@ Controls what files happo will grab examples from. The default is
 `'**/@(*-happo|happo).@(js|jsx)'`. This option is useful if you want to apply a
 different naming scheme, e.g. `**/*-examples.js`.
 
-
 ### `stylesheets`
 
 If you rely on externally loaded stylesheets, list their URLs in this config
@@ -282,5 +281,20 @@ module.exports = {
    // it's important that we return the modified config
     return config;
   },
+}
+```
+
+### `setupScript`
+
+A path to a file that will be executed before rendering your components. This
+is useful if you for instance want to inject global css styling (e.g. a css
+reset), custom fonts, etc. This script is executed in a DOM environment, so
+it's safe to inject things into the `<head>`.
+
+```js
+const path = require('path');
+
+module.exports = {
+  setupScript: path.resolve(__dirname, 'happoSetup.js');
 }
 ```
