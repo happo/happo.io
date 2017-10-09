@@ -199,6 +199,9 @@ tell you whether there was any diffs or not. Exit code zero means no diffs. Any
 other exit code means there was one or more diffs (including added and removed
 examples).
 
+You can use the [`example-ci-script.sh`](example-ci-script.sh) as a base for
+writing your own script to run in CI.
+
 ## CSS Loading Strategies
 
 Happo works best when CSS code is co-located with the components. In some
