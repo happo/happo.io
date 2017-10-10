@@ -4,7 +4,7 @@ import path from 'path';
 import requireRelative from 'require-relative';
 import webpack from 'webpack';
 
-const OUTFILE = 'enduire.js';
+const OUTFILE = 'happo.js';
 
 export default function createWebpackBundle(entry, { customizeWebpackConfig }) {
   const config = customizeWebpackConfig({
