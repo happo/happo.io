@@ -12,6 +12,10 @@ export default function createWebpackBundle(entry, { customizeWebpackConfig }) {
     resolve: {
       extensions: ['*', '.js', '.jsx', '.json'],
     },
+    externals: {
+      react: 'React',
+      'react-dom': 'ReactDOM',
+    },
     output: {
       filename: OUTFILE,
       path: os.tmpdir(),
