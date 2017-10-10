@@ -45,8 +45,6 @@
     "jsdom-global": "^3.0.2",
     "jsonwebtoken": "^8.0.1",
     "nodegit": "^0.20.2",
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1",
     "request-promise-native": "^1.0.4",
     "require-relative": "^0.8.7",
     "webpack": "^3.5.5"
@@ -58,5 +56,9 @@
     "babel-preset-react": "^6.24.1",
     "jest": "^20.0.4",
     "styled-components": "^2.1.2"
+  },
+  "peerDependencies": {
+    "react": "^15.0.0|^16.0.0",
+    "react-dom": "^15.0.0|^16.0.0"
   }
 }
