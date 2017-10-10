@@ -13,8 +13,8 @@ export default function createWebpackBundle(entry, { customizeWebpackConfig }) {
       extensions: ['*', '.js', '.jsx', '.json'],
     },
     externals: {
-      react: 'React',
-      'react-dom': 'ReactDOM',
+      'react': 'window.React',
+      'react-dom': 'window.ReactDOM',
     },
     output: {
       filename: OUTFILE,

@@ -14,8 +14,8 @@ export default function createDynamicEntryPoint({ setupScript, include }) {
   return findTestFiles(include).then(files => {
     console.log(`Found ${files.length} files.`);
     const strings = [
-      `window.ReactDOM = require('${pathToReactDom}');`,
       `window.React = require('${pathToReact}');`,
+      `window.ReactDOM = require('${pathToReactDom}');`,
       (setupScript ? `require('${setupScript}');` : ''),
       'window.snaps = {};'
     ].concat(
