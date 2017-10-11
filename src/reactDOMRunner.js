@@ -33,6 +33,9 @@ export default async function reactDOMRunner({
     globalCSS: cssBlocks.join('').replace(/\n/g, ''),
     only,
   });
+  if (!snapPayloads.length) {
+    throw new Error('No items in report');
+  }
 
   console.log('Generating screenshots...');
   const results = await Promise.all(Object.keys(targets).map(async (name) => {
