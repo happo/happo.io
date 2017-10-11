@@ -60,4 +60,9 @@ if (!process.argv.slice(2).length) {
   commander.help();
 }
 
+process.on('unhandledRejection', error => {
+  console.error(error.stack);
+  process.exit(1);
+});
+
 commander.parse(process.argv);
