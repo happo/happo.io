@@ -7,8 +7,8 @@ import requireRelative from 'require-relative';
 import findTestFiles from './findTestFiles';
 
 const TMP_FILE = path.join(os.tmpdir(), 'happoEntry.js');
-const pathToReactDom = requireRelative.resolve('react-dom', __dirname);
-const pathToReact = requireRelative.resolve('react', __dirname);
+const pathToReactDom = requireRelative.resolve('react-dom', process.cwd());
+const pathToReact = requireRelative.resolve('react', process.cwd());
 
 export default function createDynamicEntryPoint({ setupScript, include }) {
   return findTestFiles(include).then(files => {
