@@ -18,5 +18,6 @@ export default async function runCommand(sha, config) {
     apiKey,
     apiSecret,
   });
+  console.log(`View results at ${endpoint}/report?q=${sha}`);
   console.log(`Done ${sha}`);
 }
