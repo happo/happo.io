@@ -1,6 +1,6 @@
 import uploadReport from '../uploadReport';
 
-export default async function runCommand(sha, config) {
+export default async function runCommand(sha, config, { only }) {
   const {
     apiKey,
     apiSecret,
@@ -9,7 +9,7 @@ export default async function runCommand(sha, config) {
       run,
     },
   } = config;
-  const snaps = await run(config);
+  const snaps = await run(config, { only });
   console.log(`Uploading report for ${sha}...`);
   await uploadReport({
     snaps,

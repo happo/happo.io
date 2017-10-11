@@ -15,14 +15,20 @@ import getSha from './getSha';
 commander
   .version(packageJson.version)
   .option('-c, --config <path>', 'set config path', configFile)
+  .option('-o, --only <component>', 'limit to one component')
   .usage('[options]');
 
 commander
   .command('run [sha]')
   .description('execute a full happo run')
   .action(async (sha) => {
-    const usedSha = sha || await getSha();
-    await runCommand(usedSha, loadUserConfig(commander.config));
+    let usedSha = sha || await getSha();
+    if (commander.only) {
+      usedSha = usedSha + '-' + commander.only;
+    }
+    await runCommand(usedSha, loadUserConfig(commander.config), {
+      only: commander.only,
+    });
   });
 
 commander

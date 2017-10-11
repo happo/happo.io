@@ -24,7 +24,10 @@ function renderCurrentExample(dom) {
     html,
   }
 }
-function processVariants({ dom, component, variants }) {
+function processVariants({ dom, component, variants, only }) {
+  if (only && only !== component) {
+    return [];
+  }
   return Object.keys(variants).map(variant => {
     const hash = createHash(`${component}|${variant}`);
     const renderFunc = variants[variant];
@@ -44,7 +47,7 @@ function processVariants({ dom, component, variants }) {
   }).filter(Boolean);
 }
 
-export default function processSnapsInBundle(webpackBundle, { globalCSS }) {
+export default function processSnapsInBundle(webpackBundle, { globalCSS, only }) {
   return new Promise((resolve, reject) => {
     const dom = new JSDOM(
       '<!DOCTYPE html><head></head><body></body></html>',
@@ -68,7 +71,8 @@ export default function processSnapsInBundle(webpackBundle, { globalCSS }) {
           result.snapPayloads.push(...processVariants({
             dom,
             component,
-            variants
+            variants,
+            only,
           }));
         });
       } else {
@@ -77,6 +81,7 @@ export default function processSnapsInBundle(webpackBundle, { globalCSS }) {
           dom,
           component,
           variants: objectOrArray,
+          only,
         }));
       }
     });

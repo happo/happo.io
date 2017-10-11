@@ -13,7 +13,8 @@ export default async function reactDOMRunner({
   include,
   endpoint,
   targets,
-}) {
+}, { only }
+) {
   console.log('Generating entry point...');
   const entryFile = await createDynamicEntryPoint({ setupScript, include });
 
@@ -25,8 +26,12 @@ export default async function reactDOMRunner({
   const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
 
   console.log('Executing bundle...');
+  if (only) {
+    console.log(`Limiting to ${only}`);
+  }
   const { globalCSS, snapPayloads } = await processSnapsInBundle(bundleFile, {
     globalCSS: cssBlocks.join('').replace(/\n/g, ''),
+    only,
   });
 
   console.log('Generating screenshots...');
