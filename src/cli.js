@@ -16,6 +16,8 @@ commander
   .version(packageJson.version)
   .option('-c, --config <path>', 'set config path', configFile)
   .option('-o, --only <component>', 'limit to one component')
+  .option('-l, --link <url>', 'provide a link back to the commit')
+  .option('-m, --message <message>', 'associate the run with a message (e.g. commit subject)')
   .usage('[options]');
 
 commander
@@ -28,6 +30,8 @@ commander
     }
     await runCommand(usedSha, loadUserConfig(commander.config), {
       only: commander.only,
+      link: commander.link,
+      message: commander.message,
     });
   });
 
@@ -46,8 +50,15 @@ commander
   .command('compare <sha1> <sha2>')
   .description('compare reports for two different shas')
   .action(async (sha1, sha2) => {
-    const result = await compareReportsCommand(sha1, sha2,
-      loadUserConfig(commander.config));
+    const result = await compareReportsCommand(
+      sha1,
+      sha2,
+      loadUserConfig(commander.config),
+      {
+        link: commander.link,
+        message: commander.message,
+      }
+    );
     console.log(result.summary);
     if (result.equal) {
       process.exit(0);

@@ -6,6 +6,8 @@ export default function uploadReport({
   endpoint,
   apiKey,
   apiSecret,
+  link,
+  message,
 }) {
   return makeRequest({
     url: `${endpoint}/api/reports/${sha}`,
@@ -13,6 +15,8 @@ export default function uploadReport({
     json: true,
     body: {
       snaps,
+      link,
+      message,
     },
   }, { apiKey, apiSecret });
 }

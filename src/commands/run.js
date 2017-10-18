@@ -1,6 +1,6 @@
 import uploadReport from '../uploadReport';
 
-export default async function runCommand(sha, config, { only }) {
+export default async function runCommand(sha, config, { only, link, message }) {
   const {
     apiKey,
     apiSecret,
@@ -17,6 +17,8 @@ export default async function runCommand(sha, config, { only }) {
     endpoint,
     apiKey,
     apiSecret,
+    link,
+    message,
   });
   console.log(`View results at ${endpoint}/report?q=${sha}`);
   console.log(`Done ${sha}`);
