@@ -202,6 +202,19 @@ examples).
 You can use the [`example-ci-script.sh`](example-ci-script.sh) as a base for
 writing your own script to run in CI.
 
+### Adding links back to PRs/commits
+
+Both `happo run` and `happo compare` accepts two options you can use to
+contextualize the report better in the happo.io UI: `--link` and `--message`.
+In CI, this can look something like this:
+
+```bash
+happo compare 07f8a31ec5f24 bb07f8a31cce3 --link "${GITHUB_PR_URL}" --message "${GITHUB_PR_MESSAGE}"
+
+
+happo run 07f8a31ec5f24 --link "${GITHUB_PR_URL}" --message "${GITHUB_PR_MESSAGE}"
+```
+
 ## CSS Loading Strategies
 
 Happo works best when CSS code is co-located with the components. In some
