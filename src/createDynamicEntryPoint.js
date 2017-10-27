@@ -10,16 +10,16 @@ const TMP_FILE = path.join(os.tmpdir(), 'happoEntry.js');
 const pathToReactDom = requireRelative.resolve('react-dom', process.cwd());
 const pathToReact = requireRelative.resolve('react', process.cwd());
 
-export default function createDynamicEntryPoint({ setupScript, include }) {
+export default function createDynamicEntryPoint({ setupScript, include, only }) {
   return findTestFiles(include).then(files => {
-    console.log(`Found ${files.length} files.`);
+    // console.log(`Found ${files.length} files.`);
     const strings = [
       `window.React = require('${pathToReact}');`,
       `window.ReactDOM = require('${pathToReactDom}');`,
       (setupScript ? `require('${setupScript}');` : ''),
       'window.snaps = {};'
     ].concat(
-      files.map(file =>
+      files.filter((f) => only ? f.includes(only) : true).map(file =>
         `window.snaps['${file}'] = require('${path.join(process.cwd(), file)}');`
       ),
     );
