@@ -1,7 +1,6 @@
 import http from 'http';
 
 export default function loadCSSFile(cssFile) {
-  console.log(`Downloading ${cssFile}...`);
   return new Promise((resolve, reject) => {
     const request = http.request(cssFile, res => {
       const chunks = [];

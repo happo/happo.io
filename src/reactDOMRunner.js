@@ -13,41 +13,48 @@ export default async function reactDOMRunner({
   include,
   endpoint,
   targets,
-}, { only }
+}, { only, onReady }
 ) {
-  console.log('Generating entry point...');
-  const entryFile = await createDynamicEntryPoint({ setupScript, include });
-
-  console.log('Producing bundle...');
-  const bundleFile = await createWebpackBundle(entryFile, {
-    customizeWebpackConfig,
-  });
-
-  const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
-
-  console.log('Executing bundle...');
-  if (only) {
-    console.log(`Limiting to ${only}`);
-  }
-  const { globalCSS, snapPayloads } = await processSnapsInBundle(bundleFile, {
-    globalCSS: cssBlocks.join('').replace(/\n/g, ''),
-    only,
-  });
-  if (!snapPayloads.length) {
-    throw new Error('No items in report');
-  }
-
-  console.log('Generating screenshots...');
-  const results = await Promise.all(Object.keys(targets).map(async (name) => {
-    const result = await targets[name].execute({
-      globalCSS,
-      snapPayloads,
-      apiKey,
-      apiSecret,
-      endpoint,
+  async function readyHandler(bundleFile) {
+    const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
+    const { globalCSS, snapPayloads } = await processSnapsInBundle(bundleFile, {
+      globalCSS: cssBlocks.join('').replace(/\n/g, ''),
     });
-    return { name, result };
-  }));
+    if (!snapPayloads.length) {
+      throw new Error('No items in report');
+    }
 
-  return await constructReport(results);
+    console.log('Generating screenshots...');
+    const results = await Promise.all(Object.keys(targets).map(async (name) => {
+      const result = await targets[name].execute({
+        globalCSS,
+        snapPayloads,
+        apiKey,
+        apiSecret,
+        endpoint,
+      });
+      return { name, result };
+    }));
+
+    return await constructReport(results);
+  }
+
+  console.log('Initializing...');
+  const entryFile = await createDynamicEntryPoint({ setupScript, include, only });
+
+  if (onReady) {
+    // We're in dev/watch mode
+    createWebpackBundle(entryFile, { customizeWebpackConfig }, {
+      onBuildReady: async (bundleFile) => {
+        const report = await readyHandler(bundleFile);
+        onReady(report);
+      }
+    });
+    return;
+  }
+
+  const bundleFile = await createWebpackBundle(
+    entryFile, { customizeWebpackConfig }, {});
+  return await readyHandler(bundleFile);
 }
+

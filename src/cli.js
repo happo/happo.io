@@ -10,6 +10,7 @@ import loadUserConfig from './loadUserConfig';
 import packageJson from '../package.json';
 import compareReportsCommand from './commands/compareReports';
 import runCommand from './commands/run';
+import devCommand from './commands/dev';
 import getSha from './getSha';
 
 commander
@@ -32,6 +33,15 @@ commander
       only: commander.only,
       link: commander.link,
       message: commander.message,
+    });
+  });
+
+commander
+  .command('dev')
+  .description('start dev mode')
+  .action(async (sha) => {
+    await devCommand(loadUserConfig(commander.config), {
+      only: commander.only,
     });
   });
 

@@ -6,7 +6,9 @@ import webpack from 'webpack';
 
 const OUTFILE = 'happo.js';
 
-export default function createWebpackBundle(entry, { customizeWebpackConfig }) {
+export default function createWebpackBundle(entry, { customizeWebpackConfig }, {
+  onBuildReady,
+}) {
   const config = customizeWebpackConfig({
     entry,
     resolve: {
@@ -22,13 +24,33 @@ export default function createWebpackBundle(entry, { customizeWebpackConfig }) {
     },
   });
 
+  const compiler = webpack(config);
+  const bundleFilePath = path.join(os.tmpdir(), OUTFILE);
+
+  if (onBuildReady) {
+    // We're in watch/dev mode
+    let hash;
+    compiler.watch({}, (err, stats) => {
+      if (err) {
+        console.log(err);
+      } else {
+        if (hash !== stats.hash) {
+          hash = stats.hash;
+          onBuildReady(bundleFilePath);
+        }
+      }
+    });
+    return;
+  }
+
+  // We're not in watch/dev mode
   return new Promise((resolve, reject) => {
-    webpack(config, (err, stats) => {
+    compiler.run((err, stats) => {
       if (err) {
         reject(err);
         return;
       }
-      resolve(path.join(os.tmpdir(), OUTFILE));
+      resolve(bundleFilePath);
     });
   });
 }
