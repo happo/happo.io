@@ -18,14 +18,14 @@ export default async function devCommand(config, { only }) {
     onReady: async (snaps) => {
       const sha = `dev-${crypto.randomBytes(10).toString('hex')}`;
       console.log(`Preparing report (${sha})...`);
-      await uploadReport({
+      const { url } = await uploadReport({
         snaps,
         sha,
         endpoint,
         apiKey,
         apiSecret,
       });
-      console.log(`View results at ${endpoint}/report?q=${sha}`);
+      console.log(`View results at ${url}`);
 
       if (previousSha) {
         console.log('Comparing with previous run...')

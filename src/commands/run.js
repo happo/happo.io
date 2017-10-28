@@ -11,7 +11,7 @@ export default async function runCommand(sha, config, { only, link, message }) {
   } = config;
   const snaps = await run(config, { only });
   console.log(`Uploading report for ${sha}...`);
-  await uploadReport({
+  const { url } = await uploadReport({
     snaps,
     sha,
     endpoint,
@@ -20,6 +20,6 @@ export default async function runCommand(sha, config, { only, link, message }) {
     link,
     message,
   });
-  console.log(`View results at ${endpoint}/report?q=${sha}`);
+  console.log(`View results at ${url}`);
   console.log(`Done ${sha}`);
 }
