@@ -4,6 +4,10 @@ import createWebpackBundle from './createWebpackBundle';
 import loadCSSFile from './loadCSSFile';
 import processSnapsInBundle from './processSnapsInBundle';
 
+function defaultLogger(message) {
+  console.log(message);
+}
+
 export default async function reactDOMRunner({
   apiKey,
   apiSecret,
@@ -15,7 +19,7 @@ export default async function reactDOMRunner({
   targets,
 }, { only, onReady }
 ) {
-  async function readyHandler(bundleFile) {
+  async function readyHandler(bundleFile, logger = defaultLogger) {
     const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
     const { globalCSS, snapPayloads } = await processSnapsInBundle(bundleFile, {
       globalCSS: cssBlocks.join('').replace(/\n/g, ''),
@@ -24,7 +28,7 @@ export default async function reactDOMRunner({
       throw new Error('No items in report');
     }
 
-    console.log('Generating screenshots...');
+    logger('Generating screenshots...');
     const results = await Promise.all(Object.keys(targets).map(async (name) => {
       const result = await targets[name].execute({
         globalCSS,
@@ -32,10 +36,10 @@ export default async function reactDOMRunner({
         apiKey,
         apiSecret,
         endpoint,
+        logger,
       });
       return { name, result };
     }));
-
     return await constructReport(results);
   }
 
@@ -43,11 +47,24 @@ export default async function reactDOMRunner({
   const entryFile = await createDynamicEntryPoint({ setupScript, include, only });
 
   if (onReady) {
+    let currentBuildPromise;
     // We're in dev/watch mode
     createWebpackBundle(entryFile, { customizeWebpackConfig }, {
       onBuildReady: async (bundleFile) => {
-        const report = await readyHandler(bundleFile);
-        onReady(report);
+        if (currentBuildPromise) {
+          console.log('-------------------------------');
+          currentBuildPromise.cancelled = true;
+        }
+        const buildPromise = readyHandler(bundleFile, (message) => {
+          if (!buildPromise.cancelled) {
+            console.log(message);
+          }
+        });
+        currentBuildPromise = buildPromise;
+        const report = await buildPromise;
+        if (!buildPromise.cancelled) {
+          onReady(report);
+        }
       }
     });
     return;
