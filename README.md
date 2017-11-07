@@ -134,6 +134,12 @@ export const primary = () => <Button type="primary">Primary</Button>;
 export const secondary = () => <Button type="secondary">Secondary</Button>;
 ```
 
+You can use the default export as well:
+
+```jsx
+export default () => <Button>Submit</Button>;
+```
+
 If you are more comfortable with CommonJS syntax, you can export an object
 instead:
 
