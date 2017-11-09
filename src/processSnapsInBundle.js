@@ -6,31 +6,44 @@ import createHash from './createHash';
 import extractCSS from './extractCSS';
 import getComponentNameFromFileName from './getComponentNameFromFileName';
 import inlineResources from './inlineResources';
+import queued from './queued';
 
-function renderCurrentExample(dom) {
-  const html = dom.window.eval(`
-    document.body.innerHTML = '';
-    const rootElement = document.createElement('div');
-    rootElement.setAttribute('id', 'happo-root');
-    document.body.appendChild(rootElement);
-    const reactComponent = window.renderCurrentComponent();
+async function renderExample(dom, renderMethod) {
+  const doc = dom.window.document;
+  doc.body.innerHTML = '';
+  const rootElement = doc.createElement('div');
+  doc.body.appendChild(rootElement);
+
+  const renderInDOM = (reactComponent) => {
     if (typeof reactComponent === 'string') {
       throw new Error('Component is a string');
     }
-    ReactDOM.render(reactComponent, rootElement);
-    rootElement.innerHTML;
-  `);
-
-  return {
-    css: '', // todo: look into removing this
-    html,
+    dom.window.reactComponent = reactComponent;
+    dom.window.rootElement = rootElement;
+    dom.window.eval(`
+      ReactDOM.render(window.reactComponent, window.rootElement);
+    `);
   }
+
+  const result = renderMethod(renderInDOM, dom.window.document);
+  if (typeof result.then === 'function') {
+    // this is a promise
+    return await result;
+  }
+  renderInDOM(result);
 }
-function processVariants({ dom, component, variants, only, publicFolders }) {
+async function processVariants({
+  dom,
+  component,
+  variants,
+  only,
+  publicFolders,
+  getRootElement,
+}) {
   if (only && only !== component) {
     return [];
   }
-  return Object.keys(variants).map(variant => {
+  const result = await queued(Object.keys(variants), async (variant) => {
     const hash = createHash(`${component}|${variant}`);
     const renderFunc = variants[variant];
     if (typeof renderFunc !== 'function') {
@@ -38,66 +51,75 @@ function processVariants({ dom, component, variants, only, publicFolders }) {
       // Ignore those that aren't functions.
       return;
     }
-    dom.window.renderCurrentComponent = renderFunc;
-    // console.log(`  - ${variant} | http://localhost:2999/${hash}`);
-    const result = Object.assign({}, renderCurrentExample(dom), {
+    await renderExample(dom, renderFunc);
+
+    if (publicFolders && publicFolders.length) {
+      inlineResources(dom, { publicFolders });
+    }
+    const root = getRootElement(dom.window.document) || dom.window.rootElement;
+    const html = root.innerHTML.trim();
+    return {
+      html,
+      css: '', // Can we remove this?
       component,
       variant,
       hash,
-    });
-    if (publicFolders && publicFolders.length) {
-      result.html = inlineResources(dom, { publicFolders });
-    }
-    return result;
-  }).filter(Boolean);
+    };
+  });
+
+  return result.filter(Boolean);
 }
 
-export default function processSnapsInBundle(webpackBundle, {
+export default async function processSnapsInBundle(webpackBundle, {
   globalCSS,
   only,
   publicFolders,
+  getRootElement,
 }) {
-  return new Promise((resolve, reject) => {
-    const dom = new JSDOM(
-      '<!DOCTYPE html><head></head><body></body></html>',
-      {
-        runScripts: 'outside-only',
-      }
-    );
+  const dom = new JSDOM(
+    '<!DOCTYPE html><head></head><body></body></html>',
+    {
+      runScripts: 'outside-only',
+    }
+  );
 
-    // Parse and execute the webpack bundle in a jsdom environment
-    const bundleContent = fs.readFileSync(webpackBundle, { encoding: 'utf-8' });
-    dom.window.eval(bundleContent);
+  // Parse and execute the webpack bundle in a jsdom environment
+  const bundleContent = fs.readFileSync(webpackBundle, { encoding: 'utf-8' });
+  dom.window.eval(bundleContent);
 
-    const result = {
-      snapPayloads: [],
-    };
+  const result = {
+    snapPayloads: [],
+  };
 
-    Object.keys(dom.window.snaps).forEach(fileName => {
-      const objectOrArray = dom.window.snaps[fileName];
-      if (Array.isArray(objectOrArray)) {
-        objectOrArray.forEach(({ component, variants }) => {
-          result.snapPayloads.push(...processVariants({
-            dom,
-            component,
-            variants,
-            only,
-            publicFolders,
-          }));
-        });
-      } else {
-        const component = getComponentNameFromFileName(fileName);
-        result.snapPayloads.push(...processVariants({
+  await queued(Object.keys(dom.window.snaps), async (fileName) => {
+    const objectOrArray = dom.window.snaps[fileName];
+    if (Array.isArray(objectOrArray)) {
+      await queued(objectOrArray, async ({ component, variants }) => {
+        const processedVariants = await processVariants({
           dom,
           component,
-          variants: objectOrArray,
+          variants,
           only,
           publicFolders,
-        }));
-      }
-    });
-    result.globalCSS = globalCSS + extractCSS(dom);
-    dom.window.close();
-    resolve(result);
+          getRootElement,
+        });
+        result.snapPayloads.push(...processedVariants);
+      });
+    } else {
+      const component = getComponentNameFromFileName(fileName);
+      const processedVariants = await processVariants({
+        dom,
+        component,
+        variants: objectOrArray,
+        only,
+        publicFolders,
+        getRootElement,
+      });
+      result.snapPayloads.push(...processedVariants);
+    }
   });
+
+  result.globalCSS = globalCSS + extractCSS(dom);
+  dom.window.close();
+  return result;
 }
