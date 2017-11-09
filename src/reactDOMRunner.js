@@ -17,12 +17,14 @@ export default async function reactDOMRunner({
   include,
   endpoint,
   targets,
+  publicFolders,
 }, { only, onReady }
 ) {
   async function readyHandler(bundleFile, logger = defaultLogger) {
     const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
     const { globalCSS, snapPayloads } = await processSnapsInBundle(bundleFile, {
       globalCSS: cssBlocks.join('').replace(/\n/g, ''),
+      publicFolders,
     });
     if (!snapPayloads.length) {
       throw new Error('No items in report');

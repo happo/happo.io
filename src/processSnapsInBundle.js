@@ -5,15 +5,17 @@ import { JSDOM } from 'jsdom';
 import createHash from './createHash';
 import extractCSS from './extractCSS';
 import getComponentNameFromFileName from './getComponentNameFromFileName';
+import inlineResources from './inlineResources';
 
 function renderCurrentExample(dom) {
   const html = dom.window.eval(`
-    document.body.innerHTML = \'\';
-    const rootElement = document.createElement(\'div\');
+    document.body.innerHTML = '';
+    const rootElement = document.createElement('div');
+    rootElement.setAttribute('id', 'happo-root');
     document.body.appendChild(rootElement);
     const reactComponent = window.renderCurrentComponent();
-    if (typeof reactComponent === \'string\') {
-      throw new Error(\'Component is a string\');
+    if (typeof reactComponent === 'string') {
+      throw new Error('Component is a string');
     }
     ReactDOM.render(reactComponent, rootElement);
     rootElement.innerHTML;
@@ -24,7 +26,7 @@ function renderCurrentExample(dom) {
     html,
   }
 }
-function processVariants({ dom, component, variants, only }) {
+function processVariants({ dom, component, variants, only, publicFolders }) {
   if (only && only !== component) {
     return [];
   }
@@ -43,11 +45,18 @@ function processVariants({ dom, component, variants, only }) {
       variant,
       hash,
     });
+    if (publicFolders && publicFolders.length) {
+      result.html = inlineResources(dom, { publicFolders });
+    }
     return result;
   }).filter(Boolean);
 }
 
-export default function processSnapsInBundle(webpackBundle, { globalCSS, only }) {
+export default function processSnapsInBundle(webpackBundle, {
+  globalCSS,
+  only,
+  publicFolders,
+}) {
   return new Promise((resolve, reject) => {
     const dom = new JSDOM(
       '<!DOCTYPE html><head></head><body></body></html>',
@@ -73,6 +82,7 @@ export default function processSnapsInBundle(webpackBundle, { globalCSS, only })
             component,
             variants,
             only,
+            publicFolders,
           }));
         });
       } else {
@@ -82,6 +92,7 @@ export default function processSnapsInBundle(webpackBundle, { globalCSS, only })
           component,
           variants: objectOrArray,
           only,
+          publicFolders,
         }));
       }
     });
