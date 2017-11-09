@@ -270,6 +270,20 @@ Comparing with previous run...
   https://happo.io/compare?q=dev-ff4c58da118671bd8826..dev-87ae2e31d6014fe4bd65
 ```
 
+## Image loading
+
+Examples can reference images in a few different ways:
+
+- Through external URLs, e.g. `<img src="http://domain/image.png" />`. Happo
+  will wait for these to be downloaded before the screenshot is taken.
+- With internal paths, combined with `publicFolders` configuration. E.g.
+  `<img src="/assets/images/foo.png" />`. Make sure to add an (absolute) path
+  to the folder containing your assets in the `publicFolders` config option.
+  Happo will automatically inline these as base64 URLs.
+- With images inlined as base64 URLs. This is often automated using webpack
+  config, so that for you can `import fooImage from './images/foo.png'`
+  directly.
+
 ## CSS Loading Strategies
 
 Happo works best when CSS code is co-located with the components. In some
@@ -352,6 +366,22 @@ module.exports = {
    // it's important that we return the modified config
     return config;
   },
+}
+```
+
+### `publicFolders`
+
+An array of (absolute) paths specifying the places where public assets are
+located. Useful if you have examples that depend on publicly available images
+(e.g. `<img src="/foo.png" />`).
+
+```js
+const path = require('path');
+
+module.exports = {
+  publicFolders: [
+    path.resolve(__dirname, 'src/public'),
+  ],
 }
 ```
 
