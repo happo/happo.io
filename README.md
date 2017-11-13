@@ -399,3 +399,29 @@ module.exports = {
   setupScript: path.resolve(__dirname, 'happoSetup.js');
 }
 ```
+
+## Frequently Asked Questions (FAQ)
+
+This section aims to explain a few things that might come as surprises to
+anyone using happo.io.
+
+### Can happo render any component?
+
+It can, but results may not always be what you want. For performance and
+security reasons, happo renders all examples in a JSDOM environment. The HTML
+and CSS is collected and sent to real browsers. Because of that, components
+that depend on any of these strategies/technologies might not look exactly
+right:
+
+- Measuring dimensions (e.g. `getBoundingClientRect`)
+- Async data
+
+There might be ways to break these dependencies that make your component render
+better in a happo.io environment. You can for instance inject dimensions and
+data as props instead of relying on the component to compute it itself.
+
+### Can I use external fonts
+
+Yes, either through providing an external stylesheet in the `stylesheets`
+config or by injecting them as inline base64 urls through a `happoSetup` file.
+
