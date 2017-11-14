@@ -1,6 +1,5 @@
-import crypto from 'crypto';
-
 import compareReportsCommand from './compareReports';
+import generateDevSha from '../generateDevSha';
 import uploadReport from '../uploadReport';
 
 export default async function devCommand(config, { only }) {
@@ -16,7 +15,7 @@ export default async function devCommand(config, { only }) {
   run(config, {
     only,
     onReady: async (snaps) => {
-      const sha = `dev-${crypto.randomBytes(10).toString('hex')}`;
+      const sha = generateDevSha();
       console.log(`Preparing report (${sha})...`);
       const { url } = await uploadReport({
         snaps,

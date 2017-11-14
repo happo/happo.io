@@ -56,7 +56,8 @@ async function processVariants({
     if (publicFolders && publicFolders.length) {
       inlineResources(dom, { publicFolders });
     }
-    const root = getRootElement(dom.window.document) || dom.window.rootElement;
+    const root = (getRootElement && getRootElement(dom.window.document))
+      || dom.window.rootElement;
     const html = root.innerHTML.trim();
     return {
       html,

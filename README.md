@@ -77,8 +77,8 @@ Go ahead and run that command now.
 If things are successful, you'll see something like this at the end of the run:
 
 ```
-Uploading report for 07f7bd689025c8e
-Done 07f7bd689025c8e
+Uploading report for dev-07f7bd689025c8e
+Done dev-07f7bd689025c8e
 ```
 
 This first run will serve as our baseline. But now we need something to compare
@@ -102,15 +102,15 @@ npm run happo run
 
 This time, we'll get a different hash:
 ```
-Uploading report for 07f8a31ec5f24...
-Done 07f8a31ec5f24
+Uploading report for dev-07f8a31ec5f24...
+Done dev-07f8a31ec5f24
 ```
 
 Once the second run is done, we can compare the two runs by passing both hashes
 to the `happo compare` action:
 
 ```bash
-$ npm run happo compare 07f7bd689025c8e 07f8a31ec5f24
+$ npm run happo compare dev-07f7bd689025c8e dev-07f8a31ec5f24
 The two reports are different. View full report at
 https://happo.io/compare?q=07f7bd689025c8e..07f8a31ec5f24
 ```

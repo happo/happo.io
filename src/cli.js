@@ -6,12 +6,12 @@ import commander from 'commander';
 
 import { configFile } from './DEFAULTS';
 import hasReportCommand from './commands/hasReport';
+import generateDevSha from './generateDevSha';
 import loadUserConfig from './loadUserConfig';
 import packageJson from '../package.json';
 import compareReportsCommand from './commands/compareReports';
 import runCommand from './commands/run';
 import devCommand from './commands/dev';
-import getSha from './getSha';
 
 commander
   .version(packageJson.version)
@@ -25,7 +25,10 @@ commander
   .command('run [sha]')
   .description('execute a full happo run')
   .action(async (sha) => {
-    let usedSha = sha || await getSha();
+    let usedSha = sha || generateDevSha();
+    if (!sha) {
+      console.log(`No [sha] provided. A temporary one will be used in place: "${usedSha}".`);
+    }
     if (commander.only) {
       usedSha = usedSha + '-' + commander.only;
     }
