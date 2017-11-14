@@ -65,9 +65,13 @@ export default async function reactDOMRunner({
           }
         });
         currentBuildPromise = buildPromise;
-        const report = await buildPromise;
-        if (!buildPromise.cancelled) {
-          onReady(report);
+        try {
+          const report = await buildPromise;
+          if (!buildPromise.cancelled) {
+            onReady(report);
+          }
+        } catch (e) {
+          console.error(e);
         }
       }
     });
