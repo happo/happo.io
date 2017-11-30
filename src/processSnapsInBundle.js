@@ -36,11 +36,11 @@ async function processVariants({
   dom,
   component,
   variants,
-  only,
+  onlyComponent,
   publicFolders,
   getRootElement,
 }) {
-  if (only && only !== component) {
+  if (onlyComponent && onlyComponent !== component) {
     return [];
   }
   const result = await queued(Object.keys(variants), async (variant) => {
@@ -92,6 +92,8 @@ export default async function processSnapsInBundle(webpackBundle, {
     snapPayloads: [],
   };
 
+  const onlyComponent = only ? only.split('#')[1] : undefined;
+
   await queued(Object.keys(dom.window.snaps), async (fileName) => {
     const objectOrArray = dom.window.snaps[fileName];
     if (Array.isArray(objectOrArray)) {
@@ -100,7 +102,7 @@ export default async function processSnapsInBundle(webpackBundle, {
           dom,
           component,
           variants,
-          only,
+          onlyComponent,
           publicFolders,
           getRootElement,
         });
@@ -112,7 +114,7 @@ export default async function processSnapsInBundle(webpackBundle, {
         dom,
         component,
         variants: objectOrArray,
-        only,
+        onlyComponent,
         publicFolders,
         getRootElement,
       });

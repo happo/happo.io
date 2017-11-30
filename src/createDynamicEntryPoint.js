@@ -12,14 +12,16 @@ const pathToReact = requireRelative.resolve('react', process.cwd());
 
 export default function createDynamicEntryPoint({ setupScript, include, only }) {
   return findTestFiles(include).then(files => {
+    const filePartOfOnly = only ? only.split('#')[0] : undefined;
     // console.log(`Found ${files.length} files.`);
     const strings = [
       `window.React = require('${pathToReact}');`,
       `window.ReactDOM = require('${pathToReactDom}');`,
       (setupScript ? `require('${setupScript}');` : ''),
-      'window.snaps = {};'
+      'window.snaps = {};',
+      `window.happoFlags = { only: ${JSON.stringify(only)} }`,
     ].concat(
-      files.filter((f) => only ? f.includes(only) : true).map(file =>
+      files.filter((f) => filePartOfOnly ? f.includes(filePartOfOnly) : true).map(file =>
         `window.snaps['${file}'] = require('${path.join(process.cwd(), file)}');`
       ),
     );

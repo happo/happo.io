@@ -27,9 +27,10 @@ export default async function reactDOMRunner({
       globalCSS: cssBlocks.join('').replace(/\n/g, ''),
       publicFolders,
       getRootElement,
+      only,
     });
     if (!snapPayloads.length) {
-      throw new Error('No items in report');
+      throw new Error('No examples found');
     }
 
     logger('Generating screenshots...');

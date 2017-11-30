@@ -270,6 +270,21 @@ Comparing with previous run...
   https://happo.io/compare?q=dev-ff4c58da118671bd8826..dev-87ae2e31d6014fe4bd65
 ```
 
+*NOTE*: The `--only` flag will match against the file name exporting the happo
+examples by default. So `--only Button` will match against e.g.
+`src/components/Button/happo.jsx`, `src/components/Button-happo.js`. If you are
+exporting a lot of happo examples from a single file you can use the `#`
+delimiter to signal that you want to filter inside the list of exports. This is
+especially useful when you are dynamically generating happo examples in a
+single file. Here's an example:
+
+```bash
+⨠ yarn happo dev --only AllComponents#Button
+```
+
+In this case, only the "Button" component in the file named e.g.
+`**/AllComponents/happo.js` will be included in the report.
+
 ## Image loading
 
 Examples can reference images in a few different ways:
