@@ -11,7 +11,7 @@ export default async function devCommand(config, { only }) {
       run,
     },
   } = config;
-  let previousSha;
+  let baselineSha;
   run(config, {
     only,
     onReady: async (snaps) => {
@@ -26,17 +26,18 @@ export default async function devCommand(config, { only }) {
       });
       console.log(`View results at ${url}`);
 
-      if (previousSha) {
-        console.log('Comparing with previous run...')
+      if (baselineSha) {
+        console.log('Comparing with baseline report...')
         const result = await compareReportsCommand(
-          previousSha,
+          baselineSha,
           sha,
           { apiKey, apiSecret, endpoint },
           {}
         );
         console.log(result.summary);
+      } else {
+        baselineSha = sha;
       }
-      previousSha = sha;
     },
     onBuilding: () => {
       console.log('Building...');
