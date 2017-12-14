@@ -35,7 +35,7 @@ targets. One at 1024 x 768 screen ("desktop") and one on a 320 x 640 screen
 
 
 ```js
-const { RemoteBrowserTarget } = require('happo');
+const { RemoteBrowserTarget } = require('happo.io');
 
 module.exports = {
   // It's good practice to never store API tokens directly in the config file.
