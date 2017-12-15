@@ -347,6 +347,9 @@ This is where you specify the browsers you want to be part of your happo run. E.
 ```js
 module.exports = {
   targets: {
+    // The first part ('firefox-desktop' in this case) is just a name we give
+    // the specific browser target. You'll see this name in the reports generated
+    // as part of a happo run.
     'firefox-desktop': new RemoteBrowserTarget('firefox', {
       viewport: '1024x768',
     }),
@@ -356,14 +359,18 @@ module.exports = {
     'chrome': new RemoteBrowserTarget('chrome', {
       viewport: '800x600',
     }),
+    'internet explorer': new RemoteBrowserTarget('internet explorer', {
+      viewport: '800x600',
+    }),
   },
 };
 ```
 
-Currently supported browsers:
+This is a list of all supported browsers:
 
-- `firefox`
-- `chrome`
+- `firefox` (latest stable version)
+- `chrome` (latest stable version)
+- `internet explorer` (version 11)
 
 ### `customizeWebpackConfig`
 
