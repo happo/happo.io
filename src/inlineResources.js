@@ -1,21 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 
-const MIME_TYPES = {
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.webp': 'image/webp',
-  '.svg': 'image/svg+xml',
-};
-
 function fileToBase64(src, { publicFolders }) {
   for (let folder of publicFolders) {
     const pathToFile = path.join(folder, src);
     if (fs.existsSync(pathToFile)) {
       const base64 = new Buffer(fs.readFileSync(pathToFile)).toString('base64');
-      const mime = path.extname(pathToFile).replace(/\./, 'image/');
+      const extension = path.extname(pathToFile);
+      let mime = extension.replace(/\./, 'image/');
+      if (extension === '.svg') {
+        mime = `${mime}+xml`;
+      }
       return `data:${mime};charset=utf-8;base64,${base64}`;
     }
   }
