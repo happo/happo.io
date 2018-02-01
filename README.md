@@ -391,6 +391,20 @@ module.exports = {
 }
 ```
 
+In many cases, directly depending on the `modules` object of an existing
+webpack configuration is enough. For instance, this is what you would need to
+get up and running with a project using
+[create-react-app](https://github.com/facebook/create-react-app):
+
+```js
+module.exports = {
+  customizeWebpackConfig: (config) => {
+    config.module = require('react-scripts/config/webpack.config.dev').module;
+    return config;
+  },
+}
+```
+
 ### `publicFolders`
 
 An array of (absolute) paths specifying the places where public assets are
