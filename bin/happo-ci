@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Generates and uploads Happo diffs for the differences between the base commit
+# and current commit.
+
+# Make the whole script fail on errors
+set -eou pipefail
+
+# Initialize optional env variables
+POST_INSTALL_CMD=${POST_INSTALL_CMD:-}
+
+echo "Using the following ENV variables:"
+echo "PREVIOUS_SHA: ${PREVIOUS_SHA}"
+echo "CURRENT_SHA: ${CURRENT_SHA}"
+echo "CHANGE_URL: ${CHANGE_URL}"
+echo "POST_INSTALL_CMD: ${POST_INSTALL_CMD}"
+
+NPM_CLIENT=$(hash yarn 2> /dev/null && echo 'yarn' || echo 'npm')
+
+echo "Using npm client \"${NPM_CLIENT}\""
+
+run-happo() {
+  SHA=$1
+  git checkout --quiet "$SHA"
+  COMMIT_SUBJECT="$(git show -s --format=%s)"
+
+  # Install dependencies (again, since we're potentially in a different place in
+  # git history)
+  ${NPM_CLIENT} install
+
+  # Run post-install command(s)
+  eval "$POST_INSTALL_CMD"
+
+  if ${NPM_CLIENT} list happo.io; then
+    ${NPM_CLIENT} run --silent happo run "$SHA" \
+    --link "${CHANGE_URL}" \
+    --message "${COMMIT_SUBJECT}"
+  else
+    echo "NPM package happo.io not installed. Assuming this is the first run."
+  fi
+}
+
+# Check if we need to generate a baseline. In some cases, the baseline is
+# already there (some other PR uploaded it), and we can just use the existing
+# one.
+if ! ${NPM_CLIENT} run --silent happo has-report "$PREVIOUS_SHA"; then
+  echo "No previous report found for ${PREVIOUS_SHA}. Generating one..."
+  run-happo "$PREVIOUS_SHA"
+fi
+
+run-happo "$CURRENT_SHA"
+
+# Compare reports from the two SHAs.
+COMMIT_SUBJECT="$(git show -s --format=%s)"
+SUMMARY=$(${NPM_CLIENT} run --silent \
+  happo compare "$PREVIOUS_SHA" "$CURRENT_SHA" \
+  --link "$PR_URL" --message "$COMMIT_SUBJECT" || true)
+echo "Message from Happo:
+  $SUMMARY"
