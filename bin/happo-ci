@@ -52,9 +52,12 @@ run-happo "$CURRENT_SHA"
 
 # Compare reports from the two SHAs.
 COMMIT_SUBJECT="$(git show -s --format=%s)"
+COMMIT_AUTHOR="$(git show -s --format=%ae)"
 SUMMARY=$(${NPM_CLIENT} run --silent \
   happo compare "$PREVIOUS_SHA" "$CURRENT_SHA" \
-  --link "$CHANGE_URL" --message "$COMMIT_SUBJECT")
+  --link "$CHANGE_URL" \
+  --message "$COMMIT_SUBJECT" \
+  --author "$COMMIT_AUTHOR")
 
 if [ -z "$SUMMARY" ]; then
   echo "No diffs"

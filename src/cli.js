@@ -19,6 +19,7 @@ commander
   .option('-o, --only <component>', 'limit to one component')
   .option('-l, --link <url>', 'provide a link back to the commit')
   .option('-m, --message <message>', 'associate the run with a message (e.g. commit subject)')
+  .option('-a, --author <email>', 'the author of the commit')
   .usage('[options]');
 
 commander
@@ -70,6 +71,7 @@ commander
       {
         link: commander.link,
         message: commander.message,
+        author: commander.author,
       }
     );
     if (!result.equal) {
