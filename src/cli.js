@@ -72,11 +72,8 @@ commander
         message: commander.message,
       }
     );
-    console.log(result.summary);
-    if (result.equal) {
-      process.exit(0);
-    } else {
-      process.exit(1);
+    if (!result.equal) {
+      console.log(result.summary);
     }
   });
 
