@@ -15,9 +15,11 @@ echo "CURRENT_SHA: ${CURRENT_SHA}"
 echo "CHANGE_URL: ${CHANGE_URL}"
 echo "POST_INSTALL_CMD: ${POST_INSTALL_CMD}"
 
-NPM_CLIENT=$(hash yarn 2> /dev/null && echo 'yarn' || echo 'npm')
-
-echo "Using npm client \"${NPM_CLIENT}\""
+NPM_CLIENT="npm"
+if [ -f "yarn.lock" ]; then
+  echo "Detected yarn.lock - using yarn to install dependencies"
+  NPM_CLIENT="yarn"
+fi
 
 run-happo() {
   SHA=$1
