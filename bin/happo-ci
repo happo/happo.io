@@ -57,7 +57,7 @@ SUMMARY=$(${NPM_CLIENT} run --silent \
   happo compare "$PREVIOUS_SHA" "$CURRENT_SHA" \
   --link "$CHANGE_URL" \
   --message "$COMMIT_SUBJECT" \
-  --author "$COMMIT_AUTHOR")
+  --author "$COMMIT_AUTHOR" || true)
 
 if [ -z "$SUMMARY" ]; then
   echo "No diffs"

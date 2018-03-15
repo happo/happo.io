@@ -74,8 +74,11 @@ commander
         author: commander.author,
       }
     );
-    if (!result.equal) {
-      console.log(result.summary);
+    console.log(result.summary);
+    if (result.equal) {
+      process.exit(0);
+    } else {
+      process.exit(1);
     }
   });
 
