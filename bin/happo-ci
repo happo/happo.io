@@ -34,7 +34,7 @@ run-happo() {
   eval "$POST_INSTALL_CMD"
 
   if npm list happo.io; then
-    npm run --silent happo run "$SHA" \
+    npm run --silent happo -- run "$SHA" \
     --link "${CHANGE_URL}" \
     --message "${COMMIT_SUBJECT}"
   else
@@ -45,7 +45,7 @@ run-happo() {
 # Check if we need to generate a baseline. In some cases, the baseline is
 # already there (some other PR uploaded it), and we can just use the existing
 # one.
-if ! npm run --silent happo has-report "$PREVIOUS_SHA"; then
+if ! npm run --silent happo -- has-report "$PREVIOUS_SHA"; then
   echo "No previous report found for ${PREVIOUS_SHA}. Generating one..."
   run-happo "$PREVIOUS_SHA"
 fi
@@ -60,7 +60,7 @@ COMMIT_AUTHOR="$(git show -s --format=%ae)"
 # the exit status, we need to temporarily turn off the fail-on-error behavior.
 set +e
 SUMMARY=$(npm run --silent \
-  happo compare "$PREVIOUS_SHA" "$CURRENT_SHA" \
+  happo -- compare "$PREVIOUS_SHA" "$CURRENT_SHA" \
   --link "$CHANGE_URL" \
   --message "$COMMIT_SUBJECT" \
   --author "$COMMIT_AUTHOR")
