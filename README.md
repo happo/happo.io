@@ -220,6 +220,15 @@ happo compare 07f8a31ec5f24 bb07f8a31cce3 --link "${GITHUB_PR_URL}" --message "$
 
 happo run 07f8a31ec5f24 --link "${GITHUB_PR_URL}" --message "${GITHUB_PR_MESSAGE}"
 ```
+### Let Happo know the author
+
+To better notify the author of a change, you can pass the `--author` flag to
+the `happo compare` command. If the author is matched to a user on happo.io,
+they will receive email notifications of events related to the change.
+
+```bash
+happo compare 07f8a31ec5f24 bb07f8a31cce3 --link "http://foo.bar" --message "Add foo to bar" --author "jane.doe@example.com"
+```
 
 ## Local development
 

@@ -7,6 +7,7 @@ export default async function compareReports(sha1, sha2, {
 }, {
   link,
   message,
+  author,
 }) {
   return await makeRequest({
     url: `${endpoint}/api/reports/${sha1}/compare/${sha2}`,
@@ -15,6 +16,7 @@ export default async function compareReports(sha1, sha2, {
     body: {
       link,
       message,
+      author,
     },
   }, { apiKey, apiSecret });
 }
