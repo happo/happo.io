@@ -33,7 +33,7 @@ run-happo() {
   # Run post-install command(s)
   eval "$POST_INSTALL_CMD"
 
-  if ${NPM_CLIENT} list happo.io; then
+  if [ -f "${NPM_BIN}/happo" ]; then
     "$NPM_BIN"/happo run "$SHA" \
     --link "${CHANGE_URL}" \
     --message "${COMMIT_SUBJECT}"
