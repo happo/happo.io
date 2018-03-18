@@ -123,6 +123,59 @@ full happo run. Normally, you won't run all these commands locally. Instead,
 you'll configure your CI environment to do it for you, on every
 PR/commit/branch pushed. Let's look at how you can do that next.
 
+## Integrating with your CI environment
+
+Once you've gone through the Getting Started guide, you should have a good
+understanding of what commands are involved in making a full, two-pass, happo
+run. Happo works by running twice. Once to create a baseline, and a second time
+to compare against this baseline. If you are using a pull-request model to push
+code to your repo, you can run the baseline run on the commit that the
+PR/branch was based off of. If you have a commit-by-commit model, you can
+compare against the previous commit. Since multiple changes might be pushed at
+the same time, using the same commit as base, there's a happo command you can
+use to check if the baseline even has to be created:
+
+```bash
+happo has-report <sha>
+```
+
+If this command exits successfully (exit code 0), the report already exists. In
+this case, you don't have to checkout that commit and run happo on it. If it
+exits with a non-zero exit code, the report hasn't been created and you need
+to do git checkout and run happo.
+
+When you run `happo compare <sha1> <sha2>`, a message will be printed to stdout
+containing a link to the page where you can view changes. You can use this
+message to post a comment on the PR/commit. Additionally, the exit code will
+tell you whether there was any diffs or not. Exit code zero means no diffs. Any
+other exit code means there was one or more diffs (including added and removed
+examples).
+
+You can use the [`example-ci-script.sh`](example-ci-script.sh) as a base for
+writing your own script to run in CI.
+
+### Adding links back to PRs/commits
+
+Both `happo run` and `happo compare` accepts two options you can use to
+contextualize the report better in the happo.io UI: `--link` and `--message`.
+In CI, this can look something like this:
+
+```bash
+happo compare 07f8a31ec5f24 bb07f8a31cce3 --link "${GITHUB_PR_URL}" --message "${GITHUB_PR_MESSAGE}"
+
+
+happo run 07f8a31ec5f24 --link "${GITHUB_PR_URL}" --message "${GITHUB_PR_MESSAGE}"
+```
+### Let Happo know the author
+
+To better notify the author of a change, you can pass the `--author` flag to
+the `happo compare` command. If the author is matched to a user on happo.io,
+they will receive email notifications of events related to the change.
+
+```bash
+happo compare 07f8a31ec5f24 bb07f8a31cce3 --link "http://foo.bar" --message "Add foo to bar" --author "jane.doe@example.com"
+```
+
 ## Defining examples
 
 The default way of defining happo examples for a component is through a
@@ -175,59 +228,6 @@ export default [
     },
   },
 ]
-```
-
-## Integrating with your CI environment
-
-Once you've gone through the Getting Started guide, you should have a good
-understanding of what commands are involved in making a full, two-pass, happo
-run. Happo works by running twice. Once to create a baseline, and a second time
-to compare against this baseline. If you are using a pull-request model to push
-code to your repo, you can run the baseline run on the commit that the
-PR/branch was based off of. If you have a commit-by-commit model, you can
-compare against the previous commit. Since multiple changes might be pushed at
-the same time, using the same commit as base, there's a happo command you can
-use to check if the baseline even has to be created:
-
-```bash
-happo has-report <sha>
-```
-
-If this command exits successfully (exit code 0), the report already exists. In
-this case, you don't have to checkout that commit and run happo on it. If it
-exits with a non-zero exit code, the report hasn't been created and you need
-to do git checkout and run happo.
-
-When you run `happo compare <sha1> <sha2>`, a message will be printed to stdout
-containing a link to the page where you can view changes. You can use this
-message to post a comment on the PR/commit. Additionally, the exit code will
-tell you whether there was any diffs or not. Exit code zero means no diffs. Any
-other exit code means there was one or more diffs (including added and removed
-examples).
-
-You can use the [`example-ci-script.sh`](example-ci-script.sh) as a base for
-writing your own script to run in CI.
-
-### Adding links back to PRs/commits
-
-Both `happo run` and `happo compare` accepts two options you can use to
-contextualize the report better in the happo.io UI: `--link` and `--message`.
-In CI, this can look something like this:
-
-```bash
-happo compare 07f8a31ec5f24 bb07f8a31cce3 --link "${GITHUB_PR_URL}" --message "${GITHUB_PR_MESSAGE}"
-
-
-happo run 07f8a31ec5f24 --link "${GITHUB_PR_URL}" --message "${GITHUB_PR_MESSAGE}"
-```
-### Let Happo know the author
-
-To better notify the author of a change, you can pass the `--author` flag to
-the `happo compare` command. If the author is matched to a user on happo.io,
-they will receive email notifications of events related to the change.
-
-```bash
-happo compare 07f8a31ec5f24 bb07f8a31cce3 --link "http://foo.bar" --message "Add foo to bar" --author "jane.doe@example.com"
 ```
 
 ## Local development
