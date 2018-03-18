@@ -123,58 +123,128 @@ full happo run. Normally, you won't run all these commands locally. Instead,
 you'll configure your CI environment to do it for you, on every
 PR/commit/branch pushed. Let's look at how you can do that next.
 
-## Integrating with your CI environment
+## Integrating with your Continuous Integration (CI) environment
 
 Once you've gone through the Getting Started guide, you should have a good
-understanding of what commands are involved in making a full, two-pass, happo
+understanding of what commands are involved in making a full, two-pass, Happo
 run. Happo works by running twice. Once to create a baseline, and a second time
-to compare against this baseline. If you are using a pull-request model to push
-code to your repo, you can run the baseline run on the commit that the
-PR/branch was based off of. If you have a commit-by-commit model, you can
-compare against the previous commit. Since multiple changes might be pushed at
-the same time, using the same commit as base, there's a happo command you can
-use to check if the baseline even has to be created:
+to compare against this baseline.
+
+Since a lot of projects these days follow a pull-request model using Github,
+Happo provides ready-made scripts that you can run in CI:
+
+- `happo-ci-travis` - a script designed to be run in a Travis environment.
+- `happo-ci-circleci` - a script designed to be run in a CircleCI environment.
+- `happo-ci` - a generic script designed to work in any CI environment. This
+  script is used by both `happo-ci-travis` and `happo-ci-circleci` under the
+  hood.
+
+These scripts will all:
+
+1) Run happo on the commit which the PR is based on
+2) Run happo on the current HEAD commit
+3) Compare the two reports
+4) If allowed to, post back a status to the PR (the HEAD commit)
+
+These scripts will detect your npm client (yarn or npm) and run `npm
+install`/`yarn install` before running happo on the commits. If you have other
+dependencies/preprocessing steps that need to happen, you can provide a command
+in the `POST_INSTALL_CMD` environment variable. E.g.
 
 ```bash
-happo has-report <sha>
+POST_INSTALL_COMMAND="lerna bootstrap" npm run happo-ci-travis
 ```
 
-If this command exits successfully (exit code 0), the report already exists. In
-this case, you don't have to checkout that commit and run happo on it. If it
-exits with a non-zero exit code, the report hasn't been created and you need
-to do git checkout and run happo.
+In this example, the `lerna bootstrap` command will be invoked before running
+`happo run` on each commit.
 
-When you run `happo compare <sha1> <sha2>`, a message will be printed to stdout
-containing a link to the page where you can view changes. You can use this
-message to post a comment on the PR/commit. Additionally, the exit code will
-tell you whether there was any diffs or not. Exit code zero means no diffs. Any
-other exit code means there was one or more diffs (including added and removed
-examples).
+### `happo-ci-travis`
 
-You can use the [`example-ci-script.sh`](example-ci-script.sh) as a base for
-writing your own script to run in CI.
+This script knows about the Travis build environment, assuming a PR based
+model. To run it, first add this to your `package.json`:
 
-### Adding links back to PRs/commits
-
-Both `happo run` and `happo compare` accepts two options you can use to
-contextualize the report better in the happo.io UI: `--link` and `--message`.
-In CI, this can look something like this:
-
-```bash
-happo compare 07f8a31ec5f24 bb07f8a31cce3 --link "${GITHUB_PR_URL}" --message "${GITHUB_PR_MESSAGE}"
-
-
-happo run 07f8a31ec5f24 --link "${GITHUB_PR_URL}" --message "${GITHUB_PR_MESSAGE}"
+```json
+{
+  "scripts": {
+    "happo": "happo",
+    "happo-ci-travis": "happo-ci-travis"
+  }
+}
 ```
-### Let Happo know the author
 
-To better notify the author of a change, you can pass the `--author` flag to
-the `happo compare` command. If the author is matched to a user on happo.io,
-they will receive email notifications of events related to the change.
+Then, configure `.travis.yml` to run this script:
 
-```bash
-happo compare 07f8a31ec5f24 bb07f8a31cce3 --link "http://foo.bar" --message "Add foo to bar" --author "jane.doe@example.com"
+```yaml
+language: node_js
+script:
+- npm run happo-ci-travis
 ```
+
+### `happo-ci-circleci`
+
+This script knows about the CircleCI build environment, assuming a PR based
+model. To run it, first add this to your `package.json`:
+
+```json
+{
+  "scripts": {
+    "happo": "happo",
+    "happo-ci-circleci": "happo-ci-circleci"
+  }
+}
+```
+
+Then, configure `.circleci/config.yml` to run this script. Something like this:
+
+```yaml
+jobs:
+  build:
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - run:
+          name: happo
+          command: npm run happo-ci-circleci
+```
+
+### `happo-ci`
+
+This is a generic script that can run in most CI environments. Before using it,
+you need to set a few environment variables:
+
+- `PREVIOUS_SHA` - the sha of the baseline commit
+- `CURRENT_SHA` - the sha of the current HEAD
+- `CHANGE_URL` - a link back to the change
+
+```json
+{
+  "scripts": {
+    "happo": "happo",
+    "happo-ci": "happo-ci"
+  }
+}
+```
+
+### Posting statuses back to PRs/commits
+
+By installing the [Happo Github App](https://github.com/apps/happo), you allow
+Happo to update the status of a PR/commit.
+
+![Happo status posted on a commit on github](happo-status-diffs.png)
+
+If there is a diff, the status will be set to failure. To manually flip this to a success status, just go to the Happo comparison page and click the Accept button at the top.
+
+![Accepting diffs](happo-accept.png)
+
+The status over on github.com will then change to green for the PR/commit.
+
+![Happo status manually accepted cross-posted to github](happo-status-accepted.png)
+
+Apart from having the [Happo Github App](https://github.com/apps/happo)
+installed, you also need to make sure that you provide a `--link <url>` with
+your calls to `happo compare`. If you're using any of the standard CI scripts
+listed above, this is automatically taken care of for you.
 
 ## Defining examples
 
@@ -444,6 +514,27 @@ module.exports = {
   setupScript: path.resolve(__dirname, 'happoSetup.js');
 }
 ```
+
+## Command-Line-Interface (CLI)
+
+While you are most likely getting most value from the ready-made CI integration
+scripts, there are times when you want better control. In these cases, you can
+use any combination of the following CLI commands to produce the results you
+desire.
+
+- `happo run [sha]` - generate screenshots and upload them to the remote
+  happo.io service. Supports the `--link <url>` and `--message <message>`
+  flags.
+- `happo dev` - start dev mode, where you can make changes incrementally and
+  view the results on happo.io as you go along.
+- `happo has-report <sha>` - check if there is a report already uploaded for
+  the sha. Will exit with a zero exit code if the report exists, 1 otherwise.
+- `happo compare <sha1> <sha2>` - compare reports for two different shas. If
+  a `--link <url>` is provided, Happo will try to post a status back to the
+  commit (also depends on the [Happo Github App](https://github.com/apps/happo)
+  being installed). If an `--author <email>` is provided, any comment made on a diff
+  will notify the author. Also supports `--message <message>`, which is used
+  together with `--link <url>` to further contextualize the comparison.
 
 ## Frequently Asked Questions (FAQ)
 
