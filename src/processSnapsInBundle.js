@@ -76,11 +76,24 @@ export default async function processSnapsInBundle(webpackBundle, {
   only,
   publicFolders,
   getRootElement,
+  viewport,
 }) {
+  const [ width, height ] = viewport.split('x').map((s) => parseInt(s, 10));
   const dom = new JSDOM(
     '<!DOCTYPE html><head></head><body></body></html>',
     {
       runScripts: 'outside-only',
+      beforeParse(win) {
+        const pxHeight = parseInt()
+        win.outerWidth = win.innerWidth = width;
+        win.outerHeight = win.innerHeight = height;
+        Object.defineProperties(win.screen, {
+          width: { value: width },
+          availWidth: { value: width },
+          height: { value: height },
+          availHeight: { value: height },
+        });
+      },
     }
   );
 

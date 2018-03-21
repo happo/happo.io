@@ -23,18 +23,19 @@ export default async function reactDOMRunner({
 ) {
   async function readyHandler(bundleFile, logger = defaultLogger) {
     const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
-    const { globalCSS, snapPayloads } = await processSnapsInBundle(bundleFile, {
-      globalCSS: cssBlocks.join('').replace(/\n/g, ''),
-      publicFolders,
-      getRootElement,
-      only,
-    });
-    if (!snapPayloads.length) {
-      throw new Error('No examples found');
-    }
 
     logger('Generating screenshots...');
     const results = await Promise.all(Object.keys(targets).map(async (name) => {
+      const { globalCSS, snapPayloads } = await processSnapsInBundle(bundleFile, {
+        globalCSS: cssBlocks.join('').replace(/\n/g, ''),
+        publicFolders,
+        getRootElement,
+        only,
+        viewport: targets[name].viewport,
+      });
+      if (!snapPayloads.length) {
+        throw new Error('No examples found');
+      }
       const result = await targets[name].execute({
         globalCSS,
         snapPayloads,
