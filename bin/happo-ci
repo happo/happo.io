@@ -7,13 +7,13 @@
 set -eou pipefail
 
 # Initialize optional env variables
-POST_INSTALL_CMD=${POST_INSTALL_CMD:-}
+INSTALL_CMD=${INSTALL_CMD:-}
 
 echo "Using the following ENV variables:"
 echo "PREVIOUS_SHA: ${PREVIOUS_SHA}"
 echo "CURRENT_SHA: ${CURRENT_SHA}"
 echo "CHANGE_URL: ${CHANGE_URL}"
-echo "POST_INSTALL_CMD: ${POST_INSTALL_CMD}"
+echo "INSTALL_CMD: ${INSTALL_CMD}"
 
 NPM_CLIENT="npm"
 if [ -f "yarn.lock" ]; then
@@ -28,10 +28,13 @@ run-happo() {
 
   # Install dependencies (again, since we're potentially in a different place in
   # git history)
-  ${NPM_CLIENT} install
-
-  # Run post-install command(s)
-  eval "$POST_INSTALL_CMD"
+  if [ -z "$INSTALL_CMD" ]; then
+    # Run yarn/npm install
+    ${NPM_CLIENT} install
+  else
+    # Run custom install command(s)
+    eval "$INSTALL_CMD"
+  fi
 
   if [ -f "${NPM_BIN}/happo" ]; then
     "$NPM_BIN"/happo run "$SHA" \
