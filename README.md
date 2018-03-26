@@ -148,15 +148,15 @@ These scripts will all:
 
 These scripts will detect your npm client (yarn or npm) and run `npm
 install`/`yarn install` before running happo on the commits. If you have other
-dependencies/preprocessing steps that need to happen, you can provide a command
-in the `POST_INSTALL_CMD` environment variable. E.g.
+dependencies/preprocessing steps that need to happen, you can override this
+with the `INSTALL_CMD` environment variable. E.g.
 
 ```bash
-POST_INSTALL_COMMAND="lerna bootstrap" npm run happo-ci-travis
+INSTALL_CMD="lerna bootstrap" npm run happo-ci-travis
 ```
 
 In this example, the `lerna bootstrap` command will be invoked before running
-`happo run` on each commit.
+`happo run` on each commit, instead of `yarn install`/`npm install`.
 
 ### `happo-ci-travis`
 
