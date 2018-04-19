@@ -45,11 +45,13 @@
     "commander": "^2.11.0",
     "glob": "^7.1.2",
     "jsdom": "^11.2.0",
+    "jsdom-global": "^3.0.2",
     "jsonwebtoken": "^8.0.1",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.4",
     "require-relative": "^0.8.7",
-    "webpack": "^3.5.5"
+    "webpack": "^3.5.5",
+    "webpack-node-externals": "^1.7.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

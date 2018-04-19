@@ -3,6 +3,7 @@ import path from 'path';
 
 import requireRelative from 'require-relative';
 import webpack from 'webpack';
+import webpackNodeExternals from 'webpack-node-externals';
 
 const OUTFILE = 'happo.js';
 
@@ -14,18 +15,17 @@ export default function createWebpackBundle(entry, { customizeWebpackConfig }, {
     resolve: {
       extensions: ['*', '.js', '.jsx', '.json'],
     },
-    externals: {
-      'react': 'window.React',
-      'react-dom': 'window.ReactDOM',
-    },
+    externals: [webpackNodeExternals()],
+    devtool: 'inline-cheap-module-source-map',
     output: {
       filename: OUTFILE,
-      path: os.tmpdir(),
+      path: process.cwd(),
     },
+    target: 'node',
   });
 
   const compiler = webpack(config);
-  const bundleFilePath = path.join(os.tmpdir(), OUTFILE);
+  const bundleFilePath = path.join(process.cwd(), OUTFILE);
 
   if (onBuildReady) {
     // We're in watch/dev mode

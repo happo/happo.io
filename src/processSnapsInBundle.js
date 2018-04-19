@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-import { JSDOM } from 'jsdom';
+import jsdomGlobal from 'jsdom-global';
 
 import createHash from './createHash';
 import extractCSS from './extractCSS';
@@ -8,24 +8,23 @@ import getComponentNameFromFileName from './getComponentNameFromFileName';
 import inlineResources from './inlineResources';
 import queued from './queued';
 
-async function renderExample(dom, renderMethod) {
-  const doc = dom.window.document;
-  doc.body.innerHTML = '';
-  const rootElement = doc.createElement('div');
-  doc.body.appendChild(rootElement);
+const ROOT_ELEMENT_ID = 'happo-root';
+
+async function renderExample(renderMethod) {
+  document.body.innerHTML = '';
+  const rootElement = document.createElement('div');
+  rootElement.setAttribute('id', ROOT_ELEMENT_ID);
+  document.body.appendChild(rootElement);
 
   const renderInDOM = (reactComponent) => {
     if (typeof reactComponent === 'string') {
       throw new Error('Component is a string');
     }
-    dom.window.reactComponent = reactComponent;
-    dom.window.rootElement = rootElement;
-    dom.window.eval(`
-      ReactDOM.render(window.reactComponent, window.rootElement);
-    `);
+    const ReactDOM = require('react-dom');
+    ReactDOM.render(reactComponent, rootElement);
   }
 
-  const result = renderMethod(renderInDOM, dom.window.document);
+  const result = renderMethod(renderInDOM);
   if (typeof result.then === 'function') {
     // this is a promise
     return await result;
@@ -33,7 +32,6 @@ async function renderExample(dom, renderMethod) {
   renderInDOM(result);
 }
 async function processVariants({
-  dom,
   component,
   variants,
   onlyComponent,
@@ -51,13 +49,13 @@ async function processVariants({
       // Ignore those that aren't functions.
       return;
     }
-    await renderExample(dom, renderFunc);
+    await renderExample(renderFunc);
 
     if (publicFolders && publicFolders.length) {
-      inlineResources(dom, { publicFolders });
+      inlineResources({ publicFolders });
     }
-    const root = (getRootElement && getRootElement(dom.window.document))
-      || dom.window.rootElement;
+    const root = (getRootElement && getRootElement(document))
+      || document.getElementById(ROOT_ELEMENT_ID);
     const html = root.innerHTML.trim();
     return {
       html,
@@ -79,10 +77,9 @@ export default async function processSnapsInBundle(webpackBundle, {
   viewport,
 }) {
   const [ width, height ] = viewport.split('x').map((s) => parseInt(s, 10));
-  const dom = new JSDOM(
+  const cleanupDOM = jsdomGlobal(
     '<!DOCTYPE html><head></head><body></body></html>',
     {
-      runScripts: 'outside-only',
       beforeParse(win) {
         const pxHeight = parseInt()
         win.outerWidth = win.innerWidth = width;
@@ -97,9 +94,9 @@ export default async function processSnapsInBundle(webpackBundle, {
     }
   );
 
-  // Parse and execute the webpack bundle in a jsdom environment
-  const bundleContent = fs.readFileSync(webpackBundle, { encoding: 'utf-8' });
-  dom.window.eval(bundleContent);
+  // Parse and execute the webpack bundle
+  require(webpackBundle);
+  const { snaps } = global;
 
   const result = {
     snapPayloads: [],
@@ -107,12 +104,11 @@ export default async function processSnapsInBundle(webpackBundle, {
 
   const onlyComponent = only ? only.split('#')[1] : undefined;
 
-  await queued(Object.keys(dom.window.snaps), async (fileName) => {
-    const objectOrArray = dom.window.snaps[fileName];
+  await queued(Object.keys(snaps), async (fileName) => {
+    const objectOrArray = snaps[fileName];
     if (Array.isArray(objectOrArray)) {
       await queued(objectOrArray, async ({ component, variants }) => {
         const processedVariants = await processVariants({
-          dom,
           component,
           variants,
           onlyComponent,
@@ -124,7 +120,6 @@ export default async function processSnapsInBundle(webpackBundle, {
     } else {
       const component = getComponentNameFromFileName(fileName);
       const processedVariants = await processVariants({
-        dom,
         component,
         variants: objectOrArray,
         onlyComponent,
@@ -135,7 +130,7 @@ export default async function processSnapsInBundle(webpackBundle, {
     }
   });
 
-  result.globalCSS = globalCSS + extractCSS(dom);
-  dom.window.close();
+  result.globalCSS = globalCSS + extractCSS();
+  cleanupDOM();
   return result;
 }

@@ -1,8 +1,19 @@
 import path from 'path';
 
-import { JSDOM } from 'jsdom';
-
 import inlineResources from '../src/inlineResources';
+
+let html;
+let subject;
+
+beforeEach(() => {
+  html = '';
+
+  subject = () => {
+    document.body.innerHTML = html;
+    inlineResources({ publicFolders });
+    return document.body.innerHTML;
+  };
+});
 
 const publicFolders = [
   path.resolve(__dirname, 'non-existant'),
@@ -15,44 +26,31 @@ const svgb64 = 'data:image/svg+xml;charset=utf-8;base64,PHN2ZyB2aWV3Qm94PSIwIDAg
 
 const jpgb64 = 'data:image/jpg;charset=utf-8;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDAREAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAACv/EABQQAQAAAAAAAAAAAAAAAAAAAAD/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AfwD/2Q==';
 
-function createDom(html) {
-  return new JSDOM(`
-    <body>
-      <div id="happo-root">
-        ${html}
-      </div>
-    </body>
-  `);
-}
-
 it('inlines images that can be found', () => {
-  const dom = createDom('<img src="/1x1.png">');
-  expect(inlineResources(dom, { publicFolders })).toEqual(
-    `<img src="${pngb64}">`);
+  html = '<img src="/1x1.png">';
+  expect(subject()).toEqual(`<img src="${pngb64}">`);
 });
 
 it('inlines svg', () => {
-  const dom = createDom('<img src="/circle.svg">');
-  expect(inlineResources(dom, { publicFolders })).toEqual(
-    `<img src="${svgb64}">`);
+  html = '<img src="/circle.svg">';
+  expect(subject()).toEqual(`<img src="${svgb64}">`);
 });
 
 it('inlines jpg', () => {
-  const dom = createDom('<img src="/1x1.jpg">');
-  expect(inlineResources(dom, { publicFolders })).toEqual(
-    `<img src="${jpgb64}">`);
+  html = '<img src="/1x1.jpg">';
+  expect(subject()).toEqual(`<img src="${jpgb64}">`);
 });
 
 it('inlines multiple images', () => {
-  const dom = createDom(`
+  html = `
     <div>
       <img src="/1x1.jpg">
       <img src="/1x1.png">
       <img src="/circle.svg">
       <img src="/1x1.jpg">
     </div>
-  `);
-  expect(inlineResources(dom, { publicFolders })).toEqual(`
+  `.trim();
+  expect(subject()).toEqual(`
     <div>
       <img src="${jpgb64}">
       <img src="${pngb64}">
@@ -63,19 +61,16 @@ it('inlines multiple images', () => {
 });
 
 it('leaves images that can not be found alone', () => {
-  const dom = createDom('<img src="/2x2.png">');
-  expect(inlineResources(dom, { publicFolders })).toEqual(
-    '<img src="/2x2.png">');
+  html = '<img src="/2x2.png">';
+  expect(subject()).toEqual('<img src="/2x2.png">');
 });
 
 it('handles files in folders that do not exist', () => {
-  const dom = createDom('<img src="/inlineResources/1x1.png">');
-  expect(inlineResources(dom, { publicFolders })).toEqual(
-    '<img src="/inlineResources/1x1.png">');
+  html = '<img src="/inlineResources/1x1.png">';
+  expect(subject()).toEqual('<img src="/inlineResources/1x1.png">');
 });
 
 it('leaves src if it does not start with a slash', () => {
-  const dom = createDom('<img src="1x1.png">');
-  expect(inlineResources(dom, { publicFolders })).toEqual(
-    '<img src="1x1.png">');
+  html = '<img src="1x1.png">';
+  expect(subject()).toEqual('<img src="1x1.png">');
 });
