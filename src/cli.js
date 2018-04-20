@@ -106,7 +106,6 @@ process.on('SIGINT', cleanup.bind(null, 0)); // ctrl-c
 process.on('SIGTERM', cleanup.bind(null, 1)); // kill <pid>
 process.on('SIGUSR1', cleanup.bind(null, 1)); // kill <pid>
 process.on('SIGUSR2', cleanup.bind(null, 1)); // kill <pid>
-process.on('uncaughtException', cleanup.bind(null, 1));
 
 process.on('unhandledRejection', error => {
   console.error(error.stack);
