@@ -19,7 +19,7 @@ export default async function domRunner({
   targets,
   publicFolders,
   getRootElement,
-  render,
+  type,
 }, { only, onReady }
 ) {
   async function readyHandler(bundleFile, logger = defaultLogger) {
@@ -33,7 +33,6 @@ export default async function domRunner({
         getRootElement,
         only,
         viewport: targets[name].viewport,
-        render,
       });
       if (!snapPayloads.length) {
         throw new Error('No examples found');
@@ -52,7 +51,7 @@ export default async function domRunner({
   }
 
   console.log('Initializing...');
-  const entryFile = await createDynamicEntryPoint({ setupScript, include, only });
+  const entryFile = await createDynamicEntryPoint({ setupScript, include, only, type });
 
   if (onReady) {
     let currentBuildPromise;

@@ -8,7 +8,7 @@ import queued from './queued';
 
 const ROOT_ELEMENT_ID = 'happo-root';
 
-async function renderExample(dom, exampleRenderFunc, render) {
+async function renderExample(dom, exampleRenderFunc) {
   const doc = dom.window.document;
   doc.body.innerHTML = '';
   const rootElement = doc.createElement('div');
@@ -16,7 +16,7 @@ async function renderExample(dom, exampleRenderFunc, render) {
   doc.body.appendChild(rootElement);
 
   const renderInDom = (renderResult) => {
-    render(renderResult, { rootElement, document: doc });
+    dom.window.happoRender(renderResult, { rootElement });
   }
 
   const result = exampleRenderFunc(renderInDom);
@@ -28,13 +28,13 @@ async function renderExample(dom, exampleRenderFunc, render) {
   renderInDom(result);
 }
 async function processVariants({
+  fileName,
   dom,
   component,
   variants,
   onlyComponent,
   publicFolders,
   getRootElement,
-  render,
 }) {
   if (onlyComponent && onlyComponent !== component) {
     return [];
@@ -47,7 +47,12 @@ async function processVariants({
       // Ignore those that aren't functions.
       return;
     }
-    await renderExample(dom, exampleRenderFunc, render);
+    try {
+      await renderExample(dom, exampleRenderFunc);
+    } catch (e) {
+      console.error(`Error in ${fileName}:\nFailed to render component "${component}", variant "${variant}"`);
+      throw e;
+    }
 
     if (publicFolders && publicFolders.length) {
       inlineResources(dom, { publicFolders });
@@ -74,7 +79,6 @@ export default async function processSnapsInBundle(webpackBundle, {
   publicFolders,
   getRootElement,
   viewport,
-  render,
 }) {
   const [ width, height ] = viewport.split('x').map((s) => parseInt(s, 10));
   const dom = new JSDOM(
@@ -117,26 +121,26 @@ export default async function processSnapsInBundle(webpackBundle, {
     if (Array.isArray(objectOrArray)) {
       await queued(objectOrArray, async ({ component, variants }) => {
         const processedVariants = await processVariants({
+          fileName,
           dom,
           component,
           variants,
           onlyComponent,
           publicFolders,
           getRootElement,
-          render,
         });
         result.snapPayloads.push(...processedVariants);
       });
     } else {
       const component = getComponentNameFromFileName(fileName);
       const processedVariants = await processVariants({
+        fileName,
         dom,
         component,
         variants: objectOrArray,
         onlyComponent,
         publicFolders,
         getRootElement,
-        render,
       });
       result.snapPayloads.push(...processedVariants);
     }

@@ -424,6 +424,11 @@ different naming scheme, e.g. `**/*-examples.js`.
 If you rely on externally loaded stylesheets, list their URLs in this config
 option, e.g. `['http://cdn/style.css']`.
 
+### `type`
+
+Either `react` or `plain`. Decides what strategy happo will use when rendering
+examples.
+
 ### `targets`
 
 This is where you specify the browsers you want to be part of your happo run. E.g.
