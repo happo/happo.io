@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-import jsdomGlobal from 'jsdom-global';
+import { JSDOM } from 'jsdom';
 
 import createHash from './createHash';
 import extractCSS from './extractCSS';
@@ -10,14 +10,15 @@ import queued from './queued';
 
 const ROOT_ELEMENT_ID = 'happo-root';
 
-async function renderExample(exampleRenderFunc, render) {
-  document.body.innerHTML = '';
-  const rootElement = document.createElement('div');
+async function renderExample(dom, exampleRenderFunc, render) {
+  const doc = dom.window.document;
+  doc.body.innerHTML = '';
+  const rootElement = doc.createElement('div');
   rootElement.setAttribute('id', ROOT_ELEMENT_ID);
-  document.body.appendChild(rootElement);
+  doc.body.appendChild(rootElement);
 
   const renderInDom = (renderResult) => {
-    render(renderResult, { rootElement });
+    render(renderResult, { rootElement, document: doc });
   }
 
   const result = exampleRenderFunc(renderInDom);
@@ -29,6 +30,7 @@ async function renderExample(exampleRenderFunc, render) {
   renderInDom(result);
 }
 async function processVariants({
+  dom,
   component,
   variants,
   onlyComponent,
@@ -47,13 +49,14 @@ async function processVariants({
       // Ignore those that aren't functions.
       return;
     }
-    await renderExample(exampleRenderFunc, render);
+    await renderExample(dom, exampleRenderFunc, render);
 
     if (publicFolders && publicFolders.length) {
-      inlineResources({ publicFolders });
+      inlineResources(dom, { publicFolders });
     }
-    const root = (getRootElement && getRootElement(document))
-      || document.getElementById(ROOT_ELEMENT_ID) || document.body;
+    const doc = dom.window.document;
+    const root = (getRootElement && getRootElement(doc))
+      || doc.getElementById(ROOT_ELEMENT_ID) || doc.body;
     const html = root.innerHTML.trim();
     return {
       html,
@@ -76,9 +79,10 @@ export default async function processSnapsInBundle(webpackBundle, {
   render,
 }) {
   const [ width, height ] = viewport.split('x').map((s) => parseInt(s, 10));
-  const cleanupDOM = jsdomGlobal(
+  const dom = new JSDOM(
     '<!DOCTYPE html><head></head><body></body></html>',
     {
+      runScripts: 'outside-only',
       beforeParse(win) {
         win.outerWidth = win.innerWidth = width;
         win.outerHeight = win.innerHeight = height;
@@ -92,9 +96,9 @@ export default async function processSnapsInBundle(webpackBundle, {
     }
   );
 
-  // Parse and execute the webpack bundle
-  require(webpackBundle);
-  const { snaps } = global;
+  // Parse and execute the webpack bundle in a jsdom environment
+  const bundleContent = fs.readFileSync(webpackBundle, { encoding: 'utf-8' });
+  dom.window.eval(bundleContent);
 
   const result = {
     snapPayloads: [],
@@ -102,11 +106,12 @@ export default async function processSnapsInBundle(webpackBundle, {
 
   const onlyComponent = only ? only.split('#')[1] : undefined;
 
-  await queued(Object.keys(snaps), async (fileName) => {
-    const objectOrArray = snaps[fileName];
+  await queued(Object.keys(dom.window.snaps), async (fileName) => {
+    const objectOrArray = dom.window.snaps[fileName];
     if (Array.isArray(objectOrArray)) {
       await queued(objectOrArray, async ({ component, variants }) => {
         const processedVariants = await processVariants({
+          dom,
           component,
           variants,
           onlyComponent,
@@ -119,6 +124,7 @@ export default async function processSnapsInBundle(webpackBundle, {
     } else {
       const component = getComponentNameFromFileName(fileName);
       const processedVariants = await processVariants({
+        dom,
         component,
         variants: objectOrArray,
         onlyComponent,
@@ -130,7 +136,7 @@ export default async function processSnapsInBundle(webpackBundle, {
     }
   });
 
-  result.globalCSS = globalCSS + extractCSS();
-  cleanupDOM();
+  result.globalCSS = globalCSS + extractCSS(dom);
+  dom.window.close();
   return result;
 }

@@ -14,11 +14,11 @@ export default function createDynamicEntryPoint({ setupScript, include, only }) 
     // console.log(`Found ${files.length} files.`);
     const strings = [
       (setupScript ? `require('${setupScript}');` : ''),
-      'global.snaps = {};',
+      'window.snaps = {};',
       `window.happoFlags = { only: ${JSON.stringify(only)} }`,
     ].concat(
       files.filter((f) => filePartOfOnly ? f.includes(filePartOfOnly) : true).map(file =>
-        `global.snaps['${file}'] = require('${path.join(process.cwd(), file)}');`
+        `window.snaps['${file}'] = require('${path.join(process.cwd(), file)}');`
       ),
     );
     fs.writeFileSync(TMP_FILE, strings.join('\n'));

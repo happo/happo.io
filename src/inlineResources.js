@@ -16,8 +16,8 @@ function fileToBase64(src, { publicFolders }) {
   }
 }
 
-export default function inlineResources({ publicFolders }) {
-  const imgs = document.querySelectorAll('img[src]');
+export default function inlineResources(dom, { publicFolders }) {
+  const imgs = dom.window.document.querySelectorAll('img[src]');
   imgs.forEach((img) => {
     const src = img.getAttribute('src');
     if (!src.startsWith('/')) {
@@ -29,4 +29,7 @@ export default function inlineResources({ publicFolders }) {
       img.setAttribute('src', base64);
     }
   });
+
+  // return something to make it easier to test
+  return dom.window.document.querySelector('body *').innerHTML.trim();
 }

@@ -3,9 +3,8 @@ import path from 'path';
 
 import requireRelative from 'require-relative';
 import webpack from 'webpack';
-import webpackNodeExternals from 'webpack-node-externals';
 
-export const OUTFILE = 'tmp-happo-webpack-bundle.js';
+const OUTFILE = 'tmp-happo-webpack-bundle.js';
 
 export default function createWebpackBundle(entry, { customizeWebpackConfig }, {
   onBuildReady,
@@ -15,17 +14,14 @@ export default function createWebpackBundle(entry, { customizeWebpackConfig }, {
     resolve: {
       extensions: ['*', '.js', '.jsx', '.json'],
     },
-    externals: [webpackNodeExternals()],
-    devtool: 'inline-cheap-module-source-map',
     output: {
       filename: OUTFILE,
-      path: process.cwd(),
+      path: os.tmpdir(),
     },
-    target: 'node',
   });
 
   const compiler = webpack(config);
-  const bundleFilePath = path.join(process.cwd(), OUTFILE);
+  const bundleFilePath = path.join(os.tmpdir(), OUTFILE);
 
   if (onBuildReady) {
     // We're in watch/dev mode
