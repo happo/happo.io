@@ -5,6 +5,7 @@ export const include = '**/@(*-happo|happo).@(js|jsx)';
 export const stylesheets = [];
 export const targets = {};
 export const configFile = './.happo.js';
+export const render = () => null;
 export const hooks = {
   run: domRunner,
   finish: (result) => {
