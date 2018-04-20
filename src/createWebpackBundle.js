@@ -4,7 +4,7 @@ import path from 'path';
 import requireRelative from 'require-relative';
 import webpack from 'webpack';
 
-const OUTFILE = 'tmp-happo-webpack-bundle.js';
+const OUTFILE = `happo-bundle-${Buffer.from(process.cwd()).toString('base64')}.js`;
 
 export default function createWebpackBundle(entry, { customizeWebpackConfig }, {
   onBuildReady,

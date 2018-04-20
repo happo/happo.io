@@ -6,7 +6,10 @@ import requireRelative from 'require-relative';
 
 import findTestFiles from './findTestFiles';
 
-const TMP_FILE = path.join(os.tmpdir(), 'happoEntry.js');
+const TMP_FILE = path.join(
+  os.tmpdir(),
+  `happo-entry-${Buffer.from(process.cwd()).toString('base64')}.js`,
+);
 
 export default function createDynamicEntryPoint({ setupScript, include, only }) {
   return findTestFiles(include).then(files => {
