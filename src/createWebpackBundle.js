@@ -5,7 +5,7 @@ import requireRelative from 'require-relative';
 import webpack from 'webpack';
 import webpackNodeExternals from 'webpack-node-externals';
 
-const OUTFILE = 'happo.js';
+export const OUTFILE = 'tmp-happo-webpack-bundle.js';
 
 export default function createWebpackBundle(entry, { customizeWebpackConfig }, {
   onBuildReady,

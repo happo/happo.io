@@ -1,5 +1,7 @@
 import glob from 'glob';
 
+import { OUTFILE } from './createWebpackBundle';
+
 export default function findTestFiles(pattern) {
   return new Promise((resolve, reject) => {
     glob(
@@ -9,6 +11,7 @@ export default function findTestFiles(pattern) {
           '**/node_modules/**',
           '**/dist/**',
           '**/build/**',
+          OUTFILE,
         ],
       },
       (err, files) => {

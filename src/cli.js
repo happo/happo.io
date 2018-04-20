@@ -2,16 +2,19 @@
 
 import 'babel-polyfill';
 
+import fs from 'fs';
+
 import commander from 'commander';
 
+import { OUTFILE } from './createWebpackBundle';
 import { configFile } from './DEFAULTS';
-import hasReportCommand from './commands/hasReport';
+import compareReportsCommand from './commands/compareReports';
+import devCommand from './commands/dev';
 import generateDevSha from './generateDevSha';
+import hasReportCommand from './commands/hasReport';
 import loadUserConfig from './loadUserConfig';
 import packageJson from '../package.json';
-import compareReportsCommand from './commands/compareReports';
 import runCommand from './commands/run';
-import devCommand from './commands/dev';
 
 commander
   .version(packageJson.version)
@@ -85,6 +88,25 @@ commander
 if (!process.argv.slice(2).length) {
   commander.help();
 }
+
+function cleanup(exitCode) {
+  try {
+    fs.unlinkSync(OUTFILE);
+  } catch (e) {
+    if (e.code !== 'ENOENT') {
+      throw new Error(`Failed to remove ${OUTFILE}`, e);
+    }
+  }
+  if (typeof exitCode !== 'undefined') {
+     process.exit(exitCode);
+  }
+}
+process.on('exit', cleanup.bind(null, undefined));
+process.on('SIGINT', cleanup.bind(null, 0)); // ctrl-c
+process.on('SIGTERM', cleanup.bind(null, 1)); // kill <pid>
+process.on('SIGUSR1', cleanup.bind(null, 1)); // kill <pid>
+process.on('SIGUSR2', cleanup.bind(null, 1)); // kill <pid>
+process.on('uncaughtException', cleanup.bind(null, 1));
 
 process.on('unhandledRejection', error => {
   console.error(error.stack);
