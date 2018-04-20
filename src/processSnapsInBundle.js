@@ -1,5 +1,3 @@
-import fs from 'fs';
-
 import { JSDOM } from 'jsdom';
 
 import createHash from './createHash';
@@ -80,9 +78,19 @@ export default async function processSnapsInBundle(webpackBundle, {
 }) {
   const [ width, height ] = viewport.split('x').map((s) => parseInt(s, 10));
   const dom = new JSDOM(
-    '<!DOCTYPE html><head></head><body></body></html>',
+    `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <script src='${webpackBundle}'></script>
+        </head>
+        <body>
+        </body>
+      </html>
+    `.trim(),
     {
-      runScripts: 'outside-only',
+      runScripts: 'dangerously',
+      resources: 'usable',
       beforeParse(win) {
         win.outerWidth = win.innerWidth = width;
         win.outerHeight = win.innerHeight = height;
@@ -96,9 +104,7 @@ export default async function processSnapsInBundle(webpackBundle, {
     }
   );
 
-  // Parse and execute the webpack bundle in a jsdom environment
-  const bundleContent = fs.readFileSync(webpackBundle, { encoding: 'utf-8' });
-  dom.window.eval(bundleContent);
+  await new Promise((resolve) => dom.window.onBundleReady = resolve);
 
   const result = {
     snapPayloads: [],

@@ -21,6 +21,7 @@ export default function createDynamicEntryPoint({ setupScript, include, only }) 
         `window.snaps['${file}'] = require('${path.join(process.cwd(), file)}');`
       ),
     );
+    strings.push('window.onBundleReady();');
     fs.writeFileSync(TMP_FILE, strings.join('\n'));
     return TMP_FILE;
   });
