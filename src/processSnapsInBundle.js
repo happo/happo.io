@@ -21,7 +21,7 @@ async function renderExample(exampleRenderFunc, render) {
   }
 
   const result = exampleRenderFunc(renderInDom);
-  if (typeof result.then === 'function') {
+  if (result && typeof result.then === 'function') {
     // this is a promise
     await result;
     return;
