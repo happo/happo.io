@@ -53,7 +53,7 @@ async function processVariants({
       inlineResources({ publicFolders });
     }
     const root = (getRootElement && getRootElement(document))
-      || document.getElementById(ROOT_ELEMENT_ID);
+      || document.getElementById(ROOT_ELEMENT_ID) || document.body;
     const html = root.innerHTML.trim();
     return {
       html,
