@@ -19,7 +19,8 @@ export default async function reactDOMRunner({
   targets,
   publicFolders,
   getRootElement,
-}, {only, onReady }
+  render,
+}, { only, onReady }
 ) {
   async function readyHandler(bundleFile, logger = defaultLogger) {
     const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
@@ -32,6 +33,7 @@ export default async function reactDOMRunner({
         getRootElement,
         only,
         viewport: targets[name].viewport,
+        render,
       });
       if (!snapPayloads.length) {
         throw new Error('No examples found');

@@ -36,6 +36,7 @@ targets. One at 1024 x 768 screen ("desktop") and one on a 320 x 640 screen
 
 ```js
 const { RemoteBrowserTarget } = require('happo.io');
+const ReactDOM = require('react-dom');
 
 module.exports = {
   // It's good practice to never store API tokens directly in the config file.
@@ -50,6 +51,10 @@ module.exports = {
     'firefox-mobile': new RemoteBrowserTarget('firefox', {
       viewport: '320x640',
     }),
+  },
+
+  render: (component, { rootElement }) => {
+    ReactDOM.render(component, rootElement);
   },
 };
 ```

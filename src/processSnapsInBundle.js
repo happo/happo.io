@@ -10,26 +10,23 @@ import queued from './queued';
 
 const ROOT_ELEMENT_ID = 'happo-root';
 
-async function renderExample(renderMethod) {
+async function renderExample(exampleRenderFunc, render) {
   document.body.innerHTML = '';
   const rootElement = document.createElement('div');
   rootElement.setAttribute('id', ROOT_ELEMENT_ID);
   document.body.appendChild(rootElement);
 
-  const renderInDOM = (reactComponent) => {
-    if (typeof reactComponent === 'string') {
-      throw new Error('Component is a string');
-    }
-    const ReactDOM = require('react-dom');
-    ReactDOM.render(reactComponent, rootElement);
+  const renderInDom = (renderResult) => {
+    render(renderResult, { rootElement });
   }
 
-  const result = renderMethod(renderInDOM);
+  const result = exampleRenderFunc(renderInDom);
   if (typeof result.then === 'function') {
     // this is a promise
-    return await result;
+    await result;
+    return;
   }
-  renderInDOM(result);
+  renderInDom(result);
 }
 async function processVariants({
   component,
@@ -37,19 +34,20 @@ async function processVariants({
   onlyComponent,
   publicFolders,
   getRootElement,
+  render,
 }) {
   if (onlyComponent && onlyComponent !== component) {
     return [];
   }
   const result = await queued(Object.keys(variants), async (variant) => {
     const hash = createHash(`${component}|${variant}`);
-    const renderFunc = variants[variant];
-    if (typeof renderFunc !== 'function') {
+    const exampleRenderFunc = variants[variant];
+    if (typeof exampleRenderFunc !== 'function') {
       // Some babel loaders add additional properties to the exports.
       // Ignore those that aren't functions.
       return;
     }
-    await renderExample(renderFunc);
+    await renderExample(exampleRenderFunc, render);
 
     if (publicFolders && publicFolders.length) {
       inlineResources({ publicFolders });
@@ -75,6 +73,7 @@ export default async function processSnapsInBundle(webpackBundle, {
   publicFolders,
   getRootElement,
   viewport,
+  render,
 }) {
   const [ width, height ] = viewport.split('x').map((s) => parseInt(s, 10));
   const cleanupDOM = jsdomGlobal(
@@ -114,6 +113,7 @@ export default async function processSnapsInBundle(webpackBundle, {
           onlyComponent,
           publicFolders,
           getRootElement,
+          render,
         });
         result.snapPayloads.push(...processedVariants);
       });
@@ -125,6 +125,7 @@ export default async function processSnapsInBundle(webpackBundle, {
         onlyComponent,
         publicFolders,
         getRootElement,
+        render,
       });
       result.snapPayloads.push(...processedVariants);
     }
