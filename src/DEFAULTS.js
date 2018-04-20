@@ -1,4 +1,4 @@
-import reactDOMRunner from './reactDOMRunner';
+import domRunner from './domRunner';
 
 export const endpoint = 'https://happo.io';
 export const include = '**/@(*-happo|happo).@(js|jsx)';
@@ -6,7 +6,7 @@ export const stylesheets = [];
 export const targets = {};
 export const configFile = './.happo.js';
 export const hooks = {
-  run: reactDOMRunner,
+  run: domRunner,
   finish: (result) => {
     console.log(result);
   }

@@ -8,7 +8,7 @@ function defaultLogger(message) {
   console.log(message);
 }
 
-export default async function reactDOMRunner({
+export default async function domRunner({
   apiKey,
   apiSecret,
   setupScript,
