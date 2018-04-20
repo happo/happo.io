@@ -13,7 +13,6 @@ export default function createDynamicEntryPoint({ setupScript, include, only }) 
     const filePartOfOnly = only ? only.split('#')[0] : undefined;
     // console.log(`Found ${files.length} files.`);
     const strings = [
-      'require("source-map-support").install();',
       (setupScript ? `require('${setupScript}');` : ''),
       'global.snaps = {};',
       `window.happoFlags = { only: ${JSON.stringify(only)} }`,

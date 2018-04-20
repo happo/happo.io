@@ -80,7 +80,6 @@ export default async function processSnapsInBundle(webpackBundle, {
     '<!DOCTYPE html><head></head><body></body></html>',
     {
       beforeParse(win) {
-        const pxHeight = parseInt()
         win.outerWidth = win.innerWidth = width;
         win.outerHeight = win.innerHeight = height;
         Object.defineProperties(win.screen, {
