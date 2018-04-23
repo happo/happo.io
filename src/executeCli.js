@@ -85,5 +85,5 @@ export default function executeCli(argv) {
     commander.help();
     return;
   }
-  commander.parse(argv);
+  return commander.parse(argv);
 }
