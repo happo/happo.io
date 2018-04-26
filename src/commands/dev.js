@@ -1,4 +1,5 @@
 import compareReportsCommand from './compareReports';
+import domRunner from '../domRunner';
 import generateDevSha from '../generateDevSha';
 import uploadReport from '../uploadReport';
 
@@ -7,12 +8,9 @@ export default async function devCommand(config, { only }) {
     apiKey,
     apiSecret,
     endpoint,
-    hooks: {
-      run,
-    },
   } = config;
   let baselineSha;
-  run(config, {
+  domRunner(config, {
     only,
     onReady: async (snaps) => {
       const sha = generateDevSha();

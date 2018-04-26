@@ -1,3 +1,4 @@
+import domRunner from '../domRunner';
 import uploadReport from '../uploadReport';
 
 export default async function runCommand(sha, config, { only, link, message }) {
@@ -5,11 +6,8 @@ export default async function runCommand(sha, config, { only, link, message }) {
     apiKey,
     apiSecret,
     endpoint,
-    hooks: {
-      run,
-    },
   } = config;
-  const snaps = await run(config, { only });
+  const snaps = await domRunner(config, { only });
   console.log(`Uploading report for ${sha}...`);
   const { url } = await uploadReport({
     snaps,
