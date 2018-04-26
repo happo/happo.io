@@ -9,4 +9,5 @@ module.exports = {
   },
   declarationKeyword: 'import',
   importDevDependencies: true,
+  globals: ['jest'],
 };

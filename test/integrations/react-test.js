@@ -1,5 +1,3 @@
-import jest from 'jest';
-
 import MockTarget from './MockTarget';
 import * as defaultConfig from '../../src/DEFAULTS';
 import makeRequest from '../../src/makeRequest';
