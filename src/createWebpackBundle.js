@@ -1,7 +1,6 @@
 import os from 'os';
 import path from 'path';
 
-import requireRelative from 'require-relative';
 import webpack from 'webpack';
 
 const OUTFILE = `happo-bundle-${Buffer.from(process.cwd()).toString('base64')}.js`;
@@ -64,7 +63,7 @@ export default function createWebpackBundle(
 
   // We're not in watch/dev mode
   return new Promise((resolve, reject) => {
-    compiler.run((err, stats) => {
+    compiler.run((err) => {
       if (err) {
         reject(err);
         return;

@@ -107,7 +107,9 @@ export default async function processSnapsInBundle(
     },
   );
 
-  await new Promise((resolve) => (dom.window.onBundleReady = resolve));
+  await new Promise((resolve) => {
+    dom.window.onBundleReady = resolve;
+  });
 
   const result = {
     snapPayloads: [],

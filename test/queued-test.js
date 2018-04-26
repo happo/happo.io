@@ -7,7 +7,7 @@ it('returns items in order', async () => {
 
 it('rejects when one fails', async () => {
   try {
-    const result = await queued([1, 2, 3], () => Promise.reject(new Error('foo')));
+    await queued([1, 2, 3], () => Promise.reject(new Error('foo')));
     expect(true).toBe(false); // shouldn't be here
   } catch (e) {
     expect(e.message).toEqual('foo');

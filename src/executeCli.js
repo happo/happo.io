@@ -1,5 +1,3 @@
-import fs from 'fs';
-
 import commander from 'commander';
 
 import { configFile } from './DEFAULTS';
@@ -41,7 +39,7 @@ commander
 commander
   .command('dev')
   .description('start dev mode')
-  .action(async (sha) => {
+  .action(async () => {
     await devCommand(loadUserConfig(commander.config), {
       only: commander.only,
     });

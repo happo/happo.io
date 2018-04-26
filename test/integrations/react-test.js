@@ -1,11 +1,8 @@
-import RemoteBrowserTarget from '../../src/RemoteBrowserTarget';
-import domRunner from '../../src/domRunner';
+import jest from 'jest';
+
+import * as defaultConfig from '../../src/DEFAULTS';
 import makeRequest from '../../src/makeRequest';
 import runCommand from '../../src/commands/run';
-import * as defaultConfig from '../../src/DEFAULTS';
-
-const babelLoader = require.resolve('babel-loader');
-const babelPresetReact = require.resolve('babel-preset-react');
 
 process.on('unhandledRejection', (error) => {
   console.error(error.stack);
@@ -28,7 +25,6 @@ class MockTarget {
 let subject;
 let config;
 let sha;
-let target;
 
 beforeEach(() => {
   makeRequest.mockImplementation(() => Promise.resolve({}));
@@ -45,7 +41,6 @@ it('produces the right html', async () => {
   expect(config.targets.chrome.snapPayloads).toEqual([
     {
       component: 'Foo',
-      css: '',
       css: '',
       hash: '78964407b0f7f03d2d8d61c59d631697',
       html: '<button>Click meish</button>',

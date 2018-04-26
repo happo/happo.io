@@ -1,5 +1,3 @@
-import domRunner from './domRunner';
-
 export const endpoint = 'https://happo.io';
 export const include = '**/@(*-happo|happo).@(js|jsx)';
 export const stylesheets = [];
