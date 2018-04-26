@@ -6,11 +6,6 @@ import requireRelative from 'require-relative';
 
 import findTestFiles from './findTestFiles';
 
-const TMP_FILE = path.join(
-  os.tmpdir(),
-  `happo-entry-${Buffer.from(process.cwd()).toString('base64')}.js`,
-);
-
 export default function createDynamicEntryPoint({ setupScript, include, only, type }) {
   return findTestFiles(include).then((files) => {
     const filePartOfOnly = only ? only.split('#')[0] : undefined;
@@ -37,7 +32,12 @@ export default function createDynamicEntryPoint({ setupScript, include, only, ty
       strings.push('window.happoRender = () => null;');
     }
     strings.push('window.onBundleReady();');
-    fs.writeFileSync(TMP_FILE, strings.join('\n'));
-    return TMP_FILE;
+    const tmpFile = path.join(
+      os.tmpdir(),
+      `happo-entry-${type}-${Buffer.from(process.cwd()).toString('base64')}.js`,
+    );
+
+    fs.writeFileSync(tmpFile, strings.join('\n'));
+    return tmpFile;
   });
 }

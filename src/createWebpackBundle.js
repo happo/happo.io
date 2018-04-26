@@ -3,14 +3,13 @@ import path from 'path';
 
 import webpack from 'webpack';
 
-const OUTFILE = `happo-bundle-${Buffer.from(process.cwd()).toString('base64')}.js`;
-
 function generateBaseConfig(entry, type) {
+  const outFile = `happo-bundle-${type}-${Buffer.from(process.cwd()).toString('base64')}.js`;
   const babelLoader = require.resolve('babel-loader');
   const baseConfig = {
     entry,
     output: {
-      filename: OUTFILE,
+      filename: outFile,
       path: os.tmpdir(),
     },
     resolve: {
@@ -45,7 +44,7 @@ export default function createWebpackBundle(
 ) {
   const config = customizeWebpackConfig(generateBaseConfig(entry, type));
   const compiler = webpack(config);
-  const bundleFilePath = path.join(os.tmpdir(), OUTFILE);
+  const bundleFilePath = path.join(config.output.path, config.output.filename);
 
   if (onBuildReady) {
     // We're in watch/dev mode

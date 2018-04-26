@@ -15,6 +15,7 @@ beforeEach(() => {
   config = Object.assign({}, defaultConfig, {
     targets: { firefox: new MockTarget() },
     include: 'test/integrations/examples/*-plain-happo.js*',
+    type: 'plain',
   });
   subject = () => runCommand(sha, config, {});
 });
