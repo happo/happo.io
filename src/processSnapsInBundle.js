@@ -3,6 +3,7 @@ import { JSDOM } from 'jsdom';
 import createHash from './createHash';
 import extractCSS from './extractCSS';
 import getComponentNameFromFileName from './getComponentNameFromFileName';
+import inlineCSSResources from './inlineCSSResources';
 import inlineResources from './inlineResources';
 import queued from './queued';
 
@@ -147,7 +148,7 @@ export default async function processSnapsInBundle(
     }
   });
 
-  result.globalCSS = globalCSS + extractCSS(dom);
+  result.globalCSS = inlineCSSResources(globalCSS + extractCSS(dom), { publicFolders });
   dom.window.close();
   return result;
 }
