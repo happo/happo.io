@@ -28,6 +28,11 @@ function createDom(html) {
   `);
 }
 
+it('does not fail when there are no publicFolders', () => {
+  const dom = createDom('<img src="/1x1.png">');
+  expect(inlineResources(dom, { publicFolders: undefined })).toEqual('<img src="/1x1.png">');
+});
+
 it('inlines images that can be found', () => {
   const dom = createDom('<img src="/1x1.png">');
   expect(inlineResources(dom, { publicFolders })).toEqual(`<img src="${pngb64}">`);
