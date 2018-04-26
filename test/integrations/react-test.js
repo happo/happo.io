@@ -2,6 +2,7 @@ import RemoteBrowserTarget from '../../src/RemoteBrowserTarget';
 import domRunner from '../../src/domRunner';
 import makeRequest from '../../src/makeRequest';
 import runCommand from '../../src/commands/run';
+import * as defaultConfig from '../../src/DEFAULTS';
 
 const babelLoader = require.resolve('babel-loader');
 const babelPresetReact = require.resolve('babel-preset-react');
@@ -32,11 +33,9 @@ let target;
 beforeEach(() => {
   makeRequest.mockImplementation(() => Promise.resolve({}));
   sha = 'foobar';
-  config = {
+  config = Object.assign({}, defaultConfig, {
     targets: { chrome: new MockTarget() },
     include: 'test/integrations/examples/*-happo.js*',
-    stylesheets: [],
-    type: 'react',
 
     customizeWebpackConfig: config => {
       config.module = {
@@ -55,7 +54,7 @@ beforeEach(() => {
       };
       return config;
     },
-  };
+  });
   subject = () => runCommand(sha, config, {});
 });
 

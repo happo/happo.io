@@ -4,7 +4,7 @@ import * as defaultConfig from './DEFAULTS';
 
 function load(pathToConfigFile) {
   try {
-    return Object.assign(defaultConfig,
+    return Object.assign({}, defaultConfig,
       requireRelative(pathToConfigFile, process.cwd()));
   } catch (e) {
     // We only check for the default config file here, so that a missing custom
