@@ -1,12 +1,12 @@
 import makeRequest from '../makeRequest';
 
-export default async function compareReports(
+export default function compareReports(
   sha1,
   sha2,
   { apiKey, apiSecret, endpoint },
   { link, message, author },
 ) {
-  return await makeRequest(
+  return makeRequest(
     {
       url: `${endpoint}/api/reports/${sha1}/compare/${sha2}`,
       method: 'POST',

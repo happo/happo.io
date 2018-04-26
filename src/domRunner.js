@@ -51,7 +51,7 @@ export default async function domRunner(
         return { name, result };
       }),
     );
-    return await constructReport(results);
+    return constructReport(results);
   }
 
   console.log('Initializing...');
@@ -90,5 +90,5 @@ export default async function domRunner(
   }
 
   const bundleFile = await createWebpackBundle(entryFile, { type, customizeWebpackConfig }, {});
-  return await readyHandler(bundleFile);
+  return readyHandler(bundleFile);
 }

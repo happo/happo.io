@@ -54,11 +54,9 @@ export default function createWebpackBundle(
     compiler.watch({}, (err, stats) => {
       if (err) {
         console.log(err);
-      } else {
-        if (hash !== stats.hash) {
-          hash = stats.hash;
-          onBuildReady(bundleFilePath);
-        }
+      } else if (hash !== stats.hash) {
+        hash = stats.hash;
+        onBuildReady(bundleFilePath);
       }
     });
     return;

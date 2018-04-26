@@ -1,6 +1,6 @@
-import executeCli from '../src/executeCli';
-
 import commander from 'commander';
+
+import executeCli from '../src/executeCli';
 
 beforeEach(() => {
   commander.help = jest.fn();

@@ -29,7 +29,7 @@ commander
       console.log(`No [sha] provided. A temporary one will be used in place: "${usedSha}".`);
     }
     if (commander.only) {
-      usedSha = usedSha + '-' + commander.only;
+      usedSha = `${usedSha}-${commander.only}`;
     }
     await runCommand(usedSha, loadUserConfig(commander.config), {
       only: commander.only,

@@ -2,10 +2,10 @@ import fs from 'fs';
 import path from 'path';
 
 function fileToBase64(src, { publicFolders }) {
-  for (let folder of publicFolders) {
+  for (const folder of publicFolders) {
     const pathToFile = path.join(folder, src);
     if (fs.existsSync(pathToFile)) {
-      const base64 = new Buffer(fs.readFileSync(pathToFile)).toString('base64');
+      const base64 = Buffer.from(fs.readFileSync(pathToFile)).toString('base64');
       const extension = path.extname(pathToFile);
       let mime = extension.replace(/\./, 'image/');
       if (extension === '.svg') {
