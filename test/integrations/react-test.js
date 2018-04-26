@@ -1,26 +1,11 @@
 import jest from 'jest';
 
+import MockTarget from './MockTarget';
 import * as defaultConfig from '../../src/DEFAULTS';
 import makeRequest from '../../src/makeRequest';
 import runCommand from '../../src/commands/run';
 
-process.on('unhandledRejection', (error) => {
-  console.error(error.stack);
-});
-
 jest.mock('../../src/makeRequest');
-
-class MockTarget {
-  constructor() {
-    this.viewport = '800x600';
-  }
-
-  execute({ globalCSS, snapPayloads }) {
-    this.globalCSS = globalCSS;
-    this.snapPayloads = snapPayloads;
-    return [];
-  }
-}
 
 let subject;
 let config;
@@ -31,7 +16,7 @@ beforeEach(() => {
   sha = 'foobar';
   config = Object.assign({}, defaultConfig, {
     targets: { chrome: new MockTarget() },
-    include: 'test/integrations/examples/*-happo.js*',
+    include: 'test/integrations/examples/*-react-happo.js*',
   });
   subject = () => runCommand(sha, config, {});
 });
