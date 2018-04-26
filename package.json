@@ -11,7 +11,7 @@
   },
   "scripts": {
     "test": "jest",
-    "build": "babel src --ignore 'test/.*' --out-dir build --copy-files",
+    "build": "rimraf build && babel src --ignore 'test/.*' --out-dir build --copy-files",
     "prepublish": "yarn build"
   },
   "repository": {
@@ -59,7 +59,8 @@
     "babel-preset-react": "^6.24.1",
     "jest": "^20.0.4",
     "react": "^16.3.2",
-    "react-dom": "^16.3.2"
+    "react-dom": "^16.3.2",
+    "rimraf": "^2.6.2"
   },
   "peerDependencies": {}
 }
