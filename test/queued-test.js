@@ -2,11 +2,7 @@ import queued from '../src/queued';
 
 it('returns items in order', async () => {
   const result = await queued([1, 2, 3], (num) => Promise.resolve(`num=${num}`));
-  expect(result).toEqual([
-    'num=1',
-    'num=2',
-    'num=3',
-  ]);
+  expect(result).toEqual(['num=1', 'num=2', 'num=3']);
 });
 
 it('rejects when one fails', async () => {

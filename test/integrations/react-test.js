@@ -7,7 +7,7 @@ import * as defaultConfig from '../../src/DEFAULTS';
 const babelLoader = require.resolve('babel-loader');
 const babelPresetReact = require.resolve('babel-preset-react');
 
-process.on('unhandledRejection', error => {
+process.on('unhandledRejection', (error) => {
   console.error(error.stack);
 });
 
@@ -63,7 +63,9 @@ it('produces the right html', async () => {
 
 it('produces the right css', async () => {
   await subject();
-  expect(config.targets.chrome.globalCSS).toEqual(`
+  expect(config.targets.chrome.globalCSS).toEqual(
+    `
    button { text-align: center }\nbutton { color: red }
-    `.trim());
+    `.trim(),
+  );
 });
