@@ -39,7 +39,6 @@ beforeEach(() => {
     hooks: {
       run: domRunner,
     },
-    type: 'react',
 
     customizeWebpackConfig: config => {
       config.module = {

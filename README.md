@@ -426,8 +426,12 @@ option, e.g. `['http://cdn/style.css']`.
 
 ### `type`
 
-Either `react` or `plain`. Decides what strategy happo will use when rendering
-examples.
+Either `react` (default) or `plain`. Decides what strategy happo will use when
+rendering examples. When the value is `react`, it is assumed that example
+functions return a React component (e.g. `export default () => <Foo />`). When
+the value is `plain`, it is assumed that example functions write things
+straight to `document`, e.g.
+`export default () => { document.body.appendChild(foo()) }`.
 
 ### `targets`
 
