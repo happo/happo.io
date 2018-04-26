@@ -41,6 +41,12 @@
       "build/.*"
     ]
   },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "arrowParens": "always"
+  },
   "dependencies": {
     "babel-loader": "^7.1.4",
     "babel-polyfill": "^6.26.0",
