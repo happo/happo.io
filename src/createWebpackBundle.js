@@ -26,7 +26,7 @@ function generateBaseConfig(entry, type) {
             loader: babelLoader,
           },
         },
-      ]
+      ],
     },
   };
   if (type === 'react') {
@@ -39,9 +39,11 @@ function generateBaseConfig(entry, type) {
   return baseConfig;
 }
 
-export default function createWebpackBundle(entry, { type, customizeWebpackConfig }, {
-  onBuildReady,
-}) {
+export default function createWebpackBundle(
+  entry,
+  { type, customizeWebpackConfig },
+  { onBuildReady },
+) {
   const config = customizeWebpackConfig(generateBaseConfig(entry, type));
   const compiler = webpack(config);
   const bundleFilePath = path.join(os.tmpdir(), OUTFILE);

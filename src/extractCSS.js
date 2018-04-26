@@ -7,4 +7,3 @@ export default function extractCSS(dom) {
     result.join(\'\\n\');
   `);
 }
-

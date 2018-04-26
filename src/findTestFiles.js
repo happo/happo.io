@@ -5,11 +5,7 @@ export default function findTestFiles(pattern) {
     glob(
       pattern,
       {
-        ignore: [
-          '**/node_modules/**',
-          '**/dist/**',
-          '**/build/**',
-        ],
+        ignore: ['**/node_modules/**', '**/dist/**', '**/build/**'],
       },
       (err, files) => {
         if (err) {

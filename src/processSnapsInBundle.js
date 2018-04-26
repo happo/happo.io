@@ -17,7 +17,7 @@ async function renderExample(dom, exampleRenderFunc) {
 
   const renderInDom = (renderResult) => {
     dom.window.happoRender(renderResult, { rootElement });
-  }
+  };
 
   const result = exampleRenderFunc(renderInDom);
   if (result && typeof result.then === 'function') {
@@ -50,7 +50,9 @@ async function processVariants({
     try {
       await renderExample(dom, exampleRenderFunc);
     } catch (e) {
-      console.error(`Error in ${fileName}:\nFailed to render component "${component}", variant "${variant}"`);
+      console.error(
+        `Error in ${fileName}:\nFailed to render component "${component}", variant "${variant}"`,
+      );
       throw e;
     }
 
@@ -58,8 +60,8 @@ async function processVariants({
       inlineResources(dom, { publicFolders });
     }
     const doc = dom.window.document;
-    const root = (getRootElement && getRootElement(doc))
-      || doc.getElementById(ROOT_ELEMENT_ID) || doc.body;
+    const root =
+      (getRootElement && getRootElement(doc)) || doc.getElementById(ROOT_ELEMENT_ID) || doc.body;
     const html = root.innerHTML.trim();
     return {
       html,
@@ -73,14 +75,11 @@ async function processVariants({
   return result.filter(Boolean);
 }
 
-export default async function processSnapsInBundle(webpackBundle, {
-  globalCSS,
-  only,
-  publicFolders,
-  getRootElement,
-  viewport,
-}) {
-  const [ width, height ] = viewport.split('x').map((s) => parseInt(s, 10));
+export default async function processSnapsInBundle(
+  webpackBundle,
+  { globalCSS, only, publicFolders, getRootElement, viewport },
+) {
+  const [width, height] = viewport.split('x').map((s) => parseInt(s, 10));
   const dom = new JSDOM(
     `
       <!DOCTYPE html>
@@ -105,10 +104,10 @@ export default async function processSnapsInBundle(webpackBundle, {
           availHeight: { value: height },
         });
       },
-    }
+    },
   );
 
-  await new Promise((resolve) => dom.window.onBundleReady = resolve);
+  await new Promise((resolve) => (dom.window.onBundleReady = resolve));
 
   const result = {
     snapPayloads: [],

@@ -4,21 +4,26 @@ const POLL_INTERVAL = 5000; // 5 secs
 
 function waitFor({ requestId, endpoint, apiKey, apiSecret }) {
   return new Promise((resolve, reject) => {
-    makeRequest({
-      url: `${endpoint}/api/snap-requests/${requestId}`,
-      method: 'GET',
-      json: true,
-    }, { apiKey, apiSecret }).then(({ status, result }) => {
-      if (status === 'done') {
-        resolve(result);
-      } else {
-        setTimeout(() => {
-          waitFor({ requestId, endpoint, apiKey, apiSecret })
-            .then(resolve)
-            .catch(reject);
-        }, POLL_INTERVAL);
-      }
-    }).catch(reject);
+    makeRequest(
+      {
+        url: `${endpoint}/api/snap-requests/${requestId}`,
+        method: 'GET',
+        json: true,
+      },
+      { apiKey, apiSecret },
+    )
+      .then(({ status, result }) => {
+        if (status === 'done') {
+          resolve(result);
+        } else {
+          setTimeout(() => {
+            waitFor({ requestId, endpoint, apiKey, apiSecret })
+              .then(resolve)
+              .catch(reject);
+          }, POLL_INTERVAL);
+        }
+      })
+      .catch(reject);
   });
 }
 
@@ -29,19 +34,22 @@ export default class RemoteBrowserTarget {
   }
 
   execute({ globalCSS, snapPayloads, apiKey, apiSecret, endpoint, logger }) {
-    return makeRequest({
-      url: `${endpoint}/api/snap-requests`,
-      method: 'POST',
-      json: true,
-      body: {
-        type: `browser-${this.browserName}`,
-        payload: {
-          viewport: this.viewport,
-          globalCSS,
-          snapPayloads,
+    return makeRequest(
+      {
+        url: `${endpoint}/api/snap-requests`,
+        method: 'POST',
+        json: true,
+        body: {
+          type: `browser-${this.browserName}`,
+          payload: {
+            viewport: this.viewport,
+            globalCSS,
+            snapPayloads,
+          },
         },
-      }
-    }, { apiKey, apiSecret }).then(({ requestId }) => {
+      },
+      { apiKey, apiSecret },
+    ).then(({ requestId }) => {
       logger(`Waiting for ${this.browserName} results (ID=${requestId})...`);
       return waitFor({ requestId, endpoint, apiKey, apiSecret });
     });

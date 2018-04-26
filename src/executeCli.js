@@ -55,23 +55,18 @@ commander
       process.exit(0);
     } else {
       process.exit(1);
-    };
+    }
   });
 
 commander
   .command('compare <sha1> <sha2>')
   .description('compare reports for two different shas')
   .action(async (sha1, sha2) => {
-    const result = await compareReportsCommand(
-      sha1,
-      sha2,
-      loadUserConfig(commander.config),
-      {
-        link: commander.link,
-        message: commander.message,
-        author: commander.author,
-      }
-    );
+    const result = await compareReportsCommand(sha1, sha2, loadUserConfig(commander.config), {
+      link: commander.link,
+      message: commander.message,
+      author: commander.author,
+    });
     console.log(result.summary);
     if (result.equal) {
       process.exit(0);
