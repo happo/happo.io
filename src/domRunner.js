@@ -56,7 +56,7 @@ export default async function domRunner({
   if (onReady) {
     let currentBuildPromise;
     // We're in dev/watch mode
-    createWebpackBundle(entryFile, { customizeWebpackConfig }, {
+    createWebpackBundle(entryFile, { type, customizeWebpackConfig }, {
       onBuildReady: async (bundleFile) => {
         if (currentBuildPromise) {
           console.log('-------------------------------');
@@ -82,7 +82,7 @@ export default async function domRunner({
   }
 
   const bundleFile = await createWebpackBundle(
-    entryFile, { customizeWebpackConfig }, {});
+    entryFile, { type, customizeWebpackConfig }, {});
   return await readyHandler(bundleFile);
 }
 

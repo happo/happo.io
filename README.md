@@ -395,11 +395,10 @@ loaders to the happo run. E.g.
 ```js
 module.exports = {
   customizeWebpackConfig: (config) => {
-    config.module = {
-      rules: [
-        { test: /\.css$/, use: [{ loader: cssLoader }] },
-      ],
-    };
+    config.module.rules.push({
+      test: /\.css$/,
+      use: [{ loader: cssLoader }],
+    });
    // it's important that we return the modified config
     return config;
   },
@@ -467,17 +466,17 @@ This is a list of all supported browsers:
 
 ### `customizeWebpackConfig`
 
-A function you can use to override the default webpack config used internally
-by happo during a run. Make sure to always return the passed in `config`. E.g.
+A function you can use to override or modify the default webpack config used
+internally by happo during a run. Make sure to always return the passed in
+`config`. E.g.
 
 ```js
 module.exports = {
   customizeWebpackConfig: (config) => {
-    config.module = {
-      rules: [
-        { test: /\.css$/, use: [{ loader: cssLoader }] },
-      ],
-    };
+    config.module.rules.push({
+      test: /\.css$/,
+      use: [{ loader: cssLoader }],
+    });
    // it's important that we return the modified config
     return config;
   },

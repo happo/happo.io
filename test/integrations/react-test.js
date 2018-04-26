@@ -36,24 +36,6 @@ beforeEach(() => {
   config = Object.assign({}, defaultConfig, {
     targets: { chrome: new MockTarget() },
     include: 'test/integrations/examples/*-happo.js*',
-
-    customizeWebpackConfig: config => {
-      config.module = {
-        rules: [
-          {
-            test: /\.jsx?$/,
-            exclude: /node_modules/,
-            use: {
-              loader: babelLoader,
-              options: {
-                presets: [babelPresetReact],
-              },
-            },
-          },
-        ],
-      };
-      return config;
-    },
   });
   subject = () => runCommand(sha, config, {});
 });
