@@ -36,6 +36,7 @@ beforeEach(() => {
     targets: { chrome: new MockTarget() },
     include: 'test/integrations/examples/*-happo.js*',
     stylesheets: [],
+    type: 'react',
 
     customizeWebpackConfig: config => {
       config.module = {
