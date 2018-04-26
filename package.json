@@ -11,6 +11,7 @@
   },
   "scripts": {
     "test": "jest",
+    "lint": "eslint .",
     "build": "rimraf build && babel src --ignore 'test/.*' --out-dir build --copy-files",
     "prepublish": "yarn build"
   },
@@ -57,6 +58,12 @@
     "babel-cli": "^6.26.0",
     "babel-jest": "^20.0.3",
     "babel-preset-env": "^1.6.0",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-jest": "^21.15.1",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.7.0",
     "jest": "^20.0.4",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
