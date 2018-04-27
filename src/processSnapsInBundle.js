@@ -104,6 +104,8 @@ export default async function processSnapsInBundle(
           height: { value: height },
           availHeight: { value: height },
         });
+        win.requestAnimationFrame = (callback) => setTimeout(callback, 0);
+        win.cancelAnimationFrame = () => {};
       },
     },
   );
