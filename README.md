@@ -420,8 +420,8 @@ different naming scheme, e.g. `**/*-examples.js`.
 
 ### `stylesheets`
 
-If you rely on externally loaded stylesheets, list their URLs in this config
-option, e.g. `['http://cdn/style.css']`.
+If you rely on external stylesheets, list their URLs or (absolute) file paths
+in this config option, e.g. `['/path/to/file.css', 'http://cdn/style.css']`.
 
 ### `type`
 
