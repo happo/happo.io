@@ -1,10 +1,9 @@
 # Happo.io
 
-Happo is a visual regression testing tool for React. It hooks into your CI
-environment to compare the visual appearance of your components before and
-after a change. Screenshots are taken in different browsers and across
-different screen sizes to ensure consistent cross-browser and responsive
-styling of your application.
+Happo is a visual regression testing tool. It hooks into your CI environment to
+compare the visual appearance of UI components before and after a change.
+Screenshots are taken in different browsers and across different screen sizes
+to ensure consistent cross-browser and responsive styling of your application.
 
 ## Installation
 
@@ -15,28 +14,31 @@ npm install happo.io --save-dev
 ## Getting started
 
 Before you can run happo, you need to define one or more component example
-files. Let's assume there's a `<Button>` component that we're adding examples
-for. First, create a file called `Button-happo.jsx` and save it next to your
-`Button.jsx` file (if this doesn't match your naming scheme you can use the
-[`include`](#include) option). Add a few exports to this file (yes, you can use
-ES6 here):
+files. We'll use React here, which is the default `type` that this client
+library supports. Let's assume there's a `<Button>` component that we're adding
+examples for. First, create a file called `Button-happo.jsx` and save it next
+to your `Button.jsx` file (if this doesn't match your naming scheme you can use
+the [`include`](#include) option). Add a few exports to this file (yes, you can
+use ES6 here):
 
 ```jsx
+import React from 'react';
+import Button from './Button';
+
 export const primary = () => <Button type="primary">Primary</Button>;
 export const secondary = () => <Button type="secondary">Secondary</Button>;
 ```
 
 Then, we need to add some configuration. API tokens are used to authenticate
 you with the remote happo.io service: `apiKey` and `apiSecret`.  These can be
-found on your account page at https://happo.io/me. You also need to tell happo
-what browsers you want to target. In this example, we're using two Firefox
-targets. One at 1024 x 768 screen ("desktop") and one on a 320 x 640 screen
-("mobile").
-
+found on your account page at https://happo.io/account. You also need to tell
+happo what browsers you want to target. In this example, we're using two
+Chrome targets. One at 1024 x 768 screen ("desktop") and one on a 320 x 640
+screen ("mobile").
 
 ```js
+// .happo.js
 const { RemoteBrowserTarget } = require('happo.io');
-const ReactDOM = require('react-dom');
 
 module.exports = {
   // It's good practice to never store API tokens directly in the config file.
@@ -45,19 +47,17 @@ module.exports = {
   apiSecret: process.env.HAPPO_API_SECRET,
 
   targets: {
-    'firefox-desktop': new RemoteBrowserTarget('firefox', {
+    'chrome-desktop': new RemoteBrowserTarget('chrome', {
       viewport: '1024x768',
     }),
-    'firefox-mobile': new RemoteBrowserTarget('firefox', {
+    'chrome-mobile': new RemoteBrowserTarget('chrome', {
       viewport: '320x640',
     }),
   },
-
-  render: (component, { rootElement }) => {
-    ReactDOM.render(component, rootElement);
-  },
 };
 ```
+
+Save this file as `.happo.js`in the root folder of your project.
 
 Once we're done with the configuration it's time to try things out. Before we
 do that, let's add a `script` to our `package.json` file so that it's easier to
@@ -82,8 +82,8 @@ Go ahead and run that command now.
 If things are successful, you'll see something like this at the end of the run:
 
 ```
-Uploading report for dev-07f7bd689025c8e
-Done dev-07f7bd689025c8e
+Uploading report for dev-7435324ce1e12f8ef079...
+Done dev-7435324ce1e12f8ef079
 ```
 
 This first run will serve as our baseline. But now we need something to compare
