@@ -82,8 +82,9 @@ Go ahead and run that command now.
 If things are successful, you'll see something like this at the end of the run:
 
 ```
-Uploading report for dev-7435324ce1e12f8ef079...
-Done dev-7435324ce1e12f8ef079
+Uploading report for h5a4p3p2o1...
+View results at https://happo.io/a/28/report/h5a4p3p2o1
+Done h5a4p3p2o1
 ```
 
 This first run will serve as our baseline. But now we need something to compare
@@ -107,18 +108,30 @@ npm run happo run
 
 This time, we'll get a different hash:
 ```
-Uploading report for dev-07f8a31ec5f24...
-Done dev-07f8a31ec5f24
+Uploading report for h1a2p3p4o5...
+View results at https://happo.io/a/28/report/h1a2p3p4o5
+Done h1a2p3p4o5
 ```
 
 Once the second run is done, we can compare the two runs by passing both hashes
 to the `happo compare` action:
 
 ```bash
-$ npm run happo compare dev-07f7bd689025c8e dev-07f8a31ec5f24
-The two reports are different. View full report at
-https://happo.io/compare?q=07f7bd689025c8e..07f8a31ec5f24
+$ npm run --silent happo compare h5a4p3p2o1 h1a2p3p4o5
+Differences were found.
+
+- 2 diffs
+- 2 added examples
+- 2 unchanged examples
+
+View full report at
+https://happo.io/a/28/compare/h5a4p3p2o1/h1a2p3p4o5
+
+→ exit status: 1
 ```
+
+Don't worry about the command failing with a non-zero exit code. This is by
+design, scripts use the exit code as a signal that there is a diff.
 
 If you open this URL in a browser, you'll see something like this:
 ![Happo report page](happo-report.png)
