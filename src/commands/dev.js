@@ -1,18 +1,12 @@
 import compareReportsCommand from './compareReports';
+import domRunner from '../domRunner';
 import generateDevSha from '../generateDevSha';
 import uploadReport from '../uploadReport';
 
 export default async function devCommand(config, { only }) {
-  const {
-    apiKey,
-    apiSecret,
-    endpoint,
-    hooks: {
-      run,
-    },
-  } = config;
+  const { apiKey, apiSecret, endpoint } = config;
   let baselineSha;
-  run(config, {
+  domRunner(config, {
     only,
     onReady: async (snaps) => {
       const sha = generateDevSha();
@@ -27,12 +21,12 @@ export default async function devCommand(config, { only }) {
       console.log(`View results at ${url}`);
 
       if (baselineSha) {
-        console.log('Comparing with baseline report...')
+        console.log('Comparing with baseline report...');
         const result = await compareReportsCommand(
           baselineSha,
           sha,
           { apiKey, apiSecret, endpoint },
-          {}
+          {},
         );
         console.log(result.summary);
       } else {
@@ -41,6 +35,6 @@ export default async function devCommand(config, { only }) {
     },
     onBuilding: () => {
       console.log('Building...');
-    }
+    },
   });
 }

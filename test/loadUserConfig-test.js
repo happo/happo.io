@@ -7,8 +7,7 @@ jest.mock('require-relative');
 
 it('yells if api tokens are missing', () => {
   requireRelative.mockImplementation(() => ({}));
-  expect(() => loadUserConfig('bogus')).toThrowError(
-    /You need an `apiKey`/);
+  expect(() => loadUserConfig('bogus')).toThrowError(/You need an `apiKey`/);
 });
 
 it('yells if targets are missing', () => {
@@ -17,8 +16,7 @@ it('yells if targets are missing', () => {
     apiSecret: '2',
     targets: {},
   }));
-  expect(() => loadUserConfig('bogus')).toThrowError(
-    /You need at least one target/);
+  expect(() => loadUserConfig('bogus')).toThrowError(/You need at least one target/);
 });
 
 it('does not yell if all required things are in place', () => {

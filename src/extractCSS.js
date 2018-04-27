@@ -1,10 +1,4 @@
 export default function extractCSS(dom) {
-  return dom.window.eval(`
-    const result = [];
-    document.querySelectorAll(\'style\').forEach((styleElement) => {
-      result.push(styleElement.innerHTML);
-    });
-    result.join(\'\\n\');
-  `);
+  const styleElements = Array.from(dom.window.document.querySelectorAll('style'));
+  return styleElements.map((el) => el.innerHTML).join('\n');
 }
-

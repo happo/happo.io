@@ -1,31 +1,50 @@
 import os from 'os';
 import path from 'path';
 
-import requireRelative from 'require-relative';
 import webpack from 'webpack';
 
-const OUTFILE = 'happo.js';
-
-export default function createWebpackBundle(entry, { customizeWebpackConfig }, {
-  onBuildReady,
-}) {
-  const config = customizeWebpackConfig({
+function generateBaseConfig(entry, type) {
+  const outFile = `happo-bundle-${type}-${Buffer.from(process.cwd()).toString('base64')}.js`;
+  const babelLoader = require.resolve('babel-loader');
+  const baseConfig = {
     entry,
+    output: {
+      filename: outFile,
+      path: os.tmpdir(),
+    },
     resolve: {
       extensions: ['*', '.js', '.jsx', '.json'],
     },
-    externals: {
-      'react': 'window.React',
-      'react-dom': 'window.ReactDOM',
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          exclude: /node_modules/,
+          use: {
+            loader: babelLoader,
+          },
+        },
+      ],
     },
-    output: {
-      filename: OUTFILE,
-      path: os.tmpdir(),
-    },
-  });
+  };
+  if (type === 'react') {
+    const babelPresetReact = require.resolve('babel-preset-react');
 
+    const [babelRule] = baseConfig.module.rules;
+    babelRule.test = /\.jsx?$/;
+    babelRule.use.options = { presets: [babelPresetReact] };
+  }
+  return baseConfig;
+}
+
+export default function createWebpackBundle(
+  entry,
+  { type, customizeWebpackConfig },
+  { onBuildReady },
+) {
+  const config = customizeWebpackConfig(generateBaseConfig(entry, type));
   const compiler = webpack(config);
-  const bundleFilePath = path.join(os.tmpdir(), OUTFILE);
+  const bundleFilePath = path.join(config.output.path, config.output.filename);
 
   if (onBuildReady) {
     // We're in watch/dev mode
@@ -33,11 +52,9 @@ export default function createWebpackBundle(entry, { customizeWebpackConfig }, {
     compiler.watch({}, (err, stats) => {
       if (err) {
         console.log(err);
-      } else {
-        if (hash !== stats.hash) {
-          hash = stats.hash;
-          onBuildReady(bundleFilePath);
-        }
+      } else if (hash !== stats.hash) {
+        hash = stats.hash;
+        onBuildReady(bundleFilePath);
       }
     });
     return;
@@ -45,7 +62,7 @@ export default function createWebpackBundle(entry, { customizeWebpackConfig }, {
 
   // We're not in watch/dev mode
   return new Promise((resolve, reject) => {
-    compiler.run((err, stats) => {
+    compiler.run((err) => {
       if (err) {
         reject(err);
         return;

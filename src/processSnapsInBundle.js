@@ -1,38 +1,35 @@
-import fs from 'fs';
-
 import { JSDOM } from 'jsdom';
 
 import createHash from './createHash';
 import extractCSS from './extractCSS';
 import getComponentNameFromFileName from './getComponentNameFromFileName';
+import inlineCSSResources from './inlineCSSResources';
 import inlineResources from './inlineResources';
 import queued from './queued';
 
-async function renderExample(dom, renderMethod) {
+const ROOT_ELEMENT_ID = 'happo-root';
+
+async function renderExample(dom, exampleRenderFunc) {
   const doc = dom.window.document;
   doc.body.innerHTML = '';
   const rootElement = doc.createElement('div');
+  rootElement.setAttribute('id', ROOT_ELEMENT_ID);
   doc.body.appendChild(rootElement);
 
-  const renderInDOM = (reactComponent) => {
-    if (typeof reactComponent === 'string') {
-      throw new Error('Component is a string');
-    }
-    dom.window.reactComponent = reactComponent;
-    dom.window.rootElement = rootElement;
-    dom.window.eval(`
-      ReactDOM.render(window.reactComponent, window.rootElement);
-    `);
-  }
+  const renderInDom = (renderResult) => {
+    dom.window.happoRender(renderResult, { rootElement });
+  };
 
-  const result = renderMethod(renderInDOM, dom.window.document);
-  if (typeof result.then === 'function') {
+  const result = exampleRenderFunc(renderInDom);
+  if (result && typeof result.then === 'function') {
     // this is a promise
-    return await result;
+    await result;
+    return;
   }
-  renderInDOM(result);
+  renderInDom(result);
 }
 async function processVariants({
+  fileName,
   dom,
   component,
   variants,
@@ -45,19 +42,27 @@ async function processVariants({
   }
   const result = await queued(Object.keys(variants), async (variant) => {
     const hash = createHash(`${component}|${variant}`);
-    const renderFunc = variants[variant];
-    if (typeof renderFunc !== 'function') {
+    const exampleRenderFunc = variants[variant];
+    if (typeof exampleRenderFunc !== 'function') {
       // Some babel loaders add additional properties to the exports.
       // Ignore those that aren't functions.
       return;
     }
-    await renderExample(dom, renderFunc);
+    try {
+      await renderExample(dom, exampleRenderFunc);
+    } catch (e) {
+      console.error(
+        `Error in ${fileName}:\nFailed to render component "${component}", variant "${variant}"`,
+      );
+      throw e;
+    }
 
     if (publicFolders && publicFolders.length) {
       inlineResources(dom, { publicFolders });
     }
-    const root = (getRootElement && getRootElement(dom.window.document))
-      || dom.window.rootElement;
+    const doc = dom.window.document;
+    const root =
+      (getRootElement && getRootElement(doc)) || doc.getElementById(ROOT_ELEMENT_ID) || doc.body;
     const html = root.innerHTML.trim();
     return {
       html,
@@ -71,20 +76,26 @@ async function processVariants({
   return result.filter(Boolean);
 }
 
-export default async function processSnapsInBundle(webpackBundle, {
-  globalCSS,
-  only,
-  publicFolders,
-  getRootElement,
-  viewport,
-}) {
-  const [ width, height ] = viewport.split('x').map((s) => parseInt(s, 10));
+export default async function processSnapsInBundle(
+  webpackBundle,
+  { globalCSS, only, publicFolders, getRootElement, viewport },
+) {
+  const [width, height] = viewport.split('x').map((s) => parseInt(s, 10));
   const dom = new JSDOM(
-    '<!DOCTYPE html><head></head><body></body></html>',
+    `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <script src='${webpackBundle}'></script>
+        </head>
+        <body>
+        </body>
+      </html>
+    `.trim(),
     {
-      runScripts: 'outside-only',
+      runScripts: 'dangerously',
+      resources: 'usable',
       beforeParse(win) {
-        const pxHeight = parseInt()
         win.outerWidth = win.innerWidth = width;
         win.outerHeight = win.innerHeight = height;
         Object.defineProperties(win.screen, {
@@ -93,13 +104,15 @@ export default async function processSnapsInBundle(webpackBundle, {
           height: { value: height },
           availHeight: { value: height },
         });
+        win.requestAnimationFrame = (callback) => setTimeout(callback, 0);
+        win.cancelAnimationFrame = () => {};
       },
-    }
+    },
   );
 
-  // Parse and execute the webpack bundle in a jsdom environment
-  const bundleContent = fs.readFileSync(webpackBundle, { encoding: 'utf-8' });
-  dom.window.eval(bundleContent);
+  await new Promise((resolve) => {
+    dom.window.onBundleReady = resolve;
+  });
 
   const result = {
     snapPayloads: [],
@@ -112,6 +125,7 @@ export default async function processSnapsInBundle(webpackBundle, {
     if (Array.isArray(objectOrArray)) {
       await queued(objectOrArray, async ({ component, variants }) => {
         const processedVariants = await processVariants({
+          fileName,
           dom,
           component,
           variants,
@@ -124,6 +138,7 @@ export default async function processSnapsInBundle(webpackBundle, {
     } else {
       const component = getComponentNameFromFileName(fileName);
       const processedVariants = await processVariants({
+        fileName,
         dom,
         component,
         variants: objectOrArray,
@@ -135,7 +150,7 @@ export default async function processSnapsInBundle(webpackBundle, {
     }
   });
 
-  result.globalCSS = globalCSS + extractCSS(dom);
+  result.globalCSS = inlineCSSResources(globalCSS + extractCSS(dom), { publicFolders });
   dom.window.close();
   return result;
 }
