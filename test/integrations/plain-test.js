@@ -15,6 +15,9 @@ beforeEach(() => {
   config = Object.assign({}, defaultConfig, {
     targets: { firefox: new MockTarget() },
     include: 'test/integrations/examples/*-plain-happo.js*',
+    stylesheets: [
+      'https://meyerweb.com/eric/tools/css/reset/reset.css',
+    ],
     type: 'plain',
   });
   subject = () => runCommand(sha, config, {});
@@ -42,7 +45,10 @@ it('produces the right html', async () => {
 
 it('produces the right css', async () => {
   await subject();
-  expect(config.targets.firefox.globalCSS).toEqual(
+  const css = config.targets.firefox.globalCSS;
+  const endCss = 'button { color: red }\nbutton { text-align: center }';
+  expect(css.slice(css.length - endCss.length)).toEqual(
     'button { color: red }\nbutton { text-align: center }',
   );
+  expect(css.slice(0, 44)).toEqual('/* http://meyerweb.com/eric/tools/css/reset/');
 });
