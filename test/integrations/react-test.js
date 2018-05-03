@@ -32,6 +32,13 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
+      hash: 'be095fe82721f1c2d42bd71c51c88221',
+      html: '<button>I am in a portal</button>',
+      variant: 'portalExample',
+    },
+    {
+      component: 'Foo-react',
+      css: '',
       hash: '4bd96873b61366f3587e1474e0e1c13a',
       html: '<button>Click me</button>',
       variant: 'default',

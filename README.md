@@ -541,6 +541,23 @@ module.exports = {
 }
 ```
 
+### `getRootElement`
+
+A function returning a DOM element that Happo will use as the container. In
+most cases, you should leave this empty and let Happo figure out the root
+element itself. But in some cases its useful to override the default behavior
+and provide a different root. An example would be if you have wrapper
+components that you don't want to be part of the screenshot.
+
+```js
+module.exports = {
+  getRootElement(document) {
+    return document.querySelector('.react-live-preview');
+  },
+}
+```
+(example from [mineral-ui](https://github.com/mineral-ui/mineral-ui/blob/e48a47d917477b58e496fe43edbfa4bb6ceb88e9/.happo.js#L35))
+
 ## Command-Line-Interface (CLI)
 
 While you are most likely getting most value from the ready-made CI integration

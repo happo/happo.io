@@ -9,6 +9,30 @@ import queued from './queued';
 
 const ROOT_ELEMENT_ID = 'happo-root';
 
+function findRoot(doc) {
+  // Grab the element that we add to the dom by default. This element will
+  // usually be the right element, at least in the react case.
+  const root = doc.getElementById(ROOT_ELEMENT_ID);
+
+  if (!root) {
+    // The root element may very well have been overridden in the render method
+    // for an example. In that case, fall back to the <body> element.
+    return doc.body;
+  }
+
+  if (root.innerHTML === '') {
+    // The root has no content. Which means we're potentially rendering to a
+    // portal element. Iterate through other root elements to see if any other
+    // has content.
+    for (const potentialRoot of doc.body.children) {
+      if (potentialRoot.innerHTML !== '') {
+        return potentialRoot;
+      }
+    }
+  }
+  return root;
+}
+
 async function renderExample(dom, exampleRenderFunc) {
   const doc = dom.window.document;
   doc.body.innerHTML = '';
@@ -28,6 +52,7 @@ async function renderExample(dom, exampleRenderFunc) {
   }
   renderInDom(result);
 }
+
 async function processVariants({
   fileName,
   dom,
@@ -61,8 +86,7 @@ async function processVariants({
       inlineResources(dom, { publicFolders });
     }
     const doc = dom.window.document;
-    const root =
-      (getRootElement && getRootElement(doc)) || doc.getElementById(ROOT_ELEMENT_ID) || doc.body;
+    const root = (getRootElement && getRootElement(doc)) || findRoot(doc);
     const html = root.innerHTML.trim();
     return {
       html,
