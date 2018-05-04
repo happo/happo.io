@@ -40,9 +40,8 @@ async function renderExample(dom, exampleRenderFunc) {
   rootElement.setAttribute('id', ROOT_ELEMENT_ID);
   doc.body.appendChild(rootElement);
 
-  const renderInDom = (renderResult) => {
+  const renderInDom = (renderResult) =>
     dom.window.happoRender(renderResult, { rootElement });
-  };
 
   const result = exampleRenderFunc(renderInDom);
   if (result && typeof result.then === 'function') {

@@ -39,6 +39,13 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
+      hash: '502965779a56c9455aef99da7448aeec',
+      html: '<button>Ready</button>',
+      variant: 'asyncExample',
+    },
+    {
+      component: 'Foo-react',
+      css: '',
       hash: '4bd96873b61366f3587e1474e0e1c13a',
       html: '<button>Click me</button>',
       variant: 'default',

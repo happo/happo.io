@@ -28,3 +28,31 @@ export const portalExample = () => (
     <button>I am in a portal</button>
   </PortalComponent>
 );
+
+class AsyncComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
+  componentDidMount() {
+    setTimeout(() => this.setState({ ready: true }), 10);
+  }
+
+  setLabel(label) {
+    this.setState({ label });
+  }
+
+  render() {
+    if (!this.state.ready) {
+      return null;
+    }
+    return <button>{this.state.label}</button>;
+  }
+}
+
+export const asyncExample = (render) => {
+  const component = render(<AsyncComponent />);
+  component.setLabel('Ready');
+  return new Promise((resolve) => setTimeout(resolve, 11));
+};

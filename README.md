@@ -294,6 +294,8 @@ module.exports = {
 Happo will infer the component name from the file. In the example above, if the
 file is named `Button-happo.jsx`, the inferred name will be `Button`.
 
+### Generated examples
+
 If you want to group multiple components in one file you can export an array
 instead, with objects defining the component and its variants. This can be
 handy if you for some reason want to auto-generate happo examples from another
@@ -317,6 +319,52 @@ export default [
   },
 ]
 ```
+
+### Asynchronous examples
+
+If you have examples that won't look right on the initial render, you can
+return a promise from the example function. Happo will then wait for the
+promise to resolve before it uses the markup in the DOM. This is useful if you
+for instance have components that have some internal state that's hard to reach
+without interacting with the component. To simplify rendering to the DOM, Happo
+provides you with a function as the first argument to the example function.
+When `type` is `react`, this function is a wrapper around `ReactDOM.render`.
+When `type` is `plain`, this function is a simple `element.innerHTML` call,
+returning a root element where that html got injected.
+
+```jsx
+// React example
+export const asyncComponent = (renderInDom) => {
+  return new Promise((resolve) => {
+    const component = renderInDom(<Foo />);
+    component.doSomethingAsync(resolve);
+  });
+};
+```
+
+```js
+// Plain js example
+export const asyncComponent = (renderInDom) => {
+  const rootElement = renderInDOM('<div>Loading...</div>');
+  return doSomethingAsync().then(() => {
+    rootElement.querySelector('div').innerHTML = 'Done!';
+  });
+};
+```
+
+You can use `async`/`await` here as well:
+
+```jsx
+export const asyncComponent = async (renderInDom) => {
+  const component = renderInDom(<Foo />);
+  await component.doSomethingAsync();
+  component.doSomethingSync();
+};
+```
+
+Be careful about overusing async rendering as it has a tendency to lead to a
+more complicated setup. In many cases it's better to factor out a "view
+component" which you render synchronously in the Happo test.
 
 ## Local development
 

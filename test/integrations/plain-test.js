@@ -43,6 +43,13 @@ it('produces the right html', async () => {
       html: '<button>Click meish</button>',
       variant: 'anotherVariant',
     },
+    {
+      component: 'Foo-plain',
+      css: '',
+      hash: '37e586e14290caf5ef48eabdad669592',
+      html: '<button>Ready</button>',
+      variant: 'asyncVariant',
+    },
   ]);
 });
 

@@ -23,13 +23,17 @@ export default function createDynamicEntryPoint({ setupScript, include, only, ty
       strings.push(
         `
         const ReactDOM = require('${pathToReactDom}');
-        window.happoRender = (component, { rootElement }) => {
+        window.happoRender = (component, { rootElement }) =>
           ReactDOM.render(component, rootElement);
-        };
       `.trim(),
       );
     } else {
-      strings.push('window.happoRender = () => null;');
+      strings.push(`
+        window.happoRender = (html, { rootElement }) => {
+          rootElement.innerHTML = html;
+          return rootElement;
+        };
+      `.trim());
     }
     strings.push('window.onBundleReady();');
     const tmpFile = path.join(
