@@ -8,7 +8,14 @@ to ensure consistent cross-browser and responsive styling of your application.
 ## Installation
 
 ```
-npm install happo.io --save-dev
+npm install --save-dev happo.io
+```
+
+Happo depends on `babel-core` and `babel-loader` as well. If you don't already
+have them installed, you need to add them as well.
+
+```
+npm install --save-dev babel-core babel-loader
 ```
 
 ## Getting started

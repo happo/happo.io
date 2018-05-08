@@ -47,8 +47,6 @@
     "arrowParens": "always"
   },
   "dependencies": {
-    "babel-core": "^6.26.3",
-    "babel-loader": "^7.1.4",
     "babel-polyfill": "^6.26.0",
     "babel-preset-react": "^6.24.1",
     "commander": "^2.15.1",
@@ -62,7 +60,9 @@
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
     "babel-jest": "^22.4.3",
+    "babel-loader": "^7.1.4",
     "babel-preset-env": "^1.6.1",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
@@ -76,6 +76,7 @@
     "rimraf": "^2.6.2"
   },
   "peerDependencies": {
-    "babel-core": "^6.26.3"
+    "babel-core": "^6.0.0 || ^7.0.0",
+    "babel-loader": "^7.0.0 || ^8.0.0"
   }
 }
