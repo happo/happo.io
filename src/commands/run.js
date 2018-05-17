@@ -1,10 +1,12 @@
+import Logger from '../Logger';
 import domRunner from '../domRunner';
 import uploadReport from '../uploadReport';
 
 export default async function runCommand(sha, config, { only, link, message }) {
+  const logger = new Logger();
   const { apiKey, apiSecret, endpoint } = config;
   const snaps = await domRunner(config, { only });
-  console.log(`Uploading report for ${sha}...`);
+  logger.start(`Uploading report for ${sha}...`);
   const { url } = await uploadReport({
     snaps,
     sha,
@@ -14,6 +16,7 @@ export default async function runCommand(sha, config, { only, link, message }) {
     link,
     message,
   });
-  console.log(`View results at ${url}`);
-  console.log(`Done ${sha}`);
+  logger.success();
+  logger.info(`View results at ${url}`);
+  logger.info(`Done ${sha}`);
 }

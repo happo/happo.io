@@ -40,8 +40,7 @@ async function renderExample(dom, exampleRenderFunc) {
   rootElement.setAttribute('id', ROOT_ELEMENT_ID);
   doc.body.appendChild(rootElement);
 
-  const renderInDom = (renderResult) =>
-    dom.window.happoRender(renderResult, { rootElement });
+  const renderInDom = (renderResult) => dom.window.happoRender(renderResult, { rootElement });
 
   const result = exampleRenderFunc(renderInDom);
   if (result && typeof result.then === 'function') {
@@ -75,10 +74,16 @@ async function processVariants({
     try {
       await renderExample(dom, exampleRenderFunc);
     } catch (e) {
-      console.error(
+      const wrappedError = new Error(
         `Error in ${fileName}:\nFailed to render component "${component}", variant "${variant}"`,
       );
-      throw e;
+      wrappedError.original = e;
+      const diff = wrappedError.stack
+        .split('\n')
+        .slice(0, 3)
+        .join('\n');
+      wrappedError.stack = `${diff}\n${e.stack}`;
+      throw wrappedError;
     }
 
     if (publicFolders && publicFolders.length) {

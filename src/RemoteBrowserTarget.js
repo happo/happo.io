@@ -24,7 +24,7 @@ export default class RemoteBrowserTarget {
     this.viewport = viewport;
   }
 
-  async execute({ globalCSS, snapPayloads, apiKey, apiSecret, endpoint, logger }) {
+  async execute({ globalCSS, snapPayloads, apiKey, apiSecret, endpoint }) {
     const { requestId } = await makeRequest(
       {
         url: `${endpoint}/api/snap-requests`,
@@ -41,7 +41,6 @@ export default class RemoteBrowserTarget {
       },
       { apiKey, apiSecret },
     );
-    logger(`Waiting for ${this.browserName} results (ID=${requestId})...`);
     return waitFor({ requestId, endpoint, apiKey, apiSecret });
   }
 }

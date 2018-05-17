@@ -1,14 +1,11 @@
 import readline from 'readline';
 
+import Logger from './Logger';
 import constructReport from './constructReport';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
 import createWebpackBundle from './createWebpackBundle';
 import loadCSSFile from './loadCSSFile';
 import processSnapsInBundle from './processSnapsInBundle';
-
-function defaultLogger(message) {
-  console.log(message);
-}
 
 function waitForAnyKey() {
   readline.emitKeypressEvents(process.stdin);
@@ -28,28 +25,23 @@ function waitForAnyKey() {
   });
 }
 
-export default async function domRunner(
-  {
-    apiKey,
-    apiSecret,
-    setupScript,
-    customizeWebpackConfig,
-    stylesheets,
-    include,
-    endpoint,
-    targets,
-    publicFolders,
-    getRootElement,
-    type,
-  },
-  { only, onReady },
-) {
-  async function readyHandler(bundleFile, logger = defaultLogger) {
-    const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
+async function generateScreenshots({
+  apiKey,
+  apiSecret,
+  stylesheets,
+  endpoint,
+  targets,
+  publicFolders,
+  getRootElement,
+  only,
+}, bundleFile, logger) {
+  const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
 
-    logger('Generating screenshots...');
+  const targetNames = Object.keys(targets);
+  logger.start(`Generating screenshots for ${targetNames.join(', ')}...`);
+  try {
     const results = await Promise.all(
-      Object.keys(targets).map(async (name) => {
+      targetNames.map(async (name) => {
         const { globalCSS, snapPayloads } = await processSnapsInBundle(bundleFile, {
           globalCSS: cssBlocks.join('').replace(/\n/g, ''),
           publicFolders,
@@ -66,19 +58,63 @@ export default async function domRunner(
           apiKey,
           apiSecret,
           endpoint,
-          logger,
         });
         return { name, result };
       }),
     );
+    logger.success();
     return constructReport(results);
+  } catch (e) {
+    logger.fail();
+    throw e;
+  }
+}
+
+
+export default async function domRunner(
+  {
+    apiKey,
+    apiSecret,
+    setupScript,
+    customizeWebpackConfig,
+    stylesheets,
+    include,
+    endpoint,
+    targets,
+    publicFolders,
+    getRootElement,
+    type,
+  },
+  { only, onReady },
+) {
+  const boundGenerateScreenshots = generateScreenshots.bind(null, {
+    apiKey,
+    apiSecret,
+    stylesheets,
+    endpoint,
+    targets,
+    publicFolders,
+    getRootElement,
+    only,
+  });
+  const logger = new Logger();
+  logger.start('Reading files...');
+  let entryFile;
+  try {
+    const entryPointResult =
+      await createDynamicEntryPoint({ setupScript, include, only, type });
+    entryFile = entryPointResult.entryFile;
+    logger.success(`${entryPointResult.numberOfFilesProcessed} found`);
+  } catch (e) {
+    logger.fail(e);
+    throw e;
   }
 
-  console.log('Initializing...');
-  const entryFile = await createDynamicEntryPoint({ setupScript, include, only, type });
+  logger.start('Creating bundle...');
 
   if (onReady) {
     let currentBuildPromise;
+    let currentLogger;
     let currentWaitPromise;
     // We're in dev/watch mode
     createWebpackBundle(
@@ -88,11 +124,12 @@ export default async function domRunner(
         onBuildReady: async (bundleFile) => {
           if (currentBuildPromise) {
             currentBuildPromise.cancelled = true;
+            currentLogger.mute();
             if (currentWaitPromise) {
               currentWaitPromise.cancelled = true;
             } else {
-              console.log('-------------------------------');
-              console.log('Changes detected. Press any key to continue.');
+              logger.divider();
+              logger.info('Changes detected. Press any key to continue.');
             }
             const waitPromise = waitForAnyKey();
             currentWaitPromise = waitPromise;
@@ -100,13 +137,13 @@ export default async function domRunner(
             if (waitPromise.cancelled) {
               return;
             }
+          } else {
+            logger.success();
           }
           currentWaitPromise = undefined;
-          const buildPromise = readyHandler(bundleFile, (message) => {
-            if (!buildPromise.cancelled) {
-              console.log(message);
-            }
-          });
+          const mutableLogger = new Logger();
+          const buildPromise = boundGenerateScreenshots(bundleFile, mutableLogger);
+          currentLogger = mutableLogger;
           currentBuildPromise = buildPromise;
           try {
             const report = await buildPromise;
@@ -114,7 +151,7 @@ export default async function domRunner(
               onReady(report);
             }
           } catch (e) {
-            console.error(e);
+            logger.error(e);
           }
         },
       },
@@ -123,5 +160,6 @@ export default async function domRunner(
   }
 
   const bundleFile = await createWebpackBundle(entryFile, { type, customizeWebpackConfig }, {});
-  return readyHandler(bundleFile);
+  logger.success();
+  return boundGenerateScreenshots(bundleFile, logger);
 }
