@@ -1,17 +1,16 @@
+import supportsColor from 'supports-color';
+
 // https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
 
-function red(str) {
-  return `\x1b[31m${str}\x1b[0m`;
+function withColorSupport(wrappedFunc) {
+  if (supportsColor.stdout && supportsColor.stderr) {
+    return wrappedFunc;
+  }
+  return (msg) => msg;
 }
-
-function green(str) {
-  return `\x1b[32m${str}\x1b[0m`;
-}
-
-export function underline(str) {
-  // https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
-  return `\x1b[36m\x1b[4m${str}\x1b[0m`;
-}
+const red = withColorSupport((str) => `\x1b[31m${str}\x1b[0m`);
+const green = withColorSupport((str) => `\x1b[32m${str}\x1b[0m`);
+const underline = withColorSupport((str) => `\x1b[36m\x1b[4m${str}\x1b[0m`);
 
 export default class Logger {
   constructor() {
