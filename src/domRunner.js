@@ -137,6 +137,7 @@ export default async function domRunner(
             if (waitPromise.cancelled) {
               return;
             }
+            logger.divider();
           } else {
             logger.success();
           }
