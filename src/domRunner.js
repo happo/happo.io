@@ -1,3 +1,5 @@
+import readline from 'readline';
+
 import constructReport from './constructReport';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
 import createWebpackBundle from './createWebpackBundle';
@@ -6,6 +8,24 @@ import processSnapsInBundle from './processSnapsInBundle';
 
 function defaultLogger(message) {
   console.log(message);
+}
+
+function waitForAnyKey() {
+  readline.emitKeypressEvents(process.stdin);
+  process.stdin.setRawMode(true);
+  process.stdin.resume();
+
+  return new Promise((resolve) => {
+    process.stdin.once('keypress', (_, key) => {
+      if (key.ctrl && key.name === 'c') {
+        process.exit();
+      } else {
+        process.stdin.setRawMode(false);
+        process.stdin.pause();
+        resolve();
+      }
+    });
+  });
 }
 
 export default async function domRunner(
@@ -59,6 +79,7 @@ export default async function domRunner(
 
   if (onReady) {
     let currentBuildPromise;
+    let currentWaitPromise;
     // We're in dev/watch mode
     createWebpackBundle(
       entryFile,
@@ -66,9 +87,21 @@ export default async function domRunner(
       {
         onBuildReady: async (bundleFile) => {
           if (currentBuildPromise) {
-            console.log('-------------------------------');
             currentBuildPromise.cancelled = true;
+            if (currentWaitPromise) {
+              currentWaitPromise.cancelled = true;
+            } else {
+              console.log('-------------------------------');
+              console.log('Changes detected. Press any key to continue.');
+            }
+            const waitPromise = waitForAnyKey();
+            currentWaitPromise = waitPromise;
+            await waitPromise;
+            if (waitPromise.cancelled) {
+              return;
+            }
           }
+          currentWaitPromise = undefined;
           const buildPromise = readyHandler(bundleFile, (message) => {
             if (!buildPromise.cancelled) {
               console.log(message);
