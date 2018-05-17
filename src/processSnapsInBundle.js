@@ -1,5 +1,6 @@
 import { JSDOM } from 'jsdom';
 
+import WrappedError from './WrappedError';
 import createHash from './createHash';
 import extractCSS from './extractCSS';
 import getComponentNameFromFileName from './getComponentNameFromFileName';
@@ -74,16 +75,10 @@ async function processVariants({
     try {
       await renderExample(dom, exampleRenderFunc);
     } catch (e) {
-      const wrappedError = new Error(
+      throw new WrappedError(
         `Error in ${fileName}:\nFailed to render component "${component}", variant "${variant}"`,
+        e,
       );
-      wrappedError.original = e;
-      const diff = wrappedError.stack
-        .split('\n')
-        .slice(0, 3)
-        .join('\n');
-      wrappedError.stack = `${diff}\n${e.stack}`;
-      throw wrappedError;
     }
 
     if (publicFolders && publicFolders.length) {
