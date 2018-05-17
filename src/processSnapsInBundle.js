@@ -75,8 +75,8 @@ async function processVariants({
     try {
       await renderExample(dom, exampleRenderFunc);
     } catch (e) {
-      throw new WrappedError(
-        `Error in ${fileName}:\nFailed to render component "${component}", variant "${variant}"`,
+      return new WrappedError(
+        `Failed to render component "${component}", variant "${variant}" in ${fileName}`,
         e,
       );
     }

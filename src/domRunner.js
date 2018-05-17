@@ -1,6 +1,8 @@
 import readline from 'readline';
 
 import Logger from './Logger';
+import MultipleErrors from './MultipleErrors';
+import WrappedError from './WrappedError';
 import constructReport from './constructReport';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
 import createWebpackBundle from './createWebpackBundle';
@@ -25,16 +27,11 @@ function waitForAnyKey() {
   });
 }
 
-async function generateScreenshots({
-  apiKey,
-  apiSecret,
-  stylesheets,
-  endpoint,
-  targets,
-  publicFolders,
-  getRootElement,
-  only,
-}, bundleFile, logger) {
+async function generateScreenshots(
+  { apiKey, apiSecret, stylesheets, endpoint, targets, publicFolders, getRootElement, only },
+  bundleFile,
+  logger,
+) {
   const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
 
   const targetNames = Object.keys(targets);
@@ -52,6 +49,14 @@ async function generateScreenshots({
         if (!snapPayloads.length) {
           throw new Error('No examples found');
         }
+        const errors = snapPayloads.filter((p) => p instanceof WrappedError);
+        if (errors.length === 1) {
+          throw errors[0];
+        }
+        if (errors.length > 1) {
+          throw new MultipleErrors(errors);
+        }
+
         const result = await targets[name].execute({
           globalCSS,
           snapPayloads,
@@ -69,7 +74,6 @@ async function generateScreenshots({
     throw e;
   }
 }
-
 
 export default async function domRunner(
   {
@@ -101,8 +105,7 @@ export default async function domRunner(
   logger.start('Reading files...');
   let entryFile;
   try {
-    const entryPointResult =
-      await createDynamicEntryPoint({ setupScript, include, only, type });
+    const entryPointResult = await createDynamicEntryPoint({ setupScript, include, only, type });
     entryFile = entryPointResult.entryFile;
     logger.success(`${entryPointResult.numberOfFilesProcessed} found`);
   } catch (e) {
