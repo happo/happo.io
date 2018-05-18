@@ -8,20 +8,13 @@ function withColorSupport(wrappedFunc) {
   }
   return (msg) => msg;
 }
-
 const red = withColorSupport((str) => `\x1b[31m${str}\x1b[0m`);
 const green = withColorSupport((str) => `\x1b[32m${str}\x1b[0m`);
 const underline = withColorSupport((str) => `\x1b[36m\x1b[4m${str}\x1b[0m`);
 
 export default class Logger {
   constructor() {
-    this.printed = '';
-    this.print = (str, isEdit) => {
-      process.stdout.write(str);
-      if (!isEdit) {
-        this.printed += str;
-      }
-    };
+    this.print = (str) => process.stdout.write(str);
     this.stderrPrint = (str) => process.stderr.write(str);
   }
 
@@ -40,11 +33,11 @@ export default class Logger {
   }
 
   start(msg) {
-    this.print(`${msg} `);
+    this.print(msg);
   }
 
   success(msg) {
-    this.print(green('✓'));
+    this.print(green(' ✓'));
     if (msg) {
       this.print(green(` ${msg}`));
     }
@@ -52,7 +45,7 @@ export default class Logger {
   }
 
   fail(msg) {
-    this.print(red('✗'));
+    this.print(red(' ✗'));
     if (msg) {
       this.print(red(` ${msg}`));
     }
@@ -62,27 +55,5 @@ export default class Logger {
   error(e) {
     this.stderrPrint(red(e.stack));
     this.stderrPrint('\n');
-  }
-
-  edit(msg, success) {
-    const print = () => {
-      this.print(`${msg} `, true);
-      if (success) {
-        this.print(green('✓'), true);
-      } else {
-        this.print(red('✗'), true);
-      }
-      this.print('\n', true);
-    };
-    let index;
-    if (typeof process.stdout.moveCursor === 'function') {
-      const lines = this.printed.split('\n').reverse();
-      index = lines.indexOf(msg);
-      process.stdout.moveCursor(0, -index);
-      print();
-      process.stdout.moveCursor(0, index);
-    } else {
-      print();
-    }
   }
 }

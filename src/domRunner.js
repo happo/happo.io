@@ -35,7 +35,7 @@ async function generateScreenshots(
   const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
 
   const targetNames = Object.keys(targets);
-  logger.info('Generating screenshots...');
+  logger.start(`Generating screenshots for ${targetNames.join(', ')}...`);
   try {
     const results = await Promise.all(
       targetNames.map(async (name) => {
@@ -57,7 +57,6 @@ async function generateScreenshots(
           throw new MultipleErrors(errors);
         }
 
-        logger.info(`Waiting for ${name}...`);
         const result = await targets[name].execute({
           globalCSS,
           snapPayloads,
@@ -65,11 +64,10 @@ async function generateScreenshots(
           apiSecret,
           endpoint,
         });
-        logger.edit(`Waiting for ${name}...`, true);
         return { name, result };
       }),
     );
-    logger.edit('Generating screenshots...', true);
+    logger.success();
     return constructReport(results);
   } catch (e) {
     logger.fail();
