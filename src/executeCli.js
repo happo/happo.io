@@ -1,6 +1,7 @@
 import commander from 'commander';
 
 import { configFile } from './DEFAULTS';
+import Logger from './Logger';
 import compareReportsCommand from './commands/compareReports';
 import devCommand from './commands/dev';
 import generateDevSha from './generateDevSha';
@@ -24,7 +25,7 @@ commander
   .action(async (sha) => {
     let usedSha = sha || generateDevSha();
     if (!sha) {
-      console.log(`No [sha] provided. A temporary one will be used in place: "${usedSha}".`);
+      new Logger().info(`No [sha] provided. A temporary one will be used in place: "${usedSha}".`);
     }
     if (commander.only) {
       usedSha = `${usedSha}-${commander.only}`;
@@ -65,7 +66,7 @@ commander
       message: commander.message,
       author: commander.author,
     });
-    console.log(result.summary);
+    new Logger().info(result.summary);
     if (result.equal) {
       process.exit(0);
     } else {

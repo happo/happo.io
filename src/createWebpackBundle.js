@@ -3,6 +3,8 @@ import path from 'path';
 
 import webpack from 'webpack';
 
+import Logger from './Logger';
+
 function generateBaseConfig(entry, type) {
   const outFile = `happo-bundle-${type}-${Buffer.from(process.cwd()).toString('base64')}.js`;
   const babelLoader = require.resolve('babel-loader');
@@ -51,7 +53,7 @@ export default function createWebpackBundle(
     let hash;
     compiler.watch({}, (err, stats) => {
       if (err) {
-        console.log(err);
+        new Logger().error(err);
       } else if (hash !== stats.hash) {
         hash = stats.hash;
         onBuildReady(bundleFilePath);

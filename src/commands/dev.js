@@ -1,16 +1,22 @@
+import Logger from '../Logger';
 import compareReportsCommand from './compareReports';
 import domRunner from '../domRunner';
 import generateDevSha from '../generateDevSha';
 import uploadReport from '../uploadReport';
 
+function indent(str) {
+  return str.replace(/^/gm, ' ');
+}
+
 export default async function devCommand(config, { only }) {
   const { apiKey, apiSecret, endpoint } = config;
   let baselineSha;
+  const logger = new Logger();
   domRunner(config, {
     only,
     onReady: async (snaps) => {
       const sha = generateDevSha();
-      console.log(`Preparing report (${sha})...`);
+      logger.start(`Preparing report (${sha})...`);
       const { url } = await uploadReport({
         snaps,
         sha,
@@ -18,23 +24,22 @@ export default async function devCommand(config, { only }) {
         apiKey,
         apiSecret,
       });
-      console.log(`View results at ${url}`);
+      logger.success();
+      logger.info(`View results at ${url}`);
 
       if (baselineSha) {
-        console.log('Comparing with baseline report...');
+        logger.start('Comparing with baseline report...');
         const result = await compareReportsCommand(
           baselineSha,
           sha,
           { apiKey, apiSecret, endpoint },
           {},
         );
-        console.log(result.summary);
+        logger.success();
+        logger.info(`\n${indent(result.summary)}`);
       } else {
         baselineSha = sha;
       }
-    },
-    onBuilding: () => {
-      console.log('Building...');
     },
   });
 }

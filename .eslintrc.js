@@ -15,6 +15,7 @@ module.exports = {
     'no-console': 0,
     'arrow-parens': 0,
     'prefer-destructuring': 0,
+    'prefer-template': 0,
     'global-require': 0,
     'no-restricted-syntax': 0,
   },

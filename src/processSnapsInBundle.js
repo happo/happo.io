@@ -1,5 +1,6 @@
 import { JSDOM } from 'jsdom';
 
+import WrappedError from './WrappedError';
 import createHash from './createHash';
 import extractCSS from './extractCSS';
 import getComponentNameFromFileName from './getComponentNameFromFileName';
@@ -40,8 +41,7 @@ async function renderExample(dom, exampleRenderFunc) {
   rootElement.setAttribute('id', ROOT_ELEMENT_ID);
   doc.body.appendChild(rootElement);
 
-  const renderInDom = (renderResult) =>
-    dom.window.happoRender(renderResult, { rootElement });
+  const renderInDom = (renderResult) => dom.window.happoRender(renderResult, { rootElement });
 
   const result = exampleRenderFunc(renderInDom);
   if (result && typeof result.then === 'function') {
@@ -75,10 +75,10 @@ async function processVariants({
     try {
       await renderExample(dom, exampleRenderFunc);
     } catch (e) {
-      console.error(
-        `Error in ${fileName}:\nFailed to render component "${component}", variant "${variant}"`,
+      return new WrappedError(
+        `Failed to render component "${component}", variant "${variant}" in ${fileName}`,
+        e,
       );
-      throw e;
     }
 
     if (publicFolders && publicFolders.length) {
