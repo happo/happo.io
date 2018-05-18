@@ -35,7 +35,8 @@ async function generateScreenshots(
   const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
 
   const targetNames = Object.keys(targets);
-  logger.start(`Generating screenshots for ${targetNames.join(', ')}...`);
+  const tl = targetNames.length;
+  logger.info(`Generating screenshots in ${tl} target${tl > 1 ? 's' : ''}...`);
   try {
     const results = await Promise.all(
       targetNames.map(async (name) => {
@@ -64,10 +65,11 @@ async function generateScreenshots(
           apiSecret,
           endpoint,
         });
+        logger.start(`  - ${name}`);
+        logger.success();
         return { name, result };
       }),
     );
-    logger.success();
     return constructReport(results);
   } catch (e) {
     logger.fail();

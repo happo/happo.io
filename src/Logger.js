@@ -33,11 +33,11 @@ export default class Logger {
   }
 
   start(msg) {
-    this.print(msg);
+    this.print(`${msg} `);
   }
 
   success(msg) {
-    this.print(green(' ✓'));
+    this.print(green('✓'));
     if (msg) {
       this.print(green(` ${msg}`));
     }
@@ -45,7 +45,7 @@ export default class Logger {
   }
 
   fail(msg) {
-    this.print(red(' ✗'));
+    this.print(red('✗'));
     if (msg) {
       this.print(red(` ${msg}`));
     }
