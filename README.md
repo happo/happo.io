@@ -306,7 +306,7 @@ file is named `Button-happo.jsx`, the inferred name will be `Button`.
 If you want to group multiple components in one file you can export an array
 instead, with objects defining the component and its variants. This can be
 handy if you for some reason want to auto-generate happo examples from another
-source (e.g. a style-guide, component-gallery).
+source (e.g. [Storybook](https://storybook.js.org/), a style-guide, etc).
 
 ```jsx
 export default [
@@ -326,6 +326,33 @@ export default [
   },
 ]
 ```
+
+### Storybook integration
+
+Using the example with generated examples above, you can also integrate
+directly with [Storybook](https://storybook.js.org/). Here's an example using
+[@storybook/react](https://storybook.js.org/basics/guide-react/):
+
+```js
+// storybook-happo.js
+const { getStorybook } = require('@storybook/react');
+
+// Import the storybook config file which will populate all the stories.
+require('../.storybook/config.js');
+
+const examples = getStorybook().map((story) => {
+  const variants = {};
+  story.stories.forEach(({ name, render }) => variants[name] = render);
+  return {
+    component: story.kind,
+    variants,
+  };
+});
+
+module.exports = examples;
+```
+
+Save this file as `storybook-happo.js` to have Happo automatically find it.
 
 ### Asynchronous examples
 
