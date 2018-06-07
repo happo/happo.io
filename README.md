@@ -612,8 +612,8 @@ module.exports = {
 
 A path to a file that will be executed before rendering your components. This
 is useful if you for instance want to inject global css styling (e.g. a css
-reset), custom fonts, etc. This script is executed in a DOM environment, so
-it's safe to inject things into the `<head>`.
+reset), custom fonts, polyfills etc. This script is executed in a DOM
+environment, so it's safe to inject things into the `<head>`.
 
 ```js
 const path = require('path');
