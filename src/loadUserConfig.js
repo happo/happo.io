@@ -1,5 +1,7 @@
+import request from 'request-promise-native';
 import requireRelative from 'require-relative';
 
+import WrappedError from './WrappedError';
 import * as defaultConfig from './DEFAULTS';
 
 function load(pathToConfigFile) {
@@ -15,13 +17,37 @@ function load(pathToConfigFile) {
   }
 }
 
-export default function loadUserConfig(pathToConfigFile) {
+async function getPullRequestSecret({ endpoint }, env) {
+  const { secret } = await request({
+    url: `${endpoint}/api/pull-request-token`,
+    method: 'POST',
+    json: true,
+    body: {
+      prUrl: env.CHANGE_URL,
+    },
+  });
+
+  return secret;
+}
+
+export default async function loadUserConfig(pathToConfigFile, env = process.env) {
+  const { CHANGE_URL } = env;
+
   const config = load(pathToConfigFile);
   if (!config.apiKey || !config.apiSecret) {
-    throw new Error(
-      'You need an `apiKey` and `apiSecret` in your config. ' +
-        'To obtain one, go to https://happo.io/me',
-    );
+    if (!CHANGE_URL) {
+      throw new Error(
+        'You need an `apiKey` and `apiSecret` in your config. ' +
+          'To obtain one, go to https://happo.io/settings',
+      );
+    }
+    try {
+      // Reassign api tokens to temporary once provided for the PR
+      config.apiKey = CHANGE_URL;
+      config.apiSecret = await getPullRequestSecret(config, env);
+    } catch (e) {
+      throw new WrappedError('Failed to obtain temporary pull-request token', e);
+    }
   }
   if (!config.targets || Object.keys(config.targets).length === 0) {
     throw new Error(
