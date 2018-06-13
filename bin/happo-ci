@@ -36,6 +36,12 @@ run-happo() {
     eval "$INSTALL_CMD"
   fi
 
+  echo "ENV in run-happo function of happo-ci script (for sha ${SHA})"
+  echo "PREVIOUS_SHA: ${PREVIOUS_SHA}"
+  echo "CURRENT_SHA: ${CURRENT_SHA}"
+  echo "CHANGE_URL: ${CHANGE_URL}"
+  echo "INSTALL_CMD: ${INSTALL_CMD}"
+
   if [ -f "${NPM_BIN}/happo" ]; then
     "$NPM_BIN"/happo run "$SHA" \
     --link "${CHANGE_URL}" \
