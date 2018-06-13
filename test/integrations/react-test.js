@@ -23,6 +23,20 @@ it('produces the right html', async () => {
   await subject();
   expect(config.targets.chrome.snapPayloads).toEqual([
     {
+      component: 'Bar',
+      css: '',
+      hash: 'a2e67882fb930e9fa82a3bb3e442ca23',
+      html: '<div>one</div>',
+      variant: 'one',
+    },
+    {
+      component: 'Bar',
+      css: '',
+      hash: 'e365ab0df4cb21bba69c2c34d8162127',
+      html: '<div>two</div>',
+      variant: 'two',
+    },
+    {
       component: 'Foo-react',
       css: '',
       hash: '4a799dea4acaa048759c5904ff84a771',

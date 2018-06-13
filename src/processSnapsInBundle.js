@@ -144,7 +144,13 @@ export default async function processSnapsInBundle(
   const onlyComponent = only ? only.split('#')[1] : undefined;
 
   await queued(Object.keys(dom.window.snaps), async (fileName) => {
-    const objectOrArray = dom.window.snaps[fileName];
+    let objectOrArray = dom.window.snaps[fileName];
+    const keys = Object.keys(objectOrArray);
+    if (keys.includes('default') && Array.isArray(objectOrArray.default)) {
+      // The default export is an array. Treat this as a file which has
+      // generated examples.
+      objectOrArray = objectOrArray.default;
+    }
     if (Array.isArray(objectOrArray)) {
       await queued(objectOrArray, async ({ component, variants }) => {
         const processedVariants = await processVariants({
