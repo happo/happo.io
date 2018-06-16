@@ -31,7 +31,6 @@ async function getPullRequestSecret({ endpoint }, env) {
 }
 
 export default async function loadUserConfig(pathToConfigFile, env = process.env) {
-  console.log('ENV inside loadUserConfig', env);
   const { CHANGE_URL } = env;
 
   const config = load(pathToConfigFile);
