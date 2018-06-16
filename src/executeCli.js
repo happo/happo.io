@@ -30,7 +30,7 @@ commander
     if (commander.only) {
       usedSha = `${usedSha}-${commander.only}`;
     }
-    await runCommand(usedSha, loadUserConfig(commander.config), {
+    await runCommand(usedSha, await loadUserConfig(commander.config), {
       only: commander.only,
       link: commander.link,
       message: commander.message,
@@ -41,7 +41,7 @@ commander
   .command('dev')
   .description('start dev mode')
   .action(async () => {
-    await devCommand(loadUserConfig(commander.config), {
+    await devCommand(await loadUserConfig(commander.config), {
       only: commander.only,
     });
   });
@@ -50,7 +50,7 @@ commander
   .command('has-report <sha>')
   .description('check if there is a report for a specific sha')
   .action(async (sha) => {
-    if (await hasReportCommand(sha, loadUserConfig(commander.config))) {
+    if (await hasReportCommand(sha, await loadUserConfig(commander.config))) {
       process.exit(0);
     } else {
       process.exit(1);
@@ -61,7 +61,7 @@ commander
   .command('compare <sha1> <sha2>')
   .description('compare reports for two different shas')
   .action(async (sha1, sha2) => {
-    const result = await compareReportsCommand(sha1, sha2, loadUserConfig(commander.config), {
+    const result = await compareReportsCommand(sha1, sha2, await loadUserConfig(commander.config), {
       link: commander.link,
       message: commander.message,
       author: commander.author,
