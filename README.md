@@ -253,8 +253,10 @@ you need to set a few environment variables:
 
 ### Posting statuses back to PRs/commits
 
-By installing the [Happo Github App](https://github.com/apps/happo), you allow
-Happo to update the status of a PR/commit.
+By installing the [Happo Github App](https://github.com/apps/happo) and
+connecting to it on the [Github integration page on
+happo.io](https://happo.io/github-integration), you allow Happo to update the
+status of a PR/commit.
 
 ![Happo status posted on a commit on github](happo-status-diffs.png)
 
@@ -267,9 +269,11 @@ The status over on github.com will then change to green for the PR/commit.
 ![Happo status manually accepted cross-posted to github](happo-status-accepted.png)
 
 Apart from having the [Happo Github App](https://github.com/apps/happo)
-installed, you also need to make sure that you provide a `--link <url>` with
-your calls to `happo compare`. If you're using any of the standard CI scripts
-listed above, this is automatically taken care of for you.
+installed and connected on
+[happo.io/github-integration](https://happo.io/github-integration), you also
+need to make sure that you provide a `--link <url>` with your calls to `happo
+compare`. If you're using any of the standard CI scripts listed above, the
+`--link` is automatically taken care of for you.
 
 ## Defining examples
 
@@ -656,7 +660,8 @@ desire.
   the sha. Will exit with a zero exit code if the report exists, 1 otherwise.
 - `happo compare <sha1> <sha2>` - compare reports for two different shas. If
   a `--link <url>` is provided, Happo will try to post a status back to the
-  commit (also depends on the [Happo Github App](https://github.com/apps/happo)
+  commit (see [Posting statuses back to
+  PRs/commits](#posting-statuses-back-to-prscommits) for more details)
   being installed). If an `--author <email>` is provided, any comment made on a diff
   will notify the author. Also supports `--message <message>`, which is used
   together with `--link <url>` to further contextualize the comparison.
