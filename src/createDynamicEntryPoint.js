@@ -6,12 +6,22 @@ import requireRelative from 'require-relative';
 
 import findTestFiles from './findTestFiles';
 
-export default async function createDynamicEntryPoint({ setupScript, include, only, type }) {
+export default async function createDynamicEntryPoint({
+  setupScript,
+  include,
+  only,
+  type,
+  plugins,
+}) {
   const files = await findTestFiles(include);
   const filePartOfOnly = only ? only.split('#')[0] : undefined;
   const fileStrings = files
     .filter((f) => (filePartOfOnly ? f.includes(filePartOfOnly) : true))
-    .map((file) => `window.snaps['${file}'] = require('${path.join(process.cwd(), file)}');`);
+    .map((file) => path.join(process.cwd(), file))
+    .concat(plugins.map(({ pathToExamplesFile }) => pathToExamplesFile))
+    .filter(Boolean)
+    .map((file) => `window.snaps['${file}'] = require('${file}');`);
+
   const strings = [
     setupScript ? `require('${setupScript}');` : '',
     'window.snaps = {};',

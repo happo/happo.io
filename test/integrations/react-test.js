@@ -1,3 +1,5 @@
+import path from 'path';
+
 import MockTarget from './MockTarget';
 import * as defaultConfig from '../../src/DEFAULTS';
 import makeRequest from '../../src/makeRequest';
@@ -15,6 +17,15 @@ beforeEach(() => {
   config = Object.assign({}, defaultConfig, {
     targets: { chrome: new MockTarget() },
     include: 'test/integrations/examples/*-react-happo.js*',
+    plugins: [
+      {
+        pathToExamplesFile: path.resolve(__dirname, 'plugin-examples.js'),
+      },
+      {
+        // add another no-op plugin
+        foobar: 'something',
+      },
+    ],
   });
   subject = () => runCommand(sha, config, {});
 });
@@ -63,6 +74,13 @@ it('produces the right html', async () => {
       hash: '4bd96873b61366f3587e1474e0e1c13a',
       html: '<button>Click me</button>',
       variant: 'default',
+    },
+    {
+      component: 'Plugin-Component',
+      css: '',
+      hash: '8f4d569831115044aa7c8b2616f6d0ab',
+      html: '<div>Hello world</div>',
+      variant: 'pluginVariantOne',
     },
   ]);
 });

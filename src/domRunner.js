@@ -90,6 +90,7 @@ export default async function domRunner(
     publicFolders,
     getRootElement,
     type,
+    plugins,
   },
   { only, onReady },
 ) {
@@ -107,7 +108,13 @@ export default async function domRunner(
   logger.start('Reading files...');
   let entryFile;
   try {
-    const entryPointResult = await createDynamicEntryPoint({ setupScript, include, only, type });
+    const entryPointResult = await createDynamicEntryPoint({
+      setupScript,
+      include,
+      only,
+      type,
+      plugins,
+    });
     entryFile = entryPointResult.entryFile;
     logger.success(`${entryPointResult.numberOfFilesProcessed} found`);
   } catch (e) {
