@@ -22,8 +22,20 @@ beforeEach(() => {
         pathToExamplesFile: path.resolve(__dirname, 'plugin-examples.js'),
       },
       {
-        // add another no-op plugin
-        foobar: 'something',
+        customizeWebpackConfig: (cfg) => {
+          cfg.module.rules.push({
+            test: /\.ffs/,
+            use: [
+              {
+                loader: require.resolve('babel-loader'),
+                options: {
+                  presets: [require.resolve('babel-preset-react')],
+                },
+              },
+            ],
+          });
+          return cfg;
+        },
       },
     ],
   });

@@ -131,7 +131,7 @@ export default async function domRunner(
     // We're in dev/watch mode
     createWebpackBundle(
       entryFile,
-      { type, customizeWebpackConfig },
+      { type, customizeWebpackConfig, plugins },
       {
         onBuildReady: async (bundleFile) => {
           if (currentBuildPromise) {
@@ -172,7 +172,11 @@ export default async function domRunner(
     return;
   }
 
-  const bundleFile = await createWebpackBundle(entryFile, { type, customizeWebpackConfig }, {});
+  const bundleFile = await createWebpackBundle(
+    entryFile,
+    { type, customizeWebpackConfig, plugins },
+    {},
+  );
   logger.success();
   return boundGenerateScreenshots(bundleFile, logger);
 }

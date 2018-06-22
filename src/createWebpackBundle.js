@@ -41,10 +41,16 @@ function generateBaseConfig(entry, type) {
 
 export default function createWebpackBundle(
   entry,
-  { type, customizeWebpackConfig },
+  { type, customizeWebpackConfig, plugins },
   { onBuildReady },
 ) {
-  const config = customizeWebpackConfig(generateBaseConfig(entry, type));
+  let config = generateBaseConfig(entry, type);
+  plugins.forEach((plugin) => {
+    if (typeof plugin.customizeWebpackConfig === 'function') {
+      config = plugin.customizeWebpackConfig(config);
+    }
+  });
+  config = customizeWebpackConfig(config);
   const compiler = webpack(config);
   const bundleFilePath = path.join(config.output.path, config.output.filename);
 

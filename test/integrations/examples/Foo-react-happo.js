@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import Button from './Button.ffs';
+
 function injectCSS(css) {
   const style = document.createElement('style');
   style.innerHTML = css;
@@ -9,7 +11,7 @@ function injectCSS(css) {
 
 export default () => {
   injectCSS('button { color: red }');
-  return <button>Click me</button>;
+  return <Button />;
 };
 
 export const anotherVariant = () => {
