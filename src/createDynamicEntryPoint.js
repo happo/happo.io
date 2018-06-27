@@ -34,6 +34,12 @@ export default async function createDynamicEntryPoint({
       const ReactDOM = require('${pathToReactDom}');
       window.happoRender = (component, { rootElement }) =>
         ReactDOM.render(component, rootElement);
+
+      window.happoCleanup = () => {
+        for (const element of document.body.children) {
+          ReactDOM.unmountComponentAtNode(element);
+        }
+      };
     `.trim(),
     );
   } else {
@@ -43,6 +49,8 @@ export default async function createDynamicEntryPoint({
         rootElement.innerHTML = html;
         return rootElement;
       };
+
+      window.happoCleanup = () => {};
     `.trim(),
     );
   }
