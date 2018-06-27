@@ -28,6 +28,7 @@ function generateBaseConfig(entry, type) {
         },
       ],
     },
+    plugins: [],
   };
   if (type === 'react') {
     const babelPresetReact = require.resolve('babel-preset-react');
