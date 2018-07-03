@@ -1,6 +1,7 @@
 import request from 'request-promise-native';
 import requireRelative from 'require-relative';
 
+import Logger from './Logger';
 import WrappedError from './WrappedError';
 import * as defaultConfig from './DEFAULTS';
 
@@ -42,7 +43,8 @@ export default async function loadUserConfig(pathToConfigFile, env = process.env
       );
     }
     try {
-      // Reassign api tokens to temporary once provided for the PR
+      // Reassign api tokens to temporary ones provided for the PR
+      new Logger().info('No `apiKey` or `apiSecret` found in config. Falling back to pull-request authentication.');
       config.apiKey = CHANGE_URL;
       config.apiSecret = await getPullRequestSecret(config, env);
     } catch (e) {
