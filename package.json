@@ -34,6 +34,7 @@
   "homepage": "https://github.com/enduire/happo.io#readme",
   "jest": {
     "testEnvironment": "node",
+    "setupTestFrameworkScriptFile": "./test/jestSetup.js",
     "testMatch": [
       "**/*-test.js*"
     ],
