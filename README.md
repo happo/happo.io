@@ -21,8 +21,14 @@ npm install --save-dev webpack babel-core babel-loader
 ## Getting started
 
 Before you can run happo, you need to define one or more component example
-files. We'll use React here, which is the default `type` that this client
-library supports. Let's assume there's a `<Button>` component that we're adding
+files. If you already have an existing source of component examples (e.g. an
+existing [storybook](https://storybook.js.org/) integration, a
+style-guide/component gallery), you can either use a [plugin](#plugins) or
+follow the instructions in the [Generated examples](#generated-examples)
+section. If not, continue reading!
+
+We'll use React here, which is the default `type` that this client library
+supports. Let's assume there's a `<Button>` component that we're adding
 examples for. First, create a file called `Button-happo.jsx` and save it next
 to your `Button.jsx` file (if this doesn't match your naming scheme you can use
 the [`include`](#include) option). Add a few exports to this file (yes, you can
@@ -310,7 +316,7 @@ file is named `Button-happo.jsx`, the inferred name will be `Button`.
 If you want to group multiple components in one file you can export an array
 instead, with objects defining the component and its variants. This can be
 handy if you for some reason want to auto-generate happo examples from another
-source (e.g. [Storybook](https://storybook.js.org/), a style-guide, etc).
+source (e.g. a style-guide, a component gallery etc).
 
 ```jsx
 export default [
@@ -330,33 +336,6 @@ export default [
   },
 ]
 ```
-
-### Storybook integration
-
-Using the example with generated examples above, you can also integrate
-directly with [Storybook](https://storybook.js.org/). Here's an example using
-[@storybook/react](https://storybook.js.org/basics/guide-react/):
-
-```js
-// storybook-happo.js
-const { getStorybook } = require('@storybook/react');
-
-// Import the storybook config file which will populate all the stories.
-require('../.storybook/config.js');
-
-const examples = getStorybook().map((story) => {
-  const variants = {};
-  story.stories.forEach(({ name, render }) => variants[name] = render);
-  return {
-    component: story.kind,
-    variants,
-  };
-});
-
-module.exports = examples;
-```
-
-Save this file as `storybook-happo.js` to have Happo automatically find it.
 
 ### Asynchronous examples
 
@@ -403,6 +382,29 @@ export const asyncComponent = async (renderInDom) => {
 Be careful about overusing async rendering as it has a tendency to lead to a
 more complicated setup. In many cases it's better to factor out a "view
 component" which you render synchronously in the Happo test.
+
+## Plugins
+
+### Storybook
+
+The Happo plugin for [Storybook](https://storybook.js.org/) will automatically
+turn your stories into Happo examples.
+
+```bash
+npm install --save-dev happo-plugin-storybook
+```
+
+```js
+const happoPluginStorybook = require('happo-plugin-storybook');
+
+// .happo.js
+module.exports {
+  // ...
+  plugins: [
+    happoPluginStorybook(),
+  ],
+};
+```
 
 ## Local development
 
@@ -593,6 +595,21 @@ module.exports = {
     config.module = require('react-scripts/config/webpack.config.dev').module;
     return config;
   },
+}
+```
+
+### `plugins`
+
+An array of happo plugins. Find available plugins in the [Plugins](#plugins)
+section.
+
+```js
+const happoPluginStorybook = require('happo-plugin-storybook');
+
+module.exports = {
+  plugins: [
+    happoPluginStorybook(),
+  ],
 }
 ```
 
