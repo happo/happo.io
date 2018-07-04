@@ -1,0 +1,4 @@
+import React from 'react';
+
+// This is a funky file testing the customizeWebpackFunction for plugins
+export default () => <button>Click me</button>;

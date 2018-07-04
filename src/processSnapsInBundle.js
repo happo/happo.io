@@ -87,6 +87,7 @@ async function processVariants({
     const doc = dom.window.document;
     const root = (getRootElement && getRootElement(doc)) || findRoot(doc);
     const html = root.innerHTML.trim();
+    dom.window.happoCleanup();
     return {
       html,
       css: '', // Can we remove this?

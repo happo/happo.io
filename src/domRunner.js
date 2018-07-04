@@ -90,6 +90,7 @@ export default async function domRunner(
     publicFolders,
     getRootElement,
     type,
+    plugins,
   },
   { only, onReady },
 ) {
@@ -107,7 +108,13 @@ export default async function domRunner(
   logger.start('Reading files...');
   let entryFile;
   try {
-    const entryPointResult = await createDynamicEntryPoint({ setupScript, include, only, type });
+    const entryPointResult = await createDynamicEntryPoint({
+      setupScript,
+      include,
+      only,
+      type,
+      plugins,
+    });
     entryFile = entryPointResult.entryFile;
     logger.success(`${entryPointResult.numberOfFilesProcessed} found`);
   } catch (e) {
@@ -124,7 +131,7 @@ export default async function domRunner(
     // We're in dev/watch mode
     createWebpackBundle(
       entryFile,
-      { type, customizeWebpackConfig },
+      { type, customizeWebpackConfig, plugins },
       {
         onBuildReady: async (bundleFile) => {
           if (currentBuildPromise) {
@@ -165,7 +172,11 @@ export default async function domRunner(
     return;
   }
 
-  const bundleFile = await createWebpackBundle(entryFile, { type, customizeWebpackConfig }, {});
+  const bundleFile = await createWebpackBundle(
+    entryFile,
+    { type, customizeWebpackConfig, plugins },
+    {},
+  );
   logger.success();
   return boundGenerateScreenshots(bundleFile, logger);
 }
