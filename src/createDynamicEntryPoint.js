@@ -1,5 +1,4 @@
 import fs from 'fs';
-import os from 'os';
 import path from 'path';
 
 import requireRelative from 'require-relative';
@@ -12,6 +11,7 @@ export default async function createDynamicEntryPoint({
   only,
   type,
   plugins,
+  tmpdir,
 }) {
   const files = await findTestFiles(include);
   const filePartOfOnly = only ? only.split('#')[0] : undefined;
@@ -56,7 +56,7 @@ export default async function createDynamicEntryPoint({
   }
   strings.push('window.onBundleReady();');
   const entryFile = path.join(
-    os.tmpdir(),
+    tmpdir,
     `happo-entry-${type}-${Buffer.from(process.cwd()).toString('base64')}.js`,
   );
 
