@@ -91,6 +91,7 @@ export default async function domRunner(
     getRootElement,
     type,
     plugins,
+    tmpdir,
   },
   { only, onReady },
 ) {
@@ -114,6 +115,7 @@ export default async function domRunner(
       only,
       type,
       plugins,
+      tmpdir,
     });
     entryFile = entryPointResult.entryFile;
     logger.success(`${entryPointResult.numberOfFilesProcessed} found`);
@@ -131,7 +133,7 @@ export default async function domRunner(
     // We're in dev/watch mode
     createWebpackBundle(
       entryFile,
-      { type, customizeWebpackConfig, plugins },
+      { type, customizeWebpackConfig, plugins, tmpdir },
       {
         onBuildReady: async (bundleFile) => {
           if (currentBuildPromise) {
@@ -174,7 +176,7 @@ export default async function domRunner(
 
   const bundleFile = await createWebpackBundle(
     entryFile,
-    { type, customizeWebpackConfig, plugins },
+    { type, customizeWebpackConfig, plugins, tmpdir },
     {},
   );
   logger.success();

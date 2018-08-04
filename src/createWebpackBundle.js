@@ -1,18 +1,17 @@
-import os from 'os';
 import path from 'path';
 
 import webpack from 'webpack';
 
 import Logger from './Logger';
 
-function generateBaseConfig(entry, type) {
+function generateBaseConfig({ entry, type, tmpdir }) {
   const outFile = `happo-bundle-${type}-${Buffer.from(process.cwd()).toString('base64')}.js`;
   const babelLoader = require.resolve('babel-loader');
   const baseConfig = {
     entry,
     output: {
       filename: outFile,
-      path: os.tmpdir(),
+      path: tmpdir,
     },
     resolve: {
       extensions: ['*', '.js', '.jsx', '.json'],
@@ -42,10 +41,10 @@ function generateBaseConfig(entry, type) {
 
 export default function createWebpackBundle(
   entry,
-  { type, customizeWebpackConfig, plugins },
+  { type, customizeWebpackConfig, plugins, tmpdir },
   { onBuildReady },
 ) {
-  let config = generateBaseConfig(entry, type);
+  let config = generateBaseConfig({ entry, type, tmpdir });
   plugins.forEach((plugin) => {
     if (typeof plugin.customizeWebpackConfig === 'function') {
       config = plugin.customizeWebpackConfig(config);

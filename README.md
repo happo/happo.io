@@ -640,7 +640,7 @@ environment, so it's safe to inject things into the `<head>`.
 const path = require('path');
 
 module.exports = {
-  setupScript: path.resolve(__dirname, 'happoSetup.js');
+  setupScript: path.resolve(__dirname, 'happoSetup.js'),
 }
 ```
 
@@ -660,6 +660,18 @@ module.exports = {
 }
 ```
 (example from [mineral-ui](https://github.com/mineral-ui/mineral-ui/blob/e48a47d917477b58e496fe43edbfa4bb6ceb88e9/.happo.js#L35))
+
+### `tmpdir`
+
+Happo uses webpack internally. By default, bundles are created in the temp
+folder provided by the operating system. You can override where bundles are
+stored with the `tmpdir` configuration option.
+
+```js
+module.exports = {
+  tmpdir: '/some/absolute/path/to/an/existing/folder',
+}
+```
 
 ## Command-Line-Interface (CLI)
 
