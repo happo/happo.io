@@ -30,7 +30,14 @@ function generateBaseConfig({ entry, type, tmpdir }) {
     plugins: [],
   };
   if (type === 'react') {
-    const babelPresetReact = require.resolve('babel-preset-react');
+    let babelPresetReact;
+    try {
+      // try with the babel 7 package
+      babelPresetReact = require.resolve('@babel/preset-react');
+    } catch (e) {
+      // fall back to regular
+      babelPresetReact = require.resolve('babel-preset-react');
+    }
 
     const [babelRule] = baseConfig.module.rules;
     babelRule.test = /\.jsx?$/;
