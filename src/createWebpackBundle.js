@@ -60,6 +60,8 @@ export default function createWebpackBundle(
     compiler.watch({}, (err, stats) => {
       if (err) {
         new Logger().error(err);
+      } else if (stats.compilation.errors && stats.compilation.errors.length) {
+        stats.compilation.errors.forEach(e => new Logger().error(e));
       } else if (hash !== stats.hash) {
         hash = stats.hash;
         onBuildReady(bundleFilePath);
@@ -70,9 +72,13 @@ export default function createWebpackBundle(
 
   // We're not in watch/dev mode
   return new Promise((resolve, reject) => {
-    compiler.run((err) => {
+    compiler.run((err, stats) => {
       if (err) {
         reject(err);
+        return;
+      }
+      if (stats.compilation.errors && stats.compilation.errors.length) {
+        reject(stats.compilation.errors[0]);
         return;
       }
       resolve(bundleFilePath);
