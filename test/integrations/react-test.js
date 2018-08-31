@@ -34,7 +34,7 @@ beforeEach(() => {
               },
             ],
           });
-          return cfg;
+          return new Promise((resolve) => setTimeout(() => resolve(cfg), 50));
         },
       },
     ],
