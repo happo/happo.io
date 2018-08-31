@@ -46,7 +46,7 @@ function generateBaseConfig({ entry, type, tmpdir }) {
   return baseConfig;
 }
 
-export default function createWebpackBundle(
+export default async function createWebpackBundle(
   entry,
   { type, customizeWebpackConfig, plugins, tmpdir },
   { onBuildReady },
@@ -57,7 +57,7 @@ export default function createWebpackBundle(
       config = plugin.customizeWebpackConfig(config);
     }
   });
-  config = customizeWebpackConfig(config);
+  config = await customizeWebpackConfig(config);
   const compiler = webpack(config);
   const bundleFilePath = path.join(config.output.path, config.output.filename);
 

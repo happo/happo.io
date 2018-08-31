@@ -598,6 +598,19 @@ module.exports = {
 }
 ```
 
+If you need to perform asynchronous actions to generate a webpack
+configuration, you can return a promise that resolves with the config once you
+are done. Here's an example using async/await:
+
+```js
+module.exports = {
+  customizeWebpackConfig: async (config) => {
+    config.module = await doSomethingAsync();
+    return config;
+  },
+}
+```
+
 ### `plugins`
 
 An array of happo plugins. Find available plugins in the [Plugins](#plugins)
