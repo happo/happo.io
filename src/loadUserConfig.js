@@ -57,5 +57,10 @@ export default async function loadUserConfig(pathToConfigFile, env = process.env
         'See https://github.com/enduire/happo.io#targets for more info.',
     );
   }
+  config.plugins.forEach(({ publicFolders }) => {
+    if (publicFolders) {
+      config.publicFolders.push(...publicFolders);
+    }
+  });
   return config;
 }

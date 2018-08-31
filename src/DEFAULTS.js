@@ -7,6 +7,7 @@ export const targets = {};
 export const configFile = './.happo.js';
 export const type = 'react';
 export const plugins = [];
+export const publicFolders = [];
 export const tmpdir = os.tmpdir();
 export function customizeWebpackConfig(config) {
   // provide a default no-op for this config option so that we can assume it's
