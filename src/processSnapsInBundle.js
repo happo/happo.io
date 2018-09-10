@@ -110,7 +110,7 @@ export default async function processSnapsInBundle(
       <!DOCTYPE html>
       <html>
         <head>
-          <script src='${webpackBundle}'></script>
+          <script src='file://${webpackBundle}'></script>
         </head>
         <body>
         </body>
@@ -119,6 +119,7 @@ export default async function processSnapsInBundle(
     {
       runScripts: 'dangerously',
       resources: 'usable',
+      url: 'http://localhost',
       beforeParse(win) {
         win.outerWidth = win.innerWidth = width;
         win.outerHeight = win.innerHeight = height;
