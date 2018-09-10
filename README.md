@@ -147,7 +147,8 @@ Don't worry about the command failing with a non-zero exit code. This is by
 design, scripts use the exit code as a signal that there is a diff.
 
 If you open this URL in a browser, you'll see something like this:
-![Happo report page](happo-report.png)
+
+<img src="happo-report.png" alt="Happo report page" width="350" />
 
 We've now covered the most important steps and commands involved in making a
 full happo run. Normally, you won't run all these commands locally. Instead,
