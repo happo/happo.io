@@ -388,7 +388,7 @@ component" which you render synchronously in the Happo test.
 ### Storybook
 
 The Happo plugin for [Storybook](https://storybook.js.org/) will automatically
-turn your stories into Happo examples.
+turn your stories into Happo examples. See https://github.com/enduire/happo-plugin-storybook.
 
 ```bash
 npm install --save-dev happo-plugin-storybook
@@ -403,6 +403,28 @@ module.exports {
   plugins: [
     happoPluginStorybook(),
   ],
+};
+```
+
+### Gatsby
+
+The Happo plugin for [Gatsby](https://www.gatsbyjs.org/) turns all your 
+static pages into Happo tests. See https://github.com/enduire/happo-plugin-gatsby.
+
+```bash
+npm install --save-dev happo-plugin-gatsby
+```
+
+```js
+const happoPluginGatsby = require('happo-plugin-gatsby');
+
+// .happo.js
+module.exports {
+  // ...
+  plugins: [
+    happoPluginGatsby(),
+  ],
+  type: 'plain',
 };
 ```
 
