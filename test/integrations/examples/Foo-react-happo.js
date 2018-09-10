@@ -1,3 +1,4 @@
+/* global window */
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -27,6 +28,7 @@ const PortalComponent = ({ children }) => {
 
 export const portalExample = () => (
   <PortalComponent>
+    {window.localStorage.getItem('foobar')}
     <button>I am in a portal</button>
   </PortalComponent>
 );
