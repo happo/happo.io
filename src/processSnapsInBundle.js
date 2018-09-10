@@ -102,7 +102,7 @@ async function processVariants({
 
 export default async function processSnapsInBundle(
   webpackBundle,
-  { globalCSS, only, publicFolders, getRootElement, viewport },
+  { globalCSS, only, publicFolders, getRootElement, viewport, jsdomOptions },
 ) {
   const [width, height] = viewport.split('x').map((s) => parseInt(s, 10));
   const dom = new JSDOM(
@@ -116,7 +116,7 @@ export default async function processSnapsInBundle(
         </body>
       </html>
     `.trim(),
-    {
+    Object.assign({
       runScripts: 'dangerously',
       resources: 'usable',
       url: 'http://localhost',
@@ -132,7 +132,7 @@ export default async function processSnapsInBundle(
         win.requestAnimationFrame = (callback) => setTimeout(callback, 0);
         win.cancelAnimationFrame = () => {};
       },
-    },
+    }, jsdomOptions),
   );
 
   await new Promise((resolve) => {

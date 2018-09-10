@@ -28,7 +28,17 @@ function waitForAnyKey() {
 }
 
 async function generateScreenshots(
-  { apiKey, apiSecret, stylesheets, endpoint, targets, publicFolders, getRootElement, only },
+  {
+    apiKey,
+    apiSecret,
+    stylesheets,
+    endpoint,
+    targets,
+    publicFolders,
+    getRootElement,
+    only,
+    jsdomOptions,
+  },
   bundleFile,
   logger,
 ) {
@@ -46,6 +56,7 @@ async function generateScreenshots(
           getRootElement,
           only,
           viewport: targets[name].viewport,
+          jsdomOptions,
         });
         if (!snapPayloads.length) {
           throw new Error('No examples found');
@@ -92,6 +103,7 @@ export default async function domRunner(
     type,
     plugins,
     tmpdir,
+    jsdomOptions,
   },
   { only, onReady },
 ) {
@@ -104,6 +116,7 @@ export default async function domRunner(
     publicFolders,
     getRootElement,
     only,
+    jsdomOptions,
   });
   const logger = new Logger();
   logger.start('Reading files...');

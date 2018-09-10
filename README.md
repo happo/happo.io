@@ -686,6 +686,23 @@ module.exports = {
 }
 ```
 
+### `jsdomOptions`
+
+Happo uses jsdom internally. By default, it provides sane defaults to the
+`JSDOM` constructor. See
+[processSnapsInBundle.js](src/processSnapsInBundle.js). You can override any
+options here but your mileage may vary. See
+https://github.com/jsdom/jsdom#simple-options. Here's an example where the
+document's `referrer` is being set:
+
+```js
+module.exports = {
+  jsdomOptions: {
+    referrer: 'http://google.com',
+  }
+}
+```
+
 ## Command-Line-Interface (CLI)
 
 While you are most likely getting most value from the ready-made CI integration
@@ -732,4 +749,3 @@ data as props instead of relying on the component to compute it itself.
 
 Yes, either through providing an external stylesheet in the `stylesheets`
 config or by injecting them as inline base64 urls through a `happoSetup` file.
-
