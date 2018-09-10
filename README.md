@@ -688,16 +688,17 @@ module.exports = {
 
 ### `jsdomOptions`
 
-Happo uses jsdom internally. By default, it provides sane defaults to
-the `JSDOM` constructor. See [processSnapsInBundle.js](src/processSnapsInBundle.js).
-You can override any options here but your mileage may vary. In particular if you are
-using `localStorage` in your components, you will have to set the `url` option. See
-https://github.com/jsdom/jsdom#simple-options.
+Happo uses jsdom internally. By default, it provides sane defaults to the
+`JSDOM` constructor. See
+[processSnapsInBundle.js](src/processSnapsInBundle.js). You can override any
+options here but your mileage may vary. See
+https://github.com/jsdom/jsdom#simple-options. Here's an example where the
+document's `referrer` is being set:
 
 ```js
 module.exports = {
   jsdomOptions: {
-    url: 'http://127.0.0.1',  // Your expected URL
+    referrer: 'http://google.com',
   }
 }
 ```
