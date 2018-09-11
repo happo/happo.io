@@ -69,6 +69,74 @@ it('inlines multiple images', () => {
   );
 });
 
+it('inlines srcset attributes', () => {
+  const dom = createDom(`
+    <img src="/1x1.jpg" srcset="/1x1.jpg 197w, /1x1.png 393w, http://dns/1.png 600w">
+  `);
+  expect(inlineResources(dom, { publicFolders })).toEqual(
+    `
+    <img src="${jpgb64}" srcset="${jpgb64} 197w, ${pngb64} 393w, http://dns/1.png 600w">
+  `.trim(),
+  );
+});
+
+it('handles invalid srcset attributes', () => {
+  const dom = createDom(`
+    <img srcset="    ">
+  `);
+  expect(inlineResources(dom, { publicFolders })).toEqual(
+    `
+    <img srcset="">
+  `.trim(),
+  );
+});
+
+it('handles single-url srcsets', () => {
+  const dom = createDom(`
+    <img srcset="/1x1.png">
+  `);
+  expect(inlineResources(dom, { publicFolders })).toEqual(
+    `
+    <img srcset="${pngb64}">
+  `.trim(),
+  );
+});
+
+it('handles single-url srcsets with external urls', () => {
+  const dom = createDom(`
+    <img srcset="http://foo/1.png">
+  `);
+  expect(inlineResources(dom, { publicFolders })).toEqual(
+    `
+    <img srcset="http://foo/1.png">
+  `.trim(),
+  );
+});
+
+it('handles srcset that can not be found', () => {
+  const dom = createDom(`
+    <img srcset="/f1,2,3.png 100w, /f1,3.png 200w">
+  `);
+  expect(inlineResources(dom, { publicFolders })).toEqual(
+    `
+    <img srcset="/f1,2,3.png 100w, /f1,3.png 200w">
+  `.trim(),
+  );
+});
+
+it('handles srcset with plenty of whitespace', () => {
+  const dom = createDom(`
+    <img srcset="
+      /1x1.png    100w,
+      /f1,3.png   200w"
+    >
+  `);
+  expect(inlineResources(dom, { publicFolders })).toEqual(
+    `
+    <img srcset="${pngb64}    100w, /f1,3.png   200w">
+  `.trim(),
+  );
+});
 it('leaves images that can not be found alone', () => {
   const dom = createDom('<img src="/2x2.png">');
   expect(inlineResources(dom, { publicFolders })).toEqual('<img src="/2x2.png">');
