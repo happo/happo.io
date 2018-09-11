@@ -1,6 +1,27 @@
+import matchAll from 'string.prototype.matchall';
+
 import fileToBase64 from './fileToBase64';
 
-export default function inlineResources(dom, { publicFolders }) {
+const SRCSET_ITEM = /([^\s]+)(\s+[0-9.]+[wx])?(,?\s*)/g;
+
+function inlineImgSrcset(dom, { publicFolders }) {
+  const imgs = dom.window.document.querySelectorAll('img[srcset]');
+  imgs.forEach((img) => {
+    const newSrcset = Array.from(matchAll(img.getAttribute('srcset') || '', SRCSET_ITEM))
+      .map(([_, url, size]) => { // eslint-disable-line no-unused-vars
+        if (!url.startsWith('/')) {
+          // not something that we can resolve
+          return `${url}${size || ''}`;
+        }
+        return `${fileToBase64(url, { publicFolders }) || url}${size || ''}`;
+      })
+      .filter(Boolean)
+      .join(', ');
+    img.setAttribute('srcset', newSrcset);
+  });
+}
+
+function inlineImgSrc(dom, { publicFolders }) {
   const imgs = dom.window.document.querySelectorAll('img[src]');
   imgs.forEach((img) => {
     const src = img.getAttribute('src');
@@ -13,6 +34,11 @@ export default function inlineResources(dom, { publicFolders }) {
       img.setAttribute('src', base64);
     }
   });
+}
+
+export default function inlineResources(dom, { publicFolders }) {
+  inlineImgSrc(dom, { publicFolders });
+  inlineImgSrcset(dom, { publicFolders });
 
   // return something to make it easier to test
   return dom.window.document.querySelector('body *').innerHTML.trim();
