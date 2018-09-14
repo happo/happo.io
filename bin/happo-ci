@@ -16,9 +16,11 @@ echo "CHANGE_URL: ${CHANGE_URL}"
 echo "INSTALL_CMD: ${INSTALL_CMD}"
 
 NPM_CLIENT="npm"
+NPM_CLIENT_FLAGS="--no-save"
 if [ -f "yarn.lock" ]; then
   echo "Detected yarn.lock - using yarn to install dependencies"
   NPM_CLIENT="yarn"
+  NPM_CLIENT_FLAGS="--pure-lockfile"
 fi
 
 run-happo() {
@@ -30,7 +32,7 @@ run-happo() {
   # git history)
   if [ -z "$INSTALL_CMD" ]; then
     # Run yarn/npm install
-    ${NPM_CLIENT} install
+    ${NPM_CLIENT} install ${NPM_CLIENT_FLAGS}
   else
     # Run custom install command(s)
     eval "$INSTALL_CMD"
