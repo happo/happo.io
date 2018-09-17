@@ -17,6 +17,7 @@ beforeEach(() => {
   config = Object.assign({}, defaultConfig, {
     targets: { chrome: new MockTarget() },
     include: 'test/integrations/examples/*-react-happo.js*',
+    setupScript: path.resolve(__dirname, 'reactSetup.js'),
     plugins: [
       {
         pathToExamplesFile: path.resolve(__dirname, 'plugin-examples.js'),
