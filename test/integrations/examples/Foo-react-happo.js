@@ -4,19 +4,13 @@ import ReactDOM from 'react-dom';
 
 import Button from './Button.ffs';
 
-function injectCSS(css) {
-  const style = document.createElement('style');
-  style.innerHTML = css;
-  document.head.appendChild(style);
-}
-
 export default () => {
-  injectCSS('button { color: red }');
+  window.injectCSS('button { color: red }');
   return <Button />;
 };
 
 export const anotherVariant = () => {
-  injectCSS('button { text-align: center }');
+  window.injectCSS('button { text-align: center }');
   return <button>Click meish</button>;
 };
 

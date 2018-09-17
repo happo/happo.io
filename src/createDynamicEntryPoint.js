@@ -23,10 +23,9 @@ export default async function createDynamicEntryPoint({
     .map((file) => `window.snaps['${file}'] = require('${file}');`);
 
   const strings = [
-    setupScript ? `require('${setupScript}');` : '',
     'window.snaps = {};',
     `window.happoFlags = { only: ${JSON.stringify(only)} }`,
-  ].concat(fileStrings);
+  ];
   if (type === 'react') {
     const pathToReactDom = requireRelative.resolve('react-dom', process.cwd());
     strings.push(
@@ -54,6 +53,10 @@ export default async function createDynamicEntryPoint({
     `.trim(),
     );
   }
+  if (setupScript) {
+    strings.push(`require('${setupScript}');`);
+  }
+  strings.push(...fileStrings);
   strings.push('window.onBundleReady();');
   const entryFile = path.join(
     tmpdir,
