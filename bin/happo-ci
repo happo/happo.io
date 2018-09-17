@@ -25,7 +25,7 @@ fi
 
 run-happo() {
   SHA=$1
-  git checkout --quiet "$SHA"
+  git checkout --force --quiet "$SHA"
   COMMIT_SUBJECT="$(git show -s --format=%s)"
 
   # Install dependencies (again, since we're potentially in a different place in
