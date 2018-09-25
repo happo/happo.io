@@ -1,5 +1,5 @@
-const SUFFIX_PATTERN = /([\w-_]+)[-_]\w+\.jsx?$/;
-const DIRECTORY_PATTERN = /([\w-_]+)\/\w+\.jsx?$/;
+const SUFFIX_PATTERN = /([\w-_]+)[-_]\w+\.[a-z]+$/;
+const DIRECTORY_PATTERN = /([\w-_]+)\/\w+\.[a-z]+$/;
 
 export default function getComponentNameFromFileName(fileName) {
   const match = fileName.match(SUFFIX_PATTERN) || fileName.match(DIRECTORY_PATTERN);

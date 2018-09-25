@@ -8,6 +8,14 @@ it('handles directory structures', () => {
   expect(getComponentNameFromFileName('./src/Button/happo.jsx')).toEqual('Button');
 });
 
+it('handles ts files', () => {
+  expect(getComponentNameFromFileName('./src/Button/happo.ts')).toEqual('Button');
+});
+
+it('handles tsx files', () => {
+  expect(getComponentNameFromFileName('/foo/bar/Car/happo.tsx')).toEqual('Car');
+});
+
 it('handles directory structures with unconventional names', () => {
   expect(getComponentNameFromFileName('./src/foo_bar/happo.jsx')).toEqual('foo_bar');
 });
