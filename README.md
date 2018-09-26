@@ -409,7 +409,7 @@ module.exports {
 
 ### Gatsby
 
-The Happo plugin for [Gatsby](https://www.gatsbyjs.org/) turns all your 
+The Happo plugin for [Gatsby](https://www.gatsbyjs.org/) turns all your
 static pages into Happo tests. See https://github.com/enduire/happo-plugin-gatsby.
 
 ```bash
@@ -587,6 +587,12 @@ This is a list of all supported browsers:
 - `firefox` (latest stable version)
 - `chrome` (latest stable version)
 - `internet explorer` (version 11)
+- `edge` (latest stable version)
+- `safari` (latest stable version)
+
+The `firefox` and `chrome` browsers are always included. Depending on your
+account plan, you might have access to `internet explorer`, `edge`, and
+`safari` as well.
 
 ### `customizeWebpackConfig`
 
