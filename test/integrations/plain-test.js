@@ -32,21 +32,18 @@ it('produces the right html', async () => {
     {
       component: 'Foo-plain',
       css: '',
-      hash: '062b1e9539837eb5eea6806c2e2ec437',
       html: '<button>Click me</button>',
       variant: 'default',
     },
     {
       component: 'Foo-plain',
       css: '',
-      hash: 'e8e8c114671d762a7c026425977424d0',
       html: '<button>Click meish</button>',
       variant: 'anotherVariant',
     },
     {
       component: 'Foo-plain',
       css: '',
-      hash: '37e586e14290caf5ef48eabdad669592',
       html: '<button>Ready</button>',
       variant: 'asyncVariant',
     },

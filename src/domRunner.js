@@ -35,7 +35,6 @@ async function generateScreenshots(
     endpoint,
     targets,
     publicFolders,
-    getRootElement,
     only,
     jsdomOptions,
   },
@@ -53,7 +52,6 @@ async function generateScreenshots(
         const { globalCSS, snapPayloads } = await processSnapsInBundle(bundleFile, {
           globalCSS: cssBlocks.join('').replace(/\n/g, ''),
           publicFolders,
-          getRootElement,
           only,
           viewport: targets[name].viewport,
           jsdomOptions,
@@ -99,7 +97,7 @@ export default async function domRunner(
     endpoint,
     targets,
     publicFolders,
-    getRootElement,
+    rootElementSelector,
     type,
     plugins,
     tmpdir,
@@ -114,7 +112,6 @@ export default async function domRunner(
     endpoint,
     targets,
     publicFolders,
-    getRootElement,
     only,
     jsdomOptions,
   });
@@ -129,6 +126,7 @@ export default async function domRunner(
       type,
       plugins,
       tmpdir,
+      rootElementSelector,
     });
     entryFile = entryPointResult.entryFile;
     logger.success(`${entryPointResult.numberOfFilesProcessed} found`);

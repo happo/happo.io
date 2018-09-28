@@ -12,6 +12,7 @@ export default async function createDynamicEntryPoint({
   type,
   plugins,
   tmpdir,
+  rootElementSelector,
 }) {
   const files = await findTestFiles(include);
   const filePartOfOnly = only ? only.split('#')[0] : undefined;
@@ -20,11 +21,13 @@ export default async function createDynamicEntryPoint({
     .map((file) => path.join(process.cwd(), file))
     .concat(plugins.map(({ pathToExamplesFile }) => pathToExamplesFile))
     .filter(Boolean)
-    .map((file) => `window.snaps['${file}'] = require('${file}');`);
+    .map((file) => `window.happoProcessor.prepare(${JSON.stringify(file)}, require(${JSON.stringify(file)}));`);
 
+  const pathToProcessor = require.resolve('./browser/processor');
   const strings = [
+    `const Processor = require(${JSON.stringify(pathToProcessor)}).default;`,
+    `window.happoProcessor = new Processor(${JSON.stringify({ only, rootElementSelector })});`,
     'window.snaps = {};',
-    `window.happoFlags = { only: ${JSON.stringify(only)} }`,
   ];
   if (type === 'react') {
     const pathToReactDom = requireRelative.resolve('react-dom', process.cwd());
