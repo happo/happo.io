@@ -22,6 +22,7 @@ beforeEach(() => {
       'https://meyerweb.com/eric/tools/css/reset/reset.css',
     ],
     type: 'plain',
+    rootElementSelector: '.custom-root',
   });
   subject = () => runCommand(sha, config, {});
 });
