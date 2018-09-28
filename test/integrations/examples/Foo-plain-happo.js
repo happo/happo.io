@@ -17,9 +17,12 @@ export const anotherVariant = () => {
 };
 
 export const asyncVariant = (renderInDOM) => {
-  const root = renderInDOM('<div class="custom-root"><button></button></div>');
+  const root = renderInDOM('<div class="custom-root"><button style="width: 100px"></button></div>');
   setTimeout(() => {
-    root.querySelector('button').innerHTML = 'Ready';
+    const button = root.querySelector('button');
+    button.innerHTML = 'Ready';
+    const { width } = button.getBoundingClientRect();
+    button.style = `width: ${width * 2.5}px`;
   }, 10);
 
   return new Promise((resolve) => setTimeout(resolve, 11));

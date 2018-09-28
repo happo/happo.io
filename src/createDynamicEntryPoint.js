@@ -60,7 +60,7 @@ export default async function createDynamicEntryPoint({
     strings.push(`require('${setupScript}');`);
   }
   strings.push(...fileStrings);
-  strings.push('window.onBundleReady();');
+  strings.push('window.onBundleReady && window.onBundleReady();');
   const entryFile = path.join(
     tmpdir,
     `happo-entry-${type}-${Buffer.from(process.cwd()).toString('base64')}.js`,

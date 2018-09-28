@@ -1,5 +1,6 @@
 import readline from 'readline';
 
+import JSDOMDomProvider from './JSDOMDomProvider';
 import Logger from './Logger';
 import MultipleErrors from './MultipleErrors';
 import WrappedError from './WrappedError';
@@ -27,6 +28,14 @@ function waitForAnyKey() {
   });
 }
 
+function resolveDomProvider({ plugins, jsdomOptions }) {
+  const pluginWithProvider = plugins.find(({ DomProvider }) => !!DomProvider);
+  if (pluginWithProvider) {
+    return pluginWithProvider.DomProvider;
+  }
+  return JSDOMDomProvider.bind(JSDOMDomProvider, jsdomOptions);
+}
+
 async function generateScreenshots(
   {
     apiKey,
@@ -35,8 +44,8 @@ async function generateScreenshots(
     endpoint,
     targets,
     publicFolders,
-    only,
     jsdomOptions,
+    plugins,
   },
   bundleFile,
   logger,
@@ -45,6 +54,7 @@ async function generateScreenshots(
 
   const targetNames = Object.keys(targets);
   const tl = targetNames.length;
+  const DomProvider = resolveDomProvider({ plugins, jsdomOptions });
   logger.info(`Generating screenshots in ${tl} target${tl > 1 ? 's' : ''}...`);
   try {
     const results = await Promise.all(
@@ -52,9 +62,8 @@ async function generateScreenshots(
         const { globalCSS, snapPayloads } = await processSnapsInBundle(bundleFile, {
           globalCSS: cssBlocks.join('').replace(/\n/g, ''),
           publicFolders,
-          only,
           viewport: targets[name].viewport,
-          jsdomOptions,
+          DomProvider,
         });
         if (!snapPayloads.length) {
           throw new Error('No examples found');
@@ -114,6 +123,7 @@ export default async function domRunner(
     publicFolders,
     only,
     jsdomOptions,
+    plugins,
   });
   const logger = new Logger();
   logger.start('Reading files...');

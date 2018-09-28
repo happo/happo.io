@@ -1,5 +1,7 @@
 import path from 'path';
 
+import happoPluginPuppeteer from 'happo-plugin-puppeteer';
+
 import MockTarget from './MockTarget';
 import * as defaultConfig from '../../src/DEFAULTS';
 import makeRequest from '../../src/makeRequest';
@@ -23,6 +25,7 @@ beforeEach(() => {
     ],
     type: 'plain',
     rootElementSelector: '.custom-root',
+    plugins: [happoPluginPuppeteer()],
   });
   subject = () => runCommand(sha, config, {});
 });
@@ -45,7 +48,7 @@ it('produces the right html', async () => {
     {
       component: 'Foo-plain',
       css: '',
-      html: '<button>Ready</button>',
+      html: '<button style="width: 250px;">Ready</button>',
       variant: 'asyncVariant',
     },
   ]);
