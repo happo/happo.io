@@ -25,7 +25,7 @@ beforeEach(() => {
     ],
     type: 'plain',
     rootElementSelector: '.custom-root',
-    plugins: [happoPluginPuppeteer()],
+    plugins: [happoPluginPuppeteer({ launchOptions: { args: ['--no-sandbox'] } })],
   });
   subject = () => runCommand(sha, config, {});
 });
