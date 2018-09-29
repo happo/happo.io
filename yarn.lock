@@ -2513,9 +2513,9 @@ handlebars@^4.0.3:
   optionalDependencies:
     uglify-js "^2.6"
 
-happo-plugin-puppeteer@^1.0.0-rc.2:
-  version "1.0.0-rc.2"
-  resolved "https://registry.npmjs.org/happo-plugin-puppeteer/-/happo-plugin-puppeteer-1.0.0-rc.2.tgz#f62b38e890f07e7b12f589d0aed3361323fdcd52"
+happo-plugin-puppeteer@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/happo-plugin-puppeteer/-/happo-plugin-puppeteer-1.0.0.tgz#c03e9050a142fc04346073a0f04f3057af6993d1"
   dependencies:
     puppeteer "^1.8.0"
 
