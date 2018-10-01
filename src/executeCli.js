@@ -9,6 +9,7 @@ import hasReportCommand from './commands/hasReport';
 import loadUserConfig from './loadUserConfig';
 import packageJson from '../package.json';
 import runCommand from './commands/run';
+import uploadReport from './uploadReport';
 
 commander
   .version(packageJson.version)
@@ -55,6 +56,14 @@ commander
     } else {
       process.exit(1);
     }
+  });
+
+commander
+  .command('empty <sha>')
+  .description('mark a report as empty')
+  .action(async (sha) => {
+    await uploadReport(Object.assign({ snaps: [], sha }, await loadUserConfig(commander.config)));
+    process.exit(0);
   });
 
 commander

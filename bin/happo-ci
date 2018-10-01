@@ -46,6 +46,7 @@ run-happo() {
     --message "${COMMIT_SUBJECT}"
   else
     echo "NPM package happo.io not installed. Assuming this is the first run."
+    "$NPM_BIN"/happo empty $SHA
   fi
 }
 
