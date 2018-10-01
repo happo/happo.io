@@ -18,6 +18,7 @@ echo "INSTALL_CMD: ${INSTALL_CMD}"
 NPM_CLIENT="npm"
 NPM_CLIENT_FLAGS="--no-save"
 CHECK_FOR_HAPPO="npm ls happo.io"
+FIRST_RUN="false"
 if [ -f "yarn.lock" ]; then
   echo "Detected yarn.lock - using yarn to install dependencies"
   NPM_CLIENT="yarn"
@@ -46,7 +47,7 @@ run-happo() {
     --message "${COMMIT_SUBJECT}"
   else
     echo "NPM package happo.io not installed. Assuming this is the first run."
-    "$NPM_BIN"/happo empty $SHA
+    FIRST_RUN="true"
   fi
 }
 
@@ -61,6 +62,10 @@ if ! "$NPM_BIN"/happo has-report "$PREVIOUS_SHA"; then
 fi
 
 run-happo "$CURRENT_SHA"
+
+if [ "$FIRST_RUN" = "true" ]; then
+  "$NPM_BIN"/happo empty "$PREVIOUS_SHA"
+fi
 
 # Compare reports from the two SHAs.
 COMMIT_SUBJECT="$(git show -s --format=%s)"
