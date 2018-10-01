@@ -1,3 +1,4 @@
+import { JSDOM } from 'jsdom';
 import matchAll from 'string.prototype.matchall';
 
 import fileToBase64 from './fileToBase64';
@@ -36,10 +37,9 @@ function inlineImgSrc(dom, { publicFolders }) {
   });
 }
 
-export default function inlineResources(dom, { publicFolders }) {
+export default function inlineResources(html, { publicFolders }) {
+  const dom = new JSDOM(html);
   inlineImgSrc(dom, { publicFolders });
   inlineImgSrcset(dom, { publicFolders });
-
-  // return something to make it easier to test
-  return dom.window.document.querySelector('body *').innerHTML.trim();
+  return dom.window.document.body.innerHTML.trim();
 }

@@ -28,6 +28,7 @@ function generateBaseConfig({ entry, type, tmpdir }) {
       ],
     },
     plugins: [],
+    devtool: 'eval',
   };
   if (type === 'react') {
     let babelPresetReact;
