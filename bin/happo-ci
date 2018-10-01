@@ -17,10 +17,12 @@ echo "INSTALL_CMD: ${INSTALL_CMD}"
 
 NPM_CLIENT="npm"
 NPM_CLIENT_FLAGS="--no-save"
+CHECK_FOR_HAPPO="npm ls happo.io"
 if [ -f "yarn.lock" ]; then
   echo "Detected yarn.lock - using yarn to install dependencies"
   NPM_CLIENT="yarn"
   NPM_CLIENT_FLAGS="--pure-lockfile"
+  CHECK_FOR_HAPPO="yarn list | grep 'happo\.io@'"
 fi
 
 run-happo() {
@@ -38,7 +40,7 @@ run-happo() {
     eval "$INSTALL_CMD"
   fi
 
-  if [ -f "${NPM_BIN}/happo" ]; then
+  if eval "$CHECK_FOR_HAPPO"; then
     "$NPM_BIN"/happo run "$SHA" \
     --link "${CHANGE_URL}" \
     --message "${COMMIT_SUBJECT}"
