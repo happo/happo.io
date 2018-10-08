@@ -18,6 +18,7 @@ beforeEach(() => {
     targets: { chrome: new MockTarget() },
     include: 'test/integrations/examples/*-react-happo.js*',
     setupScript: path.resolve(__dirname, 'reactSetup.js'),
+    renderWrapperModule: path.resolve(__dirname, 'renderWrapper.js'),
     plugins: [
       {
         pathToExamplesFile: path.resolve(__dirname, 'plugin-examples.js'),
@@ -81,6 +82,12 @@ it('produces the right html', async () => {
       css: '',
       html: '<div>Hello world</div>',
       variant: 'dynamicImportExample',
+    },
+    {
+      component: 'Foo-react',
+      css: '',
+      html: '<button>I am dark</button>',
+      variant: 'themedExample',
     },
     {
       component: 'Foo-react',
