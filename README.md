@@ -429,6 +429,30 @@ module.exports {
 };
 ```
 
+### Puppeteer
+
+If you have Happo examples that rely on measuring the DOM, the default
+pre-renderer (JSDOM) might not produce the results you need. By using a real
+browser (Chrome) to pre-render examples, measurements are available on render
+time. See https://github.com/happo/happo-plugin-puppeteer.
+
+```bash
+npm install --save-dev happo-plugin-puppeteer
+```
+
+```js
+const happoPluginPuppeteer = require('happo-plugin-puppeteer');
+
+// .happo.js
+module.exports {
+  // ...
+  plugins: [
+    happoPluginPuppeteer(),
+  ],
+};
+```
+
+
 ## Local development
 
 The `happo dev` command is designed to help local development of components. In
