@@ -107,6 +107,7 @@ export default async function domRunner(
     targets,
     publicFolders,
     rootElementSelector,
+    renderWrapperModule,
     type,
     plugins,
     tmpdir,
@@ -137,6 +138,7 @@ export default async function domRunner(
       plugins,
       tmpdir,
       rootElementSelector,
+      renderWrapperModule,
     });
     entryFile = entryPointResult.entryFile;
     logger.success(`${entryPointResult.numberOfFilesProcessed} found`);

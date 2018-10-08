@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import Button from './Button.ffs';
+import ThemeContext from '../theme';
 
 const dynamicImportPromise = import('./dynamically-imported');
 
@@ -33,14 +34,20 @@ class AsyncComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
+    this.setLabel = this.setLabel.bind(this);
   }
 
   componentDidMount() {
     setTimeout(() => this.setState({ ready: true }), 10);
+    window.addEventListener('set-label', this.setLabel);
   }
 
-  setLabel(label) {
-    this.setState({ label });
+  componentWillUnmount() {
+    window.removeEventListener('set-label', this.setLabel);
+  }
+
+  setLabel(e) {
+    this.setState({ label: e.detail });
   }
 
   render() {
@@ -52,8 +59,8 @@ class AsyncComponent extends React.Component {
 }
 
 export const asyncExample = (render) => {
-  const component = render(<AsyncComponent />);
-  component.setLabel('Ready');
+  render(<AsyncComponent />);
+  window.dispatchEvent(new CustomEvent('set-label', { detail: 'Ready' })); // eslint-disable-line no-undef
   return new Promise((resolve) => setTimeout(resolve, 11));
 };
 
@@ -74,3 +81,9 @@ class DynamicImportExample extends React.Component {
 }
 
 export const dynamicImportExample = () => <DynamicImportExample />;
+
+export const themedExample = () => (
+  <ThemeContext.Consumer>
+    {theme => <button>I am {theme}</button>}
+  </ThemeContext.Consumer>
+);

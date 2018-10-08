@@ -697,10 +697,10 @@ module.exports = {
 
 ### `setupScript`
 
-A path to a file that will be executed before rendering your components. This
-is useful if you for instance want to inject global css styling (e.g. a css
-reset), custom fonts, polyfills etc. This script is executed in a DOM
-environment, so it's safe to inject things into the `<head>`.
+An absolute path to a file that will be executed before rendering your
+components. This is useful if you for instance want to inject global css
+styling (e.g. a css reset), custom fonts, polyfills etc. This script is
+executed in a DOM environment, so it's safe to inject things into the `<head>`.
 
 ```js
 const path = require('path');
@@ -708,6 +708,29 @@ const path = require('path');
 module.exports = {
   setupScript: path.resolve(__dirname, 'happoSetup.js'),
 }
+```
+
+### `renderWrapperModule`
+
+An absolute path to a file exporting a function where you can wrap rendering of
+Happo examples. This can be useful if you for instance have a theme provider or
+a store provider.
+
+```js
+// .happo.js
+const path = require('path');
+
+module.exports = {
+  renderWrapperModule: path.resolve(__dirname, 'happoWrapper.js'),
+}
+```
+
+```js
+// happoWrapper.js
+import React from 'react';
+import ThemeProvider from '../ThemeProvider';
+
+export default (component) => <ThemeProvider>{component}</ThemeProvider>;
 ```
 
 ### `rootElementSelector`

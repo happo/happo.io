@@ -13,6 +13,7 @@ export default async function createDynamicEntryPoint({
   plugins,
   tmpdir,
   rootElementSelector,
+  renderWrapperModule,
 }) {
   const files = await findTestFiles(include);
   const filePartOfOnly = only ? only.split('#')[0] : undefined;
@@ -28,6 +29,8 @@ export default async function createDynamicEntryPoint({
     `const Processor = require(${JSON.stringify(pathToProcessor)}).default;`,
     `window.happoProcessor = new Processor(${JSON.stringify({ only, rootElementSelector })});`,
     'window.snaps = {};',
+    `let renderWrapper = require('${renderWrapperModule}');`,
+    'renderWrapper = renderWrapper.default || renderWrapper;',
   ];
   if (type === 'react') {
     const pathToReactDom = requireRelative.resolve('react-dom', process.cwd());
@@ -35,7 +38,7 @@ export default async function createDynamicEntryPoint({
       `
       const ReactDOM = require('${pathToReactDom}');
       window.happoRender = (component, { rootElement }) =>
-        ReactDOM.render(component, rootElement);
+        ReactDOM.render(renderWrapper(component), rootElement);
 
       window.happoCleanup = () => {
         for (const element of document.body.children) {
@@ -48,7 +51,7 @@ export default async function createDynamicEntryPoint({
     strings.push(
       `
       window.happoRender = (html, { rootElement }) => {
-        rootElement.innerHTML = html;
+        rootElement.innerHTML = renderWrapper(html);
         return rootElement;
       };
 
