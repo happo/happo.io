@@ -54,7 +54,7 @@ export default async function loadUserConfig(pathToConfigFile, env = process.env
   if (!config.targets || Object.keys(config.targets).length === 0) {
     throw new Error(
       'You need at least one target defined under `targets`. ' +
-        'See https://github.com/enduire/happo.io#targets for more info.',
+        'See https://github.com/happo/happo.io#targets for more info.',
     );
   }
   config.plugins.forEach(({ publicFolders }) => {
