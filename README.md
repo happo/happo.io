@@ -389,7 +389,7 @@ component" which you render synchronously in the Happo test.
 ### Storybook
 
 The Happo plugin for [Storybook](https://storybook.js.org/) will automatically
-turn your stories into Happo examples. See https://github.com/enduire/happo-plugin-storybook.
+turn your stories into Happo examples. See https://github.com/happo/happo-plugin-storybook.
 
 ```bash
 npm install --save-dev happo-plugin-storybook
@@ -410,7 +410,7 @@ module.exports {
 ### Gatsby
 
 The Happo plugin for [Gatsby](https://www.gatsbyjs.org/) turns all your
-static pages into Happo tests. See https://github.com/enduire/happo-plugin-gatsby.
+static pages into Happo tests. See https://github.com/happo/happo-plugin-gatsby.
 
 ```bash
 npm install --save-dev happo-plugin-gatsby
@@ -428,6 +428,30 @@ module.exports {
   type: 'plain',
 };
 ```
+
+### Puppeteer
+
+If you have Happo examples that rely on measuring the DOM, the default
+pre-renderer (JSDOM) might not produce the results you need. By using a real
+browser (Chrome) to pre-render examples, measurements are available on render
+time. See https://github.com/happo/happo-plugin-puppeteer.
+
+```bash
+npm install --save-dev happo-plugin-puppeteer
+```
+
+```js
+const happoPluginPuppeteer = require('happo-plugin-puppeteer');
+
+// .happo.js
+module.exports {
+  // ...
+  plugins: [
+    happoPluginPuppeteer(),
+  ],
+};
+```
+
 
 ## Local development
 

@@ -1,5 +1,6 @@
 module.exports = {
   extends: 'airbnb',
+  parser: 'babel-eslint',
   plugins: ['jest'],
   env: {
     'jest/globals': true,
@@ -18,6 +19,7 @@ module.exports = {
     'prefer-template': 0,
     'global-require': 0,
     'no-restricted-syntax': 0,
+    'react/no-multi-comp': 0,
   },
 
   globals: {
