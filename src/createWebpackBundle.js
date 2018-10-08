@@ -23,6 +23,9 @@ function generateBaseConfig({ entry, type, tmpdir }) {
           exclude: /node_modules/,
           use: {
             loader: babelLoader,
+            options: {
+              plugins: [require.resolve('babel-plugin-dynamic-import-node')],
+            },
           },
         },
       ],
@@ -42,7 +45,7 @@ function generateBaseConfig({ entry, type, tmpdir }) {
 
     const [babelRule] = baseConfig.module.rules;
     babelRule.test = /\.jsx?$/;
-    babelRule.use.options = { presets: [babelPresetReact] };
+    babelRule.use.options.presets = [babelPresetReact];
   }
   return baseConfig;
 }

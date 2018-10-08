@@ -4,6 +4,8 @@ import ReactDOM from 'react-dom';
 
 import Button from './Button.ffs';
 
+const dynamicImportPromise = import('./dynamically-imported');
+
 export default () => {
   window.injectCSS('button { color: red }');
   return <Button />;
@@ -54,3 +56,21 @@ export const asyncExample = (render) => {
   component.setLabel('Ready');
   return new Promise((resolve) => setTimeout(resolve, 11));
 };
+
+class DynamicImportExample extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
+  async componentDidMount() {
+    const res = await dynamicImportPromise;
+    this.setState({ text: `${res.default} ${res.world}` }); // eslint-disable-line react/no-did-mount-set-state
+  }
+
+  render() {
+    return <div>{this.state.text}</div>;
+  }
+}
+
+export const dynamicImportExample = () => <DynamicImportExample />;
