@@ -1,7 +1,7 @@
 import os from 'os';
 
 export const endpoint = 'https://happo.io';
-export const include = '**/@(*-happo|happo).@(js|jsx)';
+export const include = '**/@(*-happo|happo).@(js|jsx|ts|tsx)';
 export const stylesheets = [];
 export const targets = {};
 export const configFile = './.happo.js';

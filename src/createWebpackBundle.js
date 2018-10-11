@@ -14,7 +14,7 @@ function generateBaseConfig({ entry, type, tmpdir }) {
       path: tmpdir,
     },
     resolve: {
-      extensions: ['*', '.js', '.jsx', '.json'],
+      extensions: ['*', '.js', '.jsx', '.json', '.ts', '.tsx'],
     },
     module: {
       rules: [
