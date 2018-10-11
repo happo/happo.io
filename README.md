@@ -386,6 +386,28 @@ component" which you render synchronously in the Happo test.
 
 ## Plugins
 
+### TypeScript
+
+The Happo plugin for TypeScript will inject the necessary webpack configuration
+to make Happo process TypeScript files correctly. See
+https://github.com/happo/happo-plugin-typescript.
+
+```bash
+npm install --save-dev happo-plugin-typescript
+```
+
+```js
+const happoPluginTypescript = require('happo-plugin-typescript');
+
+// .happo.js
+module.exports {
+  // ...
+  plugins: [
+    happoPluginTypescript(),
+  ],
+};
+```
+
 ### Storybook
 
 The Happo plugin for [Storybook](https://storybook.js.org/) will automatically
