@@ -13,9 +13,12 @@ const green = withColorSupport((str) => `\x1b[32m${str}\x1b[0m`);
 const underline = withColorSupport((str) => `\x1b[36m\x1b[4m${str}\x1b[0m`);
 
 export default class Logger {
-  constructor() {
-    this.print = (str) => process.stdout.write(str);
-    this.stderrPrint = (str) => process.stderr.write(str);
+  constructor({
+    stderrPrint = (str) => process.stderr.write(str),
+    print = (str) => process.stdout.write(str),
+  } = {}) {
+    this.print = print;
+    this.stderrPrint = stderrPrint;
   }
 
   mute() {
@@ -53,7 +56,7 @@ export default class Logger {
   }
 
   error(e) {
-    this.stderrPrint(red(e.stack));
+    this.stderrPrint(red(e.stack || e.message));
     this.stderrPrint('\n');
   }
 }
