@@ -11,11 +11,11 @@ to ensure consistent cross-browser and responsive styling of your application.
 npm install --save-dev happo.io
 ```
 
-Happo depends on `webpack`, `babel-core` and `babel-loader` as well. If you
+Happo depends on `webpack` and `babel-loader` as well. If you
 don't already have them installed, you need to add them.
 
 ```
-npm install --save-dev webpack babel-core babel-loader
+npm install --save-dev webpack babel-loader
 ```
 
 ## Getting started
