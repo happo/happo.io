@@ -56,11 +56,11 @@ export default async function createWebpackBundle(
   { onBuildReady },
 ) {
   let config = generateBaseConfig({ entry, type, tmpdir });
-  plugins.forEach((plugin) => {
+  for (const plugin of plugins) {
     if (typeof plugin.customizeWebpackConfig === 'function') {
-      config = plugin.customizeWebpackConfig(config);
+      config = await plugin.customizeWebpackConfig(config); // eslint-disable-line no-await-in-loop
     }
-  });
+  }
   config = await customizeWebpackConfig(config);
   const compiler = webpack(config);
   const bundleFilePath = path.join(config.output.path, config.output.filename);
