@@ -408,6 +408,41 @@ module.exports {
 };
 ```
 
+### Scraping
+
+The Happo "scrape" plugin will make it possible to grab Happo examples from an
+existing website. See https://github.com/happo/happo-plugin-scrape.
+
+```bash
+npm install --save-dev happo-plugin-scrape
+```
+
+```js
+const happoPluginScrape = require('happo-plugin-scrape');
+
+// .happo.js
+module.exports {
+  // ...
+  type: 'plain',
+  plugins: [
+    happoPluginScrape({
+      pages: [
+        {
+          url: 'https://google.com',
+          examples: [
+            {
+              name: 'Search box',
+              selector: 'form[role="search"]',
+            },
+          ],
+        },
+      ],
+    }),
+  ],
+};
+```
+
+
 ### Storybook
 
 The Happo plugin for [Storybook](https://storybook.js.org/) will automatically
