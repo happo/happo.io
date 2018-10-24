@@ -10,5 +10,6 @@ export default class WrappedError extends Error {
       .slice(0, newLines + 1)
       .join('\n');
     this.stack = `${diff}\n${error.stack}`;
+    this.isError = true;
   }
 }

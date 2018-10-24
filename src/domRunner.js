@@ -3,7 +3,6 @@ import readline from 'readline';
 import JSDOMDomProvider from './JSDOMDomProvider';
 import Logger from './Logger';
 import MultipleErrors from './MultipleErrors';
-import WrappedError from './WrappedError';
 import constructReport from './constructReport';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
 import createWebpackBundle from './createWebpackBundle';
@@ -68,7 +67,7 @@ async function generateScreenshots(
         if (!snapPayloads.length) {
           throw new Error('No examples found');
         }
-        const errors = snapPayloads.filter((p) => p instanceof WrappedError);
+        const errors = snapPayloads.filter((p) => p.isError);
         if (errors.length === 1) {
           throw errors[0];
         }
