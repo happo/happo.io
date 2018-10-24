@@ -1,7 +1,24 @@
-import { JSDOM } from 'jsdom';
+import { JSDOM, VirtualConsole } from 'jsdom';
+
+const { VERBOSE } = process.env;
+
+const MAX_ERROR_DETAIL_LENGTH = 200;
 
 export default class JSDOMDomProvider {
   constructor(jsdomOptions, { width, height, webpackBundle }) {
+    const virtualConsole = new VirtualConsole();
+    virtualConsole.on('jsdomError', (e) => {
+      const len = e.detail.length;
+      if (VERBOSE || len < MAX_ERROR_DETAIL_LENGTH) {
+        console.error(e.stack, e.detail);
+      } else {
+        const newDetail = `${(e.detail || '').slice(0, MAX_ERROR_DETAIL_LENGTH)}...
+          To see the full error, run happo with "VERBOSE=true")`;
+        console.error(e.stack, newDetail);
+      }
+    });
+    virtualConsole.sendTo(console, { omitJSDOMErrors: true });
+
     this.dom = new JSDOM(
       `
         <!DOCTYPE html>
@@ -18,6 +35,7 @@ export default class JSDOMDomProvider {
           runScripts: 'dangerously',
           resources: 'usable',
           url: 'http://localhost',
+          virtualConsole,
           beforeParse(win) {
             win.outerWidth = win.innerWidth = width;
             win.outerHeight = win.innerHeight = height;
