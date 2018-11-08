@@ -92,6 +92,12 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
+      html: '<button>I am dark</button>',
+      variant: 'themedExampleAsync',
+    },
+    {
+      component: 'Foo-react',
+      css: '',
       html: '<button>Click me</button>',
       variant: 'default',
     },
