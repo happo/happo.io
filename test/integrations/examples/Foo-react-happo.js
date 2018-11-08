@@ -87,3 +87,12 @@ export const themedExample = () => (
     {theme => <button>I am {theme}</button>}
   </ThemeContext.Consumer>
 );
+
+export const themedExampleAsync = (renderInDom) => {
+  renderInDom(
+    <ThemeContext.Consumer>
+      {theme => <button>I am {theme}</button>}
+    </ThemeContext.Consumer>,
+  );
+  return new Promise((resolve) => setTimeout(resolve, 20));
+};
