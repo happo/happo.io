@@ -22,6 +22,7 @@ beforeEach(() => {
     plugins: [
       {
         pathToExamplesFile: path.resolve(__dirname, 'plugin-examples.js'),
+        css: '.plugin-injected { color: red }',
       },
       {
         customizeWebpackConfig: (cfg) => {
@@ -114,7 +115,7 @@ it('produces the right css', async () => {
   await subject();
   expect(config.targets.chrome.globalCSS).toEqual(
     `
-   button { text-align: center }\nbutton { color: red }
+   .plugin-injected { color: red }button { text-align: center }\nbutton { color: red }
     `.trim(),
   );
 });
