@@ -50,6 +50,7 @@ async function generateScreenshots(
   logger,
 ) {
   const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
+  plugins.forEach(({ css }) => cssBlocks.push(css || ''));
 
   const targetNames = Object.keys(targets);
   const tl = targetNames.length;
