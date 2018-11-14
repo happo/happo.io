@@ -7,15 +7,22 @@ to ensure consistent cross-browser and responsive styling of your application.
 
 ## Installation
 
-```
+```bash
 npm install --save-dev happo.io
 ```
 
-Happo depends on `webpack`, `babel-core` and `babel-loader` as well. If you
-don't already have them installed, you need to add them.
+Happo depends on `webpack`, `@babel/core`/`babel-core` and `babel-loader` as
+well. If you don't already have them installed, you need to add them. What
+babel core package you install depends on the version of babel you use in
+your project. If you're on babel 6 or earlier, install `babel-core`. If you're
+on babel 7 or later, install `@babel/core`. Happo works with both.
 
-```
-npm install --save-dev webpack babel-core babel-loader
+```bash
+# When you use babel 7 or later
+npm install --save-dev webpack @babel/core babel-loader
+
+# When you use babel 6 or earlier
+npm install --save-dev webpack babel-core babel-loader@7
 ```
 
 ## Getting started
