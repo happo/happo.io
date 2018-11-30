@@ -84,7 +84,7 @@
     "webpack": "^4.14.0"
   },
   "peerDependencies": {
-    "babel-core": "^6.0.0 || ^7.0.0",
+    "babel-core": "^6.0.0 || ^7.0.0-0",
     "babel-loader": "^7.0.0 || ^8.0.0",
     "webpack": "^3.5.5 || ^4.0.0"
   }
