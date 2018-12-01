@@ -57,6 +57,7 @@ export default async function loadUserConfig(pathToConfigFile, env = process.env
         'See https://github.com/happo/happo.io#targets for more info.',
     );
   }
+  config.publicFolders.push(config.tmpdir);
   config.plugins.forEach(({ publicFolders }) => {
     if (publicFolders) {
       config.publicFolders.push(...publicFolders);

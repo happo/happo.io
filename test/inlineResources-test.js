@@ -36,6 +36,11 @@ it('inlines jpg', () => {
   expect(inlineResources(html, { publicFolders })).toEqual(`<img src="${jpgb64}">`);
 });
 
+it('inlines path-relative urls', () => {
+  const html = '<img src="circle.svg">';
+  expect(inlineResources(html, { publicFolders })).toEqual(`<img src="${svgb64}">`);
+});
+
 it('inlines multiple images', () => {
   const html = `
     <div>
@@ -133,9 +138,4 @@ it('leaves images that can not be found alone', () => {
 it('handles files in folders that do not exist', () => {
   const html = '<img src="/inlineResources/1x1.png">';
   expect(inlineResources(html, { publicFolders })).toEqual('<img src="/inlineResources/1x1.png">');
-});
-
-it('leaves src if it does not start with a slash', () => {
-  const html = '<img src="1x1.png">';
-  expect(inlineResources(html, { publicFolders })).toEqual('<img src="1x1.png">');
 });
