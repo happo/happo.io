@@ -5,12 +5,16 @@ import fileToBase64 from './fileToBase64';
 
 const SRCSET_ITEM = /([^\s]+)(\s+[0-9.]+[wx])?(,?\s*)/g;
 
+function isAbsoluteUrl(src) {
+  return src.startsWith('http') || src.startsWith('//');
+}
+
 function inlineImgSrcset(dom, { publicFolders }) {
   const imgs = dom.window.document.querySelectorAll('img[srcset]');
   imgs.forEach((img) => {
     const newSrcset = Array.from(matchAll(img.getAttribute('srcset') || '', SRCSET_ITEM))
       .map(([_, url, size]) => { // eslint-disable-line no-unused-vars
-        if (!url.startsWith('/')) {
+        if (isAbsoluteUrl(url)) {
           // not something that we can resolve
           return `${url}${size || ''}`;
         }
@@ -26,7 +30,7 @@ function inlineImgSrc(dom, { publicFolders }) {
   const imgs = dom.window.document.querySelectorAll('img[src]');
   imgs.forEach((img) => {
     const src = img.getAttribute('src');
-    if (!src.startsWith('/')) {
+    if (isAbsoluteUrl(src)) {
       // not something that we can resolve
       return;
     }
