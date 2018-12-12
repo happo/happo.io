@@ -3,7 +3,7 @@ import makeRequest from '../makeRequest';
 export default function compareReports(
   sha1,
   sha2,
-  { apiKey, apiSecret, endpoint },
+  { apiKey, apiSecret, endpoint, project },
   { link, message, author },
 ) {
   return makeRequest(
@@ -15,6 +15,7 @@ export default function compareReports(
         link,
         message,
         author,
+        project,
       },
     },
     { apiKey, apiSecret },

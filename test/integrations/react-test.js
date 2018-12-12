@@ -15,6 +15,7 @@ beforeEach(() => {
   makeRequest.mockImplementation(() => Promise.resolve({}));
   sha = 'foobar';
   config = Object.assign({}, defaultConfig, {
+    project: 'the project',
     targets: { chrome: new MockTarget() },
     include: 'test/integrations/examples/*-react-happo.js*',
     setupScript: path.resolve(__dirname, 'reactSetup.js'),
@@ -43,6 +44,11 @@ beforeEach(() => {
     ],
   });
   subject = () => runCommand(sha, config, {});
+});
+
+it('sends the project name in the request', async () => {
+  await subject();
+  expect(makeRequest.mock.calls[0][0].body.project).toEqual('the project');
 });
 
 it('produces the right html', async () => {

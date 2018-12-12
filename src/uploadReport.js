@@ -1,6 +1,15 @@
 import makeRequest from './makeRequest';
 
-export default function uploadReport({ snaps, sha, endpoint, apiKey, apiSecret, link, message }) {
+export default function uploadReport({
+  snaps,
+  sha,
+  endpoint,
+  apiKey,
+  apiSecret,
+  link,
+  message,
+  project,
+}) {
   return makeRequest(
     {
       url: `${endpoint}/api/reports/${sha}`,
@@ -10,6 +19,7 @@ export default function uploadReport({ snaps, sha, endpoint, apiKey, apiSecret, 
         snaps,
         link,
         message,
+        project,
       },
     },
     { apiKey, apiSecret },
