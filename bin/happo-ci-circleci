@@ -6,7 +6,7 @@ set -euo pipefail
 # Bail if this build isn't triggered by a PR
 [ -z "${CI_PULL_REQUEST:-}" ] && echo 'Not a a pull request' && exit 0
 
-PREVIOUS_SHA=$(git rev-parse origin/master)
+PREVIOUS_SHA=$(git merge-base origin/master "${CIRCLE_SHA1}")
 export PREVIOUS_SHA
 export CURRENT_SHA="${CIRCLE_SHA1}"
 export CHANGE_URL="${CI_PULL_REQUEST}"

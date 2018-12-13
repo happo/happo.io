@@ -9,7 +9,7 @@ function indent(str) {
 }
 
 export default async function devCommand(config, { only }) {
-  const { apiKey, apiSecret, endpoint } = config;
+  const { apiKey, apiSecret, endpoint, project } = config;
   let baselineSha;
   const logger = new Logger();
   domRunner(config, {
@@ -23,6 +23,7 @@ export default async function devCommand(config, { only }) {
         endpoint,
         apiKey,
         apiSecret,
+        project,
       });
       logger.success();
       logger.info(`View results at ${url}`);
@@ -32,7 +33,7 @@ export default async function devCommand(config, { only }) {
         const result = await compareReportsCommand(
           baselineSha,
           sha,
-          { apiKey, apiSecret, endpoint },
+          { apiKey, apiSecret, endpoint, project },
           {},
         );
         logger.success();

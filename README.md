@@ -624,6 +624,12 @@ folder. You can override the path to this file through the `--config` CLI
 option. This file isn't subject to babel transpilation, so it's best to stay
 with good old CommonJS syntax unless you're on the very latest Node version.
 
+### `project`
+
+If you have multiple projects configured for your happo.io account, you can
+specify the name of the project you want to associate with. If you leave this
+empty, the default project will be used.
+
 ### `include`
 
 Controls what files happo will grab examples from. The default is
