@@ -87,6 +87,18 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
+      html: '<button></button>',
+      variant: 'asyncWithoutPromise',
+    },
+    {
+      component: 'Foo-react',
+      css: '',
+      html: '',
+      variant: 'emptyForever',
+    },
+    {
+      component: 'Foo-react',
+      css: '',
       html: '<div>Hello world</div>',
       variant: 'dynamicImportExample',
     },
@@ -121,7 +133,7 @@ it('produces the right css', async () => {
   await subject();
   expect(config.targets.chrome.globalCSS).toEqual(
     `
-   .plugin-injected { color: red }button { text-align: center }\nbutton { color: red }
+   .plugin-injected { color: red }button {text-align: center;}\nbutton { color: red }
     `.trim(),
   );
 });

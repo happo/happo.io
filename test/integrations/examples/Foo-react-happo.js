@@ -13,7 +13,9 @@ export default () => {
 };
 
 export const anotherVariant = () => {
-  window.injectCSS('button { text-align: center }');
+  const style = document.createElement('style');
+  document.head.appendChild(style);
+  style.sheet.insertRule('button { text-align: center }');
   return <button>Click meish</button>;
 };
 
@@ -63,6 +65,13 @@ export const asyncExample = (render) => {
   window.dispatchEvent(new CustomEvent('set-label', { detail: 'Ready' })); // eslint-disable-line no-undef
   return new Promise((resolve) => setTimeout(resolve, 11));
 };
+
+export const asyncWithoutPromise = () => <AsyncComponent />;
+
+function EmptyComponent() {
+  return null;
+}
+export const emptyForever = () => <EmptyComponent />;
 
 class DynamicImportExample extends React.Component {
   constructor(props) {

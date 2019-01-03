@@ -9,7 +9,7 @@ export default class JSDOMDomProvider {
     const virtualConsole = new VirtualConsole();
     virtualConsole.on('jsdomError', (e) => {
       const len = e.detail.length;
-      if (VERBOSE || len < MAX_ERROR_DETAIL_LENGTH) {
+      if (VERBOSE || len < MAX_ERROR_DETAIL_LENGTH || typeof e.detail !== 'string') {
         console.error(e.stack, e.detail);
       } else {
         const newDetail = `${(e.detail || '').slice(0, MAX_ERROR_DETAIL_LENGTH)}...

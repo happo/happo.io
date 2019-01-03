@@ -47,7 +47,8 @@ async function renderExample(exampleRenderFunc) {
 }
 
 export default class Processor {
-  constructor({ only, rootElementSelector }) {
+  constructor({ only, rootElementSelector, asyncTimeout }) {
+    this.asyncTimeout = asyncTimeout;
     this.rootElementSelector = rootElementSelector;
     this.onlyComponent = only ? only.split('#')[1] : undefined;
     // Array containing something like
@@ -98,6 +99,8 @@ export default class Processor {
   async processCurrent() {
     const { component, fileName, variants } = this.flattenedExamples[this.cursor];
     const result = [];
+    // Disabling eslint here since we want to run things serially
+    /* eslint-disable no-await-in-loop */
     for (const variant of Object.keys(variants)) {
       const exampleRenderFunc = variants[variant];
       if (typeof exampleRenderFunc !== 'function') {
@@ -106,20 +109,20 @@ export default class Processor {
         continue;
       }
       try {
-        // Disabling eslint here since we want to run things serially
-        // eslint-disable-next-line no-await-in-loop
         await renderExample(exampleRenderFunc);
       } catch (e) {
-        result.push(new WrappedError(
-          `Failed to render component "${component}", variant "${variant}" in ${fileName}`,
-          e,
-        ));
+        result.push(
+          new WrappedError(
+            `Failed to render component "${component}", variant "${variant}" in ${fileName}`,
+            e,
+          ),
+        );
         continue;
       }
       const root =
         (this.rootElementSelector && document.body.querySelector(this.rootElementSelector)) ||
         findRoot();
-      const html = root.innerHTML.trim();
+      const html = await this.waitForHTML(root);
       window.happoCleanup();
       result.push({
         html,
@@ -128,11 +131,31 @@ export default class Processor {
         variant,
       });
     }
+    /* eslint-enable no-await-in-loop */
     return result.filter(Boolean);
   }
 
-  extractCSS() { // eslint-disable-line class-methods-use-this
+  extractCSS() {
     const styleElements = Array.from(document.querySelectorAll('style'));
-    return styleElements.map((el) => el.innerHTML).join('\n');
+    return styleElements
+      .map(
+        (el) =>
+          el.innerHTML ||
+          Array.from(el.sheet.cssRules)
+            .map((r) => r.cssText)
+            .join('\n'),
+      )
+      .join('\n');
+  }
+
+  waitForHTML(elem, start = new Date().getTime()) {
+    const html = elem.innerHTML.trim();
+    const duration = new Date().getTime() - start;
+    if (html === '' && duration < this.asyncTimeout) {
+      return new Promise((resolve) =>
+        setTimeout(() => resolve(this.waitForHTML(elem, start)), 10),
+      );
+    }
+    return html;
   }
 }

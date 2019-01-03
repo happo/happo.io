@@ -20,6 +20,7 @@ module.exports = {
     'global-require': 0,
     'no-restricted-syntax': 0,
     'react/no-multi-comp': 0,
+    'class-methods-use-this': 0,
   },
 
   globals: {

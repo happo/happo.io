@@ -14,6 +14,7 @@ export default async function createDynamicEntryPoint({
   tmpdir,
   rootElementSelector,
   renderWrapperModule,
+  asyncTimeout,
 }) {
   const files = await findTestFiles(include);
   const filePartOfOnly = only ? only.split('#')[0] : undefined;
@@ -27,7 +28,7 @@ export default async function createDynamicEntryPoint({
   const pathToProcessor = require.resolve('./browser/processor');
   const strings = [
     `const Processor = require(${JSON.stringify(pathToProcessor)}).default;`,
-    `window.happoProcessor = new Processor(${JSON.stringify({ only, rootElementSelector })});`,
+    `window.happoProcessor = new Processor(${JSON.stringify({ only, rootElementSelector, asyncTimeout })});`,
     'window.snaps = {};',
     `let renderWrapper = require('${renderWrapperModule}');`,
     'renderWrapper = renderWrapper.default || renderWrapper;',

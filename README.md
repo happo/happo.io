@@ -847,6 +847,16 @@ module.exports = {
 }
 ```
 
+### `asyncTimeout`
+
+If an example renders nothing to the DOM, Happo will wait a short while for content to appear. Specified in milliseconds, the default is `200`.
+
+```js
+module.exports = {
+  asyncTimeout: 500,
+}
+```
+
 ## Command-Line-Interface (CLI)
 
 While you are most likely getting most value from the ready-made CI integration
