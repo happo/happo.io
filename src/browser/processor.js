@@ -110,10 +110,12 @@ export default class Processor {
         // eslint-disable-next-line no-await-in-loop
         await renderExample(exampleRenderFunc);
       } catch (e) {
-        result.push(new WrappedError(
-          `Failed to render component "${component}", variant "${variant}" in ${fileName}`,
-          e,
-        ));
+        result.push(
+          new WrappedError(
+            `Failed to render component "${component}", variant "${variant}" in ${fileName}`,
+            e,
+          ),
+        );
         continue;
       }
       const root =
@@ -133,6 +135,14 @@ export default class Processor {
 
   extractCSS() { // eslint-disable-line class-methods-use-this
     const styleElements = Array.from(document.querySelectorAll('style'));
-    return styleElements.map((el) => el.innerHTML).join('\n');
+    return styleElements
+      .map(
+        (el) =>
+          el.innerHTML ||
+          Array.from(el.sheet.cssRules)
+            .map((r) => r.cssText)
+            .join('\n'),
+      )
+      .join('\n');
   }
 }

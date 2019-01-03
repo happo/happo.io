@@ -13,7 +13,9 @@ export default () => {
 };
 
 export const anotherVariant = () => {
-  window.injectCSS('button { text-align: center }');
+  const style = document.createElement('style');
+  document.head.appendChild(style);
+  style.sheet.insertRule('button { text-align: center }');
   return <button>Click meish</button>;
 };
 
