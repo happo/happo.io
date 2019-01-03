@@ -66,6 +66,8 @@ export const asyncExample = (render) => {
   return new Promise((resolve) => setTimeout(resolve, 11));
 };
 
+export const asyncWithoutPromise = () => <AsyncComponent />;
+
 class DynamicImportExample extends React.Component {
   constructor(props) {
     super(props);

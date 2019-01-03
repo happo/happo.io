@@ -87,6 +87,12 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
+      html: '<button></button>',
+      variant: 'asyncWithoutPromise',
+    },
+    {
+      component: 'Foo-react',
+      css: '',
       html: '<div>Hello world</div>',
       variant: 'dynamicImportExample',
     },

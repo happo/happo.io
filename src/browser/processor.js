@@ -29,6 +29,14 @@ function findRoot() {
   return root;
 }
 
+function waitForHTML(elem, attempts = 0) {
+  const html = elem.innerHTML.trim();
+  if (html === '' && attempts < 20) {
+    return new Promise((resolve) => setTimeout(() => resolve(waitForHTML(elem, attempts + 1)), 10));
+  }
+  return html;
+}
+
 async function renderExample(exampleRenderFunc) {
   document.body.innerHTML = '';
   const rootElement = document.createElement('div');
@@ -98,6 +106,8 @@ export default class Processor {
   async processCurrent() {
     const { component, fileName, variants } = this.flattenedExamples[this.cursor];
     const result = [];
+    // Disabling eslint here since we want to run things serially
+    /* eslint-disable no-await-in-loop */
     for (const variant of Object.keys(variants)) {
       const exampleRenderFunc = variants[variant];
       if (typeof exampleRenderFunc !== 'function') {
@@ -106,8 +116,6 @@ export default class Processor {
         continue;
       }
       try {
-        // Disabling eslint here since we want to run things serially
-        // eslint-disable-next-line no-await-in-loop
         await renderExample(exampleRenderFunc);
       } catch (e) {
         result.push(
@@ -121,7 +129,7 @@ export default class Processor {
       const root =
         (this.rootElementSelector && document.body.querySelector(this.rootElementSelector)) ||
         findRoot();
-      const html = root.innerHTML.trim();
+      const html = await waitForHTML(root);
       window.happoCleanup();
       result.push({
         html,
@@ -130,6 +138,7 @@ export default class Processor {
         variant,
       });
     }
+    /* eslint-enable no-await-in-loop */
     return result.filter(Boolean);
   }
 
