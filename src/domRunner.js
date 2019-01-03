@@ -112,6 +112,7 @@ export default async function domRunner(
     plugins,
     tmpdir,
     jsdomOptions,
+    asyncTimeout,
   },
   { only, onReady },
 ) {
@@ -139,6 +140,7 @@ export default async function domRunner(
       tmpdir,
       rootElementSelector,
       renderWrapperModule,
+      asyncTimeout,
     });
     entryFile = entryPointResult.entryFile;
     logger.success(`${entryPointResult.numberOfFilesProcessed} found`);

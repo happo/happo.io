@@ -29,14 +29,6 @@ function findRoot() {
   return root;
 }
 
-function waitForHTML(elem, attempts = 0) {
-  const html = elem.innerHTML.trim();
-  if (html === '' && attempts < 20) {
-    return new Promise((resolve) => setTimeout(() => resolve(waitForHTML(elem, attempts + 1)), 10));
-  }
-  return html;
-}
-
 async function renderExample(exampleRenderFunc) {
   document.body.innerHTML = '';
   const rootElement = document.createElement('div');
@@ -55,7 +47,8 @@ async function renderExample(exampleRenderFunc) {
 }
 
 export default class Processor {
-  constructor({ only, rootElementSelector }) {
+  constructor({ only, rootElementSelector, asyncTimeout }) {
+    this.asyncTimeout = asyncTimeout;
     this.rootElementSelector = rootElementSelector;
     this.onlyComponent = only ? only.split('#')[1] : undefined;
     // Array containing something like
@@ -129,7 +122,7 @@ export default class Processor {
       const root =
         (this.rootElementSelector && document.body.querySelector(this.rootElementSelector)) ||
         findRoot();
-      const html = await waitForHTML(root);
+      const html = await this.waitForHTML(root);
       window.happoCleanup();
       result.push({
         html,
@@ -142,7 +135,7 @@ export default class Processor {
     return result.filter(Boolean);
   }
 
-  extractCSS() { // eslint-disable-line class-methods-use-this
+  extractCSS() {
     const styleElements = Array.from(document.querySelectorAll('style'));
     return styleElements
       .map(
@@ -153,5 +146,16 @@ export default class Processor {
             .join('\n'),
       )
       .join('\n');
+  }
+
+  waitForHTML(elem, start = new Date().getTime()) {
+    const html = elem.innerHTML.trim();
+    const duration = new Date().getTime() - start;
+    if (html === '' && duration < this.asyncTimeout) {
+      return new Promise((resolve) =>
+        setTimeout(() => resolve(this.waitForHTML(elem, start)), 10),
+      );
+    }
+    return html;
   }
 }

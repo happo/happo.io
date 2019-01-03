@@ -93,6 +93,12 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
+      html: '',
+      variant: 'emptyForever',
+    },
+    {
+      component: 'Foo-react',
+      css: '',
       html: '<div>Hello world</div>',
       variant: 'dynamicImportExample',
     },

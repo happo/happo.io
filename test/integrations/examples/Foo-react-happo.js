@@ -68,6 +68,11 @@ export const asyncExample = (render) => {
 
 export const asyncWithoutPromise = () => <AsyncComponent />;
 
+function EmptyComponent() {
+  return null;
+}
+export const emptyForever = () => <EmptyComponent />;
+
 class DynamicImportExample extends React.Component {
   constructor(props) {
     super(props);

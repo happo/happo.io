@@ -12,6 +12,7 @@ export const targets = {
     viewport: '1024x768',
   }),
 };
+export const asyncTimeout = 200;
 export const configFile = './.happo.js';
 export const type = 'react';
 export const plugins = [];
