@@ -20,4 +20,4 @@ export CHANGE_URL="${GITHUB_BASE}/${TRAVIS_REPO_SLUG}/pull/${TRAVIS_PULL_REQUEST
 
 # Delegate to the canonical script. It will use the env variables we have
 # prepared.
-happo-ci
+./happo-ci
