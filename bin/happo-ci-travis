@@ -3,9 +3,22 @@
 # Make the whole script fail on errors
 set -eou pipefail
 
-export CURRENT_SHA="${TRAVIS_PULL_REQUEST_SHA:-$TRAVIS_COMMIT}"
-PREVIOUS_SHA=$(git merge-base origin/master "${CURRENT_SHA}")
+if [ ! -z "${TRAVIS_COMMIT_RANGE:-}" ]; then
+  # The PREVIOUS_SHA will be equal to the commit that the PR is based on (which
+  # is usually some commit on the master branch), or the commit that the last
+  # build was triggered for. Travis gives us a range of commits. We need the
+  # first one.
+  PREVIOUS_SHA="${TRAVIS_COMMIT_RANGE//\.\..*/}"
+  if ! git cat-file -e "$PREVIOUS_SHA"^{commit}; then
+    # When force-pushing, the base commit in the commit range might not be a
+    # real commit
+    PREVIOUS_SHA=""
+  fi
+else
+  PREVIOUS_SHA=""
+fi
 export PREVIOUS_SHA
+export CURRENT_SHA="${TRAVIS_PULL_REQUEST_SHA:-$TRAVIS_COMMIT}"
 
 # Allow github base to be overridden. Useful for enterprise installations.
 GITHUB_BASE=${GITHUB_BASE:-"https://github.com"}
