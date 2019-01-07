@@ -3,20 +3,18 @@
 # Make the whole script fail on errors
 set -euo pipefail
 
-if [ -z "${CI_PULL_REQUEST:-}" ]; then
+PREVIOUS_SHA=$(git merge-base origin/master "${CIRCLE_SHA1}")
+export PREVIOUS_SHA
+export CURRENT_SHA="${CIRCLE_SHA1}"
+
+if [ -z "$CI_PULL_REQUEST" ]; then
   # This is not a pull request
   GITHUB_BASE=${GITHUB_BASE:-"https://github.com"}
-  CHANGE_URL="${GITHUB_BASE}/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/commit/${CIRCLE_SHA1}"
-  PREVIOUS_SHA=""
+  export CHANGE_URL="${GITHUB_BASE}/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/commit/${CIRCLE_SHA1}"
 else
   # This is a pull request
-  CHANGE_URL="${CI_PULL_REQUEST}"
-  PREVIOUS_SHA=$(git merge-base origin/master "${CIRCLE_SHA1}")
+  export CHANGE_URL="${CI_PULL_REQUEST:-$LINK_TO_COMMIT}"
 fi
-
-export PREVIOUS_SHA
-export CHANGE_URL
-export CURRENT_SHA="${CIRCLE_SHA1}"
 
 # Delegate to the canonical script. It will use the env variables we have
 # prepared.
