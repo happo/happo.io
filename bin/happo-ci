@@ -10,7 +10,9 @@ set -eou pipefail
 INSTALL_CMD=${INSTALL_CMD:-}
 
 # Make sure we use the full commit shas
-PREVIOUS_SHA="$(git rev-parse "$PREVIOUS_SHA")"
+if [ ! -z "$PREVIOUS_SHA" ]; then
+  PREVIOUS_SHA="$(git rev-parse "$PREVIOUS_SHA")"
+fi
 CURRENT_SHA="$(git rev-parse "$CURRENT_SHA")"
 
 echo "Using the following ENV variables:"
@@ -57,7 +59,7 @@ run-happo() {
 
 NPM_BIN=$(${NPM_CLIENT} bin)
 
-if [ "$CURRENT_SHA" = "$PREVIOUS_SHA" ] || [ -z "$PREVIOUS_SHA" ] || ! git cat-file -e "$PREVIOUS_SHA"^{commit}; then
+if [ "$CURRENT_SHA" = "$PREVIOUS_SHA" ] || [ -z "$PREVIOUS_SHA" ]; then
   echo "We're not on a branch, so there's nothing to compare against."
   echo "Running a single happo run on ${CURRENT_SHA}"
   run-happo "$CURRENT_SHA"
