@@ -9,6 +9,12 @@ set -eou pipefail
 # Initialize optional env variables
 INSTALL_CMD=${INSTALL_CMD:-}
 
+# Make sure we use the full commit shas
+if [ ! -z "$PREVIOUS_SHA" ]; then
+  PREVIOUS_SHA="$(git rev-parse "$PREVIOUS_SHA")"
+fi
+CURRENT_SHA="$(git rev-parse "$CURRENT_SHA")"
+
 echo "Using the following ENV variables:"
 echo "PREVIOUS_SHA: ${PREVIOUS_SHA}"
 echo "CURRENT_SHA: ${CURRENT_SHA}"
@@ -52,6 +58,13 @@ run-happo() {
 }
 
 NPM_BIN=$(${NPM_CLIENT} bin)
+
+if [ "$CURRENT_SHA" = "$PREVIOUS_SHA" ] || [ -z "$PREVIOUS_SHA" ]; then
+  echo "We're not on a branch, so there's nothing to compare against."
+  echo "Running a single happo run on ${CURRENT_SHA}"
+  run-happo "$CURRENT_SHA"
+  exit 0;
+fi
 
 # Check if we need to generate a baseline. In some cases, the baseline is
 # already there (some other PR uploaded it), and we can just use the existing
