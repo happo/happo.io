@@ -3,13 +3,10 @@
 # Make the whole script fail on errors
 set -euo pipefail
 
-# Bail if this build isn't triggered by a PR
-[ -z "${CI_PULL_REQUEST:-}" ] && echo 'Not a a pull request' && exit 0
-
 PREVIOUS_SHA=$(git merge-base origin/master "${CIRCLE_SHA1}")
 export PREVIOUS_SHA
 export CURRENT_SHA="${CIRCLE_SHA1}"
-export CHANGE_URL="${CI_PULL_REQUEST}"
+export CHANGE_URL="${CI_PULL_REQUEST:-$CIRCLE_BUILD_URL}"
 
 # Delegate to the canonical script. It will use the env variables we have
 # prepared.

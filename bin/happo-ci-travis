@@ -3,20 +3,22 @@
 # Make the whole script fail on errors
 set -eou pipefail
 
-# Bail if this build isn't triggered by a PR
-[ -z "${TRAVIS_PULL_REQUEST_SHA:-}" ] && echo 'Not a a pull request' && exit 0
-
-# The PREVIOUS_SHA will be equal to the commit that this PR is based on (which
-# is usually some commit on the master branch). Travis gives us a range of
-# commits. We need the first one.
-export PREVIOUS_SHA="${TRAVIS_COMMIT_RANGE//\.\..*/}"
+if [ ! -z "$TRAVIS_COMMIT_RANGE" ]; then
+  # The PREVIOUS_SHA will be equal to the commit that the PR is based on (which
+  # is usually some commit on the master branch). Travis gives us a range of
+  # commits. We need the first one.
+  export PREVIOUS_SHA="${TRAVIS_COMMIT_RANGE//\.\..*/}"
+fi
 export CURRENT_SHA="${TRAVIS_PULL_REQUEST_SHA}"
 
-# Allow github base to be overridden. Useful for enterprise installations.
-GITHUB_BASE=${GITHUB_BASE:-"https://github.com"}
-
-# Construct a URL to the PR so that we can link the happo reports to it
-export CHANGE_URL="${GITHUB_BASE}/${TRAVIS_REPO_SLUG}/pull/${TRAVIS_PULL_REQUEST}"
+if [ ! -z "$TRAVIS_COMMIT_RANGE" ]; then
+  # Allow github base to be overridden. Useful for enterprise installations.
+  GITHUB_BASE=${GITHUB_BASE:-"https://github.com"}
+  # Construct a URL to the PR so that we can link the happo reports to it
+  export CHANGE_URL="${GITHUB_BASE}/${TRAVIS_REPO_SLUG}/pull/${TRAVIS_PULL_REQUEST}"
+else
+  export CHANGE_URL="$TRAVIS_JOB_WEB_URL"
+fi
 
 # Delegate to the canonical script. It will use the env variables we have
 # prepared.
