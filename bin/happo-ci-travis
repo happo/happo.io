@@ -1,24 +1,27 @@
 #!/bin/bash
 
 # Make the whole script fail on errors
-set -eou pipefail
-
-if [ ! -z "$TRAVIS_COMMIT_RANGE" ]; then
-  # The PREVIOUS_SHA will be equal to the commit that the PR is based on (which
-  # is usually some commit on the master branch). Travis gives us a range of
-  # commits. We need the first one.
-  export PREVIOUS_SHA="${TRAVIS_COMMIT_RANGE//\.\..*/}"
-fi
-export CURRENT_SHA="${TRAVIS_PULL_REQUEST_SHA}"
+set -euo pipefail
 
 # Allow github base to be overridden. Useful for enterprise installations.
 GITHUB_BASE=${GITHUB_BASE:-"https://github.com"}
-if [ -z "$TRAVIS_COMMIT_RANGE" ]; then
-  export CHANGE_URL="${GITHUB_BASE}/${TRAVIS_REPO_SLUG}/commit/${TRAVIS_PULL_REQUEST_SHA}"
+
+if [ -z "${TRAVIS_COMMIT_RANGE:-}" ]; then
+  CHANGE_URL="${GITHUB_BASE}/${TRAVIS_REPO_SLUG}/commit/${TRAVIS_PULL_REQUEST_SHA}"
+  PREVIOUS_SHA=""
 else
   # Construct a URL to the PR so that we can link the happo reports to it
-  export CHANGE_URL="${GITHUB_BASE}/${TRAVIS_REPO_SLUG}/pull/${TRAVIS_PULL_REQUEST}"
+  CHANGE_URL="${GITHUB_BASE}/${TRAVIS_REPO_SLUG}/pull/${TRAVIS_PULL_REQUEST}"
+
+  # The PREVIOUS_SHA will be equal to the commit that the PR is based on (which
+  # is usually some commit on the master branch). Travis gives us a range of
+  # commits. We need the first one.
+  PREVIOUS_SHA="${TRAVIS_COMMIT_RANGE//\.\..*/}"
 fi
+
+export PREVIOUS_SHA
+export CHANGE_URL
+export CURRENT_SHA="${TRAVIS_PULL_REQUEST_SHA}"
 
 # Delegate to the canonical script. It will use the env variables we have
 # prepared.
