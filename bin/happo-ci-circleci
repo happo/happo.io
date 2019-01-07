@@ -13,4 +13,4 @@ export CHANGE_URL="${CI_PULL_REQUEST}"
 
 # Delegate to the canonical script. It will use the env variables we have
 # prepared.
-./happo-ci
+happo-ci
