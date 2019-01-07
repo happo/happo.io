@@ -9,6 +9,10 @@ set -eou pipefail
 # Initialize optional env variables
 INSTALL_CMD=${INSTALL_CMD:-}
 
+# Make sure we use the full commit shas
+PREVIOUS_SHA="$(git rev-parse "$PREVIOUS_SHA")"
+CURRENT_SHA="$(git rev-parse "$CURRENT_SHA")"
+
 echo "Using the following ENV variables:"
 echo "PREVIOUS_SHA: ${PREVIOUS_SHA}"
 echo "CURRENT_SHA: ${CURRENT_SHA}"
