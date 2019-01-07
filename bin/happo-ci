@@ -53,7 +53,7 @@ run-happo() {
 
 NPM_BIN=$(${NPM_CLIENT} bin)
 
-if [ "$CURRENT_SHA" = "$PREVIOUS_SHA" ] || [ -z "$PREVIOUS_SHA" ]; then
+if [ "$CURRENT_SHA" = "$PREVIOUS_SHA" ] || [ -z "$PREVIOUS_SHA" ] || ! git cat-file -e "$PREVIOUS_SHA"^{commit}; then
   echo "We're not on a branch, so there's nothing to compare against."
   echo "Running a single happo run on ${CURRENT_SHA}"
   run-happo "$CURRENT_SHA"

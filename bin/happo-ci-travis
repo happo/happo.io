@@ -3,15 +3,9 @@
 # Make the whole script fail on errors
 set -eou pipefail
 
-if [ ! -z "${TRAVIS_COMMIT_RANGE:-}" ]; then
-  # The PREVIOUS_SHA will be equal to the commit that the PR is based on (which
-  # is usually some commit on the master branch). Travis gives us a range of
-  # commits. We need the first one.
-  export PREVIOUS_SHA="${TRAVIS_COMMIT_RANGE//\.\..*/}"
-else
-  export PREVIOUS_SHA=""
-fi
 export CURRENT_SHA="${TRAVIS_PULL_REQUEST_SHA:-$TRAVIS_COMMIT}"
+PREVIOUS_SHA=$(git merge-base origin/master "${CURRENT_SHA}")
+export PREVIOUS_SHA
 
 # Allow github base to be overridden. Useful for enterprise installations.
 GITHUB_BASE=${GITHUB_BASE:-"https://github.com"}
