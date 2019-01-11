@@ -5,6 +5,8 @@ import requireRelative from 'require-relative';
 
 import findTestFiles from './findTestFiles';
 
+const { VERBOSE = 'false' } = process.env;
+
 export default async function createDynamicEntryPoint({
   setupScript,
   include,
@@ -29,6 +31,7 @@ export default async function createDynamicEntryPoint({
   const strings = [
     `const Processor = require(${JSON.stringify(pathToProcessor)}).default;`,
     `window.happoProcessor = new Processor(${JSON.stringify({ only, rootElementSelector, asyncTimeout })});`,
+    `window.verbose = '${VERBOSE}' === 'true' ? console.log : () => null;`,
     'window.snaps = {};',
     `let renderWrapper = require('${renderWrapperModule}');`,
     'renderWrapper = renderWrapper.default || renderWrapper;',
@@ -70,6 +73,10 @@ export default async function createDynamicEntryPoint({
     `happo-entry-${type}-${Buffer.from(process.cwd()).toString('base64')}.js`,
   );
 
-  fs.writeFileSync(entryFile, strings.join('\n'));
+  const content = strings.join('\n');
+  if (VERBOSE === 'true') {
+    console.log(`Created webpack entry file with the following content:\n\n${content}\n\n`);
+  }
+  fs.writeFileSync(entryFile, content);
   return { entryFile, numberOfFilesProcessed: fileStrings.length };
 }

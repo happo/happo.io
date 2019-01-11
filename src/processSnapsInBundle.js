@@ -1,6 +1,8 @@
 import inlineCSSResources from './inlineCSSResources';
 import inlineResources from './inlineResources';
 
+const { VERBOSE = 'false' } = process.env;
+
 export default async function processSnapsInBundle(
   webpackBundle,
   { globalCSS, publicFolders, viewport, DomProvider },
@@ -21,6 +23,9 @@ export default async function processSnapsInBundle(
     // Disabling eslint here because we actually want to run things serially.
     /* eslint-disable no-await-in-loop */
     while (await domProvider.next()) {
+      if (VERBOSE === 'true') {
+        console.log(`Viewport ${viewport}`);
+      }
       const payloads = await domProvider.processCurrent();
       payloads.forEach((payload) => {
         if (payload.html && publicFolders && publicFolders.length) {

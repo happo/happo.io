@@ -5,6 +5,8 @@ import webpack from 'webpack';
 import Logger from './Logger';
 import createHash from './createHash';
 
+const { VERBOSE = 'false' } = process.env;
+
 function generateBaseConfig({ entry, type, tmpdir }) {
   const outFile = `happo-bundle-${type}-${createHash(process.cwd()).slice(0, 5)}.js`;
   const babelLoader = require.resolve('babel-loader');
@@ -65,6 +67,10 @@ export default async function createWebpackBundle(
     }
   }
   config = await customizeWebpackConfig(config);
+  if (VERBOSE === 'true') {
+    console.log('Using this webpack config:');
+    console.log(config);
+  }
   const compiler = webpack(config);
   const bundleFilePath = path.join(config.output.path, config.output.filename);
 
@@ -90,6 +96,10 @@ export default async function createWebpackBundle(
       if (err) {
         reject(err);
         return;
+      }
+      if (VERBOSE === 'true') {
+        console.log('Webpack stats:');
+        console.log(stats.toJson('verbose'));
       }
       if (stats.compilation.errors && stats.compilation.errors.length) {
         reject(stats.compilation.errors[0]);
