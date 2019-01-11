@@ -3,15 +3,19 @@ import path from 'path';
 import webpack from 'webpack';
 
 import Logger from './Logger';
+import createHash from './createHash';
 
 function generateBaseConfig({ entry, type, tmpdir }) {
-  const outFile = `happo-bundle-${type}-${Buffer.from(process.cwd()).toString('base64')}.js`;
+  const outFile = `happo-bundle-${type}-${createHash(process.cwd()).slice(0, 5)}.js`;
   const babelLoader = require.resolve('babel-loader');
   const baseConfig = {
+    mode: 'development',
+    devtool: 'nosources-source-map',
     entry,
     output: {
       filename: outFile,
       path: tmpdir,
+      devtoolModuleFilenameTemplate: '[absolute-resource-path]',
     },
     resolve: {
       extensions: ['*', '.js', '.jsx', '.json', '.ts', '.tsx'],
@@ -31,7 +35,6 @@ function generateBaseConfig({ entry, type, tmpdir }) {
       ],
     },
     plugins: [],
-    devtool: 'eval',
   };
   if (type === 'react') {
     let babelPresetReact;
