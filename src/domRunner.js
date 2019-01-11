@@ -1,3 +1,6 @@
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import readline from 'readline';
 
 import JSDOMDomProvider from './JSDOMDomProvider';
@@ -8,6 +11,17 @@ import createDynamicEntryPoint from './createDynamicEntryPoint';
 import createWebpackBundle from './createWebpackBundle';
 import loadCSSFile from './loadCSSFile';
 import processSnapsInBundle from './processSnapsInBundle';
+
+const { VERBOSE = 'false' } = process.env;
+
+function logTargetResults({ name, globalCSS, snapPayloads }) {
+  const cssPath = path.join(os.tmpdir(), `happo-verbose-${name}.css`);
+  const snippetsPath = path.join(os.tmpdir(), `happo-snippets-${name}.json`);
+  fs.writeFileSync(cssPath, globalCSS);
+  fs.writeFileSync(snippetsPath, JSON.stringify(snapPayloads));
+  console.log(`Recorded CSS for target "${name}" can be found in ${cssPath}`);
+  console.log(`Recorded HTML snippets for target "${name}" can be found in ${snippetsPath}`);
+}
 
 function waitForAnyKey() {
   readline.emitKeypressEvents(process.stdin);
@@ -76,6 +90,9 @@ async function generateScreenshots(
           throw new MultipleErrors(errors);
         }
 
+        if (VERBOSE === 'true') {
+          logTargetResults({ name, globalCSS, snapPayloads });
+        }
         const result = await targets[name].execute({
           globalCSS,
           snapPayloads,

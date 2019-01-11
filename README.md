@@ -903,3 +903,13 @@ data as props instead of relying on the component to compute it itself.
 
 Yes, either through providing an external stylesheet in the `stylesheets`
 config or by injecting them as inline base64 urls through a `happoSetup` file.
+
+### How do I troubleshoot local issues?
+
+By running happo with a `VERBOSE=true` environment variable, more logs will show up in
+the console. This can help track down certain issues, and is a good tool to use
+when asking for support. Here's one way to use it:
+
+```bash
+VERBOSE=true npm run happo run
+```

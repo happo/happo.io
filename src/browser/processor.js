@@ -75,11 +75,13 @@ export default class Processor {
       exportsFromFile = exportsFromFile.default;
     }
     if (Array.isArray(exportsFromFile)) {
+      window.verbose(`Found ${exportsFromFile.length} component(s) in ${fileName}`);
       this.flattenedExamples = this.flattenedExamples.concat(
         exportsFromFile.map((obj) => Object.assign({ fileName }, obj)),
       );
     } else {
       const component = getComponentNameFromFileName(fileName);
+      window.verbose(`Found ${Object.keys(exportsFromFile).length} variant(s) for component ${component} in ${fileName}`);
       this.flattenedExamples.push({ fileName, component, variants: exportsFromFile });
     }
   }
@@ -109,6 +111,7 @@ export default class Processor {
         continue;
       }
       try {
+        window.verbose(`Rendering component ${component}, variant ${variant}`);
         await renderExample(exampleRenderFunc);
       } catch (e) {
         result.push(
@@ -148,13 +151,16 @@ export default class Processor {
       .join('\n');
   }
 
-  waitForHTML(elem, start = new Date().getTime()) {
+  waitForHTML(elem, start = new Date().getTime(), attempt = 0) {
     const html = elem.innerHTML.trim();
     const duration = new Date().getTime() - start;
     if (html === '' && duration < this.asyncTimeout) {
       return new Promise((resolve) =>
-        setTimeout(() => resolve(this.waitForHTML(elem, start)), 10),
+        setTimeout(() => resolve(this.waitForHTML(elem, start, attempt + 1)), 10),
       );
+    }
+    if (attempt > 0) {
+      window.verbose(`Content not available on first render. Had to wait ${duration}ms.`);
     }
     return html;
   }

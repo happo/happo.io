@@ -56,7 +56,11 @@ export default class Logger {
   }
 
   error(e) {
-    this.stderrPrint(red(e.stack || e.message));
+    let stack = e.stack;
+    if (stack) {
+      stack = stack.split(`file://${process.cwd()}/`).join('');
+    }
+    this.stderrPrint(red(stack || e.message || e));
     this.stderrPrint('\n');
   }
 }
