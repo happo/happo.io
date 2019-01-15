@@ -11,7 +11,6 @@ function generateBaseConfig({ entry, type, tmpdir }) {
   const outFile = `happo-bundle-${type}-${createHash(process.cwd()).slice(0, 5)}.js`;
   const babelLoader = require.resolve('babel-loader');
   const baseConfig = {
-    mode: 'development',
     devtool: 'nosources-source-map',
     entry,
     output: {
@@ -38,6 +37,14 @@ function generateBaseConfig({ entry, type, tmpdir }) {
     },
     plugins: [],
   };
+  if (/^[4567]\./.test(webpack.version)) {
+    if (VERBOSE === 'true') {
+      console.log('Detected webpack version >=4. Using `mode: "development"`.');
+    }
+    baseConfig.mode = 'development';
+  } else if (VERBOSE === 'true') {
+    console.log('Detected webpack version <4. If you upgrade to >=4, stack traces from Happo will be a little better.');
+  }
   if (type === 'react') {
     let babelPresetReact;
     try {
