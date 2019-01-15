@@ -4,4 +4,4 @@ addons:
 node_js:
   - "6"
   - "8"
-script: yarn lint && yarn test
+script: yarn lint && yarn test && yarn add --dev webpack@3 && yarn test
