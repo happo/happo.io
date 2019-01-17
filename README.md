@@ -684,10 +684,6 @@ This is a list of all supported browsers:
 - `edge` (latest stable version)
 - `safari` (latest stable version)
 
-The `firefox` and `chrome` browsers are always included. Depending on your
-account plan, you might have access to `internet explorer`, `edge`, and
-`safari` as well.
-
 ### `customizeWebpackConfig`
 
 A function you can use to override or modify the default webpack config used
