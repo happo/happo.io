@@ -38,7 +38,7 @@ export default class RemoteBrowserTarget {
     this.viewport = viewport;
   }
 
-  async execute({ globalCSS, snapPayloads, apiKey, apiSecret, endpoint }) {
+  async execute({ globalCSS, staticPackage, snapPayloads, apiKey, apiSecret, endpoint }) {
     const { requestId } = await makeRequest(
       {
         url: `${endpoint}/api/snap-requests`,
@@ -50,6 +50,7 @@ export default class RemoteBrowserTarget {
             viewport: this.viewport,
             globalCSS,
             snapPayloads,
+            staticPackage,
           },
         },
       },
