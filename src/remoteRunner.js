@@ -1,8 +1,9 @@
 import Logger from './Logger';
 import constructReport from './constructReport';
+import loadCSSFile from './loadCSSFile';
 
 export default async function remoteRunner(
-  { apiKey, apiSecret, endpoint, targets },
+  { apiKey, apiSecret, endpoint, targets, plugins, stylesheets },
   { generateStaticPackage },
 ) {
   const logger = new Logger();
@@ -11,6 +12,8 @@ export default async function remoteRunner(
     const staticPackage = await generateStaticPackage();
     const targetNames = Object.keys(targets);
     const tl = targetNames.length;
+    const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
+    plugins.forEach(({ css }) => cssBlocks.push(css || ''));
     logger.info(`Generating screenshots in ${tl} target${tl > 1 ? 's' : ''}...`);
     const results = await Promise.all(
       targetNames.map(async (name) => {
@@ -19,6 +22,7 @@ export default async function remoteRunner(
           apiKey,
           apiSecret,
           endpoint,
+          globalCSS: cssBlocks.join('').replace(/\n/g, ''),
         });
         logger.start(`  - ${name}`);
         logger.success();
