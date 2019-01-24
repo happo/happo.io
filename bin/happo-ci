@@ -29,7 +29,7 @@ if [ -f "yarn.lock" ]; then
   echo "Detected yarn.lock - using yarn to install dependencies"
   NPM_CLIENT="yarn"
   NPM_CLIENT_FLAGS="--pure-lockfile"
-  CHECK_FOR_HAPPO="yarn list | grep 'happo\.io@'"
+  CHECK_FOR_HAPPO="cat yarn.lock | grep 'happo\.io@'"
 fi
 
 run-happo() {
