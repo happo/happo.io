@@ -9,6 +9,7 @@ import MultipleErrors from './MultipleErrors';
 import constructReport from './constructReport';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
 import createWebpackBundle from './createWebpackBundle';
+import inlineCSSResources from './inlineCSSResources';
 import loadCSSFile from './loadCSSFile';
 import processSnapsInBundle from './processSnapsInBundle';
 
@@ -17,7 +18,7 @@ const { VERBOSE = 'false' } = process.env;
 function logTargetResults({ name, globalCSS, snapPayloads }) {
   const cssPath = path.join(os.tmpdir(), `happo-verbose-${name}.css`);
   const snippetsPath = path.join(os.tmpdir(), `happo-snippets-${name}.json`);
-  fs.writeFileSync(cssPath, globalCSS);
+  fs.writeFileSync(cssPath, JSON.stringify(globalCSS));
   fs.writeFileSync(snippetsPath, JSON.stringify(snapPayloads));
   console.log(`Recorded CSS for target "${name}" can be found in ${cssPath}`);
   console.log(`Recorded HTML snippets for target "${name}" can be found in ${snippetsPath}`);
@@ -50,21 +51,26 @@ function resolveDomProvider({ plugins, jsdomOptions }) {
 }
 
 async function generateScreenshots(
-  {
-    apiKey,
-    apiSecret,
-    stylesheets,
-    endpoint,
-    targets,
-    publicFolders,
-    jsdomOptions,
-    plugins,
-  },
+  { apiKey, apiSecret, stylesheets, endpoint, targets, publicFolders, jsdomOptions, plugins },
   bundleFile,
   logger,
 ) {
-  const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
-  plugins.forEach(({ css }) => cssBlocks.push(css || ''));
+  const cssBlocks = await Promise.all(
+    stylesheets.map(async (pathToFile) => ({
+      id: path.basename(pathToFile),
+      css: await loadCSSFile(pathToFile),
+    })),
+  );
+  plugins.forEach(({ css }) => {
+    if (css) {
+      cssBlocks.push({ css });
+    }
+  });
+  await Promise.all(
+    cssBlocks.map(async (block) => {
+      block.css = await inlineCSSResources(block.css, { publicFolders });
+    }),
+  );
 
   const targetNames = Object.keys(targets);
   const tl = targetNames.length;
@@ -73,8 +79,7 @@ async function generateScreenshots(
   try {
     const results = await Promise.all(
       targetNames.map(async (name) => {
-        const { globalCSS, snapPayloads } = await processSnapsInBundle(bundleFile, {
-          globalCSS: cssBlocks.join('').replace(/\n/g, ''),
+        const { css, snapPayloads } = await processSnapsInBundle(bundleFile, {
           publicFolders,
           viewport: targets[name].viewport,
           DomProvider,
@@ -89,6 +94,12 @@ async function generateScreenshots(
         if (errors.length > 1) {
           throw new MultipleErrors(errors);
         }
+
+        const globalCSS = cssBlocks.concat([
+          {
+            css: inlineCSSResources(css, { publicFolders }),
+          },
+        ]);
 
         if (VERBOSE === 'true') {
           logTargetResults({ name, globalCSS, snapPayloads });

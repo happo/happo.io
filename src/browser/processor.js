@@ -104,7 +104,7 @@ export default class Processor {
     // Disabling eslint here since we want to run things serially
     /* eslint-disable no-await-in-loop */
     for (const variant of Object.keys(variants)) {
-      const exampleRenderFunc = variants[variant];
+      const exampleRenderFunc = typeof variants[variant] === 'function' ? variants[variant] : variants[variant].render;
       if (typeof exampleRenderFunc !== 'function') {
         // Some babel loaders add additional properties to the exports.
         // Ignore those that aren't functions.
@@ -132,6 +132,7 @@ export default class Processor {
         css: '', // Can we remove this?
         component,
         variant,
+        stylesheets: variants[variant].stylesheets,
       });
     }
     /* eslint-enable no-await-in-loop */

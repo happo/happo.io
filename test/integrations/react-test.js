@@ -20,6 +20,8 @@ beforeEach(() => {
     include: 'test/integrations/examples/*-react-happo.js*',
     setupScript: path.resolve(__dirname, 'reactSetup.js'),
     renderWrapperModule: path.resolve(__dirname, 'renderWrapper.js'),
+    stylesheets: [path.resolve(__dirname, 'one.css'), path.resolve(__dirname, 'two.css')],
+    publicFolders: [path.resolve(__dirname)],
     plugins: [
       {
         pathToExamplesFile: path.resolve(__dirname, 'plugin-examples.js'),
@@ -121,6 +123,26 @@ it('produces the right html', async () => {
       variant: 'default',
     },
     {
+      component: 'Generated',
+      css: '',
+      html: '<button>One</button>',
+      variant: 'one',
+      stylesheets: ['one.css'],
+    },
+    {
+      component: 'Generated',
+      css: '',
+      html: '<button>Two</button>',
+      variant: 'two',
+      stylesheets: ['two.css'],
+    },
+    {
+      component: 'Generated',
+      css: '',
+      html: '<button>Three</button>',
+      variant: 'three',
+    },
+    {
       component: 'Plugin-Component',
       css: '',
       html: '<div>Hello world</div>',
@@ -131,9 +153,28 @@ it('produces the right html', async () => {
 
 it('produces the right css', async () => {
   await subject();
-  expect(config.targets.chrome.globalCSS).toEqual(
-    `
-   .plugin-injected { color: red }button {text-align: center;}\nbutton { color: red }
-    `.trim(),
-  );
+  expect(config.targets.chrome.globalCSS).toEqual([
+    {
+      css: `button {text-align: center;}
+button { color: red }`,
+    },
+    {
+      id: 'one.css',
+      css: `button {
+  background-image: url(/one.jpg);
+  border: 2px solid black;
+  border-radius: 5px;
+}
+`,
+    },
+    {
+      id: 'two.css',
+      css: `button {
+  background-color: green;
+  color: white;
+}
+`,
+    },
+    { css: '.plugin-injected { color: red }' },
+  ]);
 });
