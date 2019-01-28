@@ -56,10 +56,16 @@ async function generateScreenshots(
   logger,
 ) {
   const cssBlocks = await Promise.all(
-    stylesheets.map(async (pathToFile) => ({
-      id: path.basename(pathToFile),
-      css: await loadCSSFile(pathToFile),
-    })),
+    stylesheets.map(async (sheet) => {
+      const { source, id, conditional } =
+        typeof sheet === 'string' ? { source: sheet } : sheet;
+      const result = {
+        css: await loadCSSFile(source),
+      };
+      if (id) result.id = id;
+      if (conditional) result.conditional = conditional;
+      return result;
+    }),
   );
   plugins.forEach(({ css }) => {
     if (css) {

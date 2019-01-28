@@ -6,11 +6,11 @@ export default [
     variants: {
       one: {
         render: () => <button>One</button>,
-        stylesheets: ['one.css'],
+        stylesheets: ['one'],
       },
       two: {
         render: () => <button>Two</button>,
-        stylesheets: ['two.css'],
+        stylesheets: ['two'],
       },
       three: () => <button>Three</button>,
     },

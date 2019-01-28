@@ -127,13 +127,17 @@ export default class Processor {
         findRoot();
       const html = await this.waitForHTML(root);
       window.happoCleanup();
-      result.push({
+      const item = {
         html,
         css: '', // Can we remove this?
         component,
         variant,
-        stylesheets: variants[variant].stylesheets,
-      });
+      };
+      const { stylesheets } = variants[variant];
+      if (stylesheets) {
+        item.stylesheets = stylesheets;
+      }
+      result.push(item);
     }
     /* eslint-enable no-await-in-loop */
     return result.filter(Boolean);
