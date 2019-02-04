@@ -590,7 +590,7 @@ Examples can reference images in a few different ways:
 - With internal paths, combined with `publicFolders` configuration. E.g.
   `<img src="/assets/images/foo.png" />`. Make sure to add an (absolute) path
   to the folder containing your assets in the `publicFolders` config option.
-  Happo will automatically inline these as base64 URLs.
+  Happo will automatically include these images.
 - With images inlined as base64 URLs. This is often automated using webpack
   config, so that for you can `import fooImage from './images/foo.png'`
   directly.

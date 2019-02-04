@@ -1,10 +1,8 @@
-import inlineResources from './inlineResources';
-
 const { VERBOSE = 'false' } = process.env;
 
 export default async function processSnapsInBundle(
   webpackBundle,
-  { publicFolders, viewport, DomProvider },
+  { viewport, DomProvider },
 ) {
   const [width, height] = viewport.split('x').map((s) => parseInt(s, 10));
   const domProvider = new DomProvider({
@@ -26,11 +24,6 @@ export default async function processSnapsInBundle(
         console.log(`Viewport ${viewport}`);
       }
       const payloads = await domProvider.processCurrent();
-      payloads.forEach((payload) => {
-        if (payload.html && publicFolders && publicFolders.length) {
-          payload.html = inlineResources(payload.html, { publicFolders });
-        }
-      });
       result.snapPayloads.push(...payloads);
     }
 

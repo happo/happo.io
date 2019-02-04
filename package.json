@@ -49,6 +49,7 @@
     "arrowParens": "always"
   },
   "dependencies": {
+    "archiver": "^3.0.0",
     "babel-plugin-dynamic-import-node": "^2.1.0",
     "babel-polyfill": "^6.26.0",
     "babel-preset-react": "^6.24.1",

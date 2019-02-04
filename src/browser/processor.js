@@ -1,6 +1,7 @@
 /* global window */
 /* eslint-disable no-continue */
 import WrappedError from '../WrappedError';
+import findAssetPaths from '../findAssetPaths';
 import getComponentNameFromFileName from '../getComponentNameFromFileName';
 
 const ROOT_ELEMENT_ID = 'happo-root';
@@ -132,6 +133,7 @@ export default class Processor {
         css: '', // Can we remove this?
         component,
         variant,
+        assetPaths: findAssetPaths(),
       };
       const { stylesheets } = variants[variant];
       if (stylesheets) {

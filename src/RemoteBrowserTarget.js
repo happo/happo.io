@@ -25,20 +25,32 @@ export default class RemoteBrowserTarget {
   constructor(browserName, { viewport }) {
     const viewportMatch = viewport.match(VIEWPORT_PATTERN);
     if (!viewportMatch) {
-      throw new Error(`Invalid viewport "${viewport}". Here's an example of a valid one: "1024x768".`);
+      throw new Error(
+        `Invalid viewport "${viewport}". Here's an example of a valid one: "1024x768".`,
+      );
     }
 
     const [_, width] = viewportMatch; // eslint-disable-line no-unused-vars
 
     if (browserName === 'edge' && width < MIN_INTERNET_EXPLORER_WIDTH) {
-      throw new Error(`Invalid viewport width for the "edge" target (you provided ${width}). Smallest width it can handle is ${MIN_INTERNET_EXPLORER_WIDTH}.`);
+      throw new Error(
+        `Invalid viewport width for the "edge" target (you provided ${width}). Smallest width it can handle is ${MIN_INTERNET_EXPLORER_WIDTH}.`,
+      );
     }
 
     this.browserName = browserName;
     this.viewport = viewport;
   }
 
-  async execute({ globalCSS, staticPackage, snapPayloads, apiKey, apiSecret, endpoint }) {
+  async execute({
+    globalCSS,
+    assetsPackage,
+    staticPackage,
+    snapPayloads,
+    apiKey,
+    apiSecret,
+    endpoint,
+  }) {
     const { requestId } = await makeRequest(
       {
         url: `${endpoint}/api/snap-requests`,
@@ -51,6 +63,7 @@ export default class RemoteBrowserTarget {
             globalCSS,
             snapPayloads,
             staticPackage,
+            assetsPackage,
           },
         },
       },

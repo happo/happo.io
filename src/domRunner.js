@@ -9,8 +9,8 @@ import MultipleErrors from './MultipleErrors';
 import constructReport from './constructReport';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
 import createWebpackBundle from './createWebpackBundle';
-import inlineCSSResources from './inlineCSSResources';
 import loadCSSFile from './loadCSSFile';
+import prepareAssetsPackage from './prepareAssetsPackage';
 import processSnapsInBundle from './processSnapsInBundle';
 
 const { VERBOSE = 'false' } = process.env;
@@ -57,8 +57,7 @@ async function generateScreenshots(
 ) {
   const cssBlocks = await Promise.all(
     stylesheets.map(async (sheet) => {
-      const { source, id, conditional } =
-        typeof sheet === 'string' ? { source: sheet } : sheet;
+      const { source, id, conditional } = typeof sheet === 'string' ? { source: sheet } : sheet;
       const result = {
         css: await loadCSSFile(source),
       };
@@ -72,11 +71,6 @@ async function generateScreenshots(
       cssBlocks.push({ css });
     }
   });
-  await Promise.all(
-    cssBlocks.map(async (block) => {
-      block.css = await inlineCSSResources(block.css, { publicFolders });
-    }),
-  );
 
   const targetNames = Object.keys(targets);
   const tl = targetNames.length;
@@ -101,16 +95,21 @@ async function generateScreenshots(
           throw new MultipleErrors(errors);
         }
 
-        const globalCSS = cssBlocks.concat([
-          {
-            css: inlineCSSResources(css, { publicFolders }),
-          },
-        ]);
+        const globalCSS = cssBlocks.concat([{ css }]);
 
         if (VERBOSE === 'true') {
           logTargetResults({ name, globalCSS, snapPayloads });
         }
+
+        const assetsPackage = await prepareAssetsPackage({
+          globalCSS,
+          snapPayloads,
+          publicFolders,
+        });
+        snapPayloads.forEach((item) => { delete item.assetPaths; });
+
         const result = await targets[name].execute({
+          assetsPackage,
           globalCSS,
           snapPayloads,
           apiKey,
@@ -183,10 +182,7 @@ export default async function domRunner(
     throw e;
   }
 
-  fs.copyFileSync(
-    path.resolve(__dirname, 'debug.html'),
-    path.resolve(tmpdir, 'index.html'),
-  );
+  fs.copyFileSync(path.resolve(__dirname, 'debug.html'), path.resolve(tmpdir, 'index.html'));
 
   logger.start('Creating bundle...');
 
