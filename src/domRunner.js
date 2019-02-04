@@ -183,6 +183,11 @@ export default async function domRunner(
     throw e;
   }
 
+  fs.copyFileSync(
+    path.resolve(__dirname, 'debug.html'),
+    path.resolve(tmpdir, 'index.html'),
+  );
+
   logger.start('Creating bundle...');
 
   if (onReady) {

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Happo debug page</title>
+    <script src="/happo-bundle.js"></script>
+    <script>
+      function summarize(results) {
+        const errors = results.filter(x => x.isError);
+        const successfuls = results.filter(x => !x.isError);
+        const errorMsgs = [...new Set(errors.map(x => x.cause.message))];
+        const el = document.createElement('div');
+        el.innerHTML = `
+          <h1>Results</h1>
+          <p>${successfuls.length} successful examples</p>
+          <p>${errors.length} failed examples</p>
+          <pre>
+            ${errorMsgs.join('\n\n')}
+          </pre>
+        `;
+        document.body.appendChild(el);
+      }
+
+      async function renderAll() {
+        const results = [];
+        while (happoProcessor.next()) {
+          const result = await happoProcessor.processCurrent();
+          results.push(...result);
+        }
+        summarize(results);
+      }
+
+      async function renderOne(index) {
+        happoProcessor.cursor = index;
+        const results = await happoProcessor.processCurrent();
+        summarize(results);
+      }
+
+      async function populateList() {
+        const allUl = document.getElementById('all');
+        happoProcessor.flattenedExamples.forEach((example, i) => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+          ${example.component} <button onclick="renderOne(${i})">render</button>
+          `;
+          allUl.appendChild(li)
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Happo debug page</h1>
+    <button onClick="renderAll()">Render all</button>
+    <ul id="all">
+    </ul>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', populateList);
+    </script>
+  </body>
+</html>

@@ -1,3 +1,6 @@
+import mkdirp from 'mkdirp';
+import rimraf from 'rimraf';
+
 import Logger from '../Logger';
 import domRunner from '../domRunner';
 import remoteRunner from '../remoteRunner';
@@ -6,6 +9,9 @@ import uploadReport from '../uploadReport';
 export default async function runCommand(sha, config, { only, link, message }) {
   const logger = new Logger();
   const { apiKey, apiSecret, endpoint, project, plugins } = config;
+
+  rimraf.sync(config.tmpdir);
+  mkdirp.sync(config.tmpdir);
 
   const staticPlugin = plugins.find((plugin) => typeof plugin.generateStaticPackage === 'function');
   let snaps;

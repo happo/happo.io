@@ -2,7 +2,6 @@ import path from 'path';
 
 import happoPluginPuppeteer from 'happo-plugin-puppeteer';
 
-import { initConfig } from '../../src/loadUserConfig';
 import MockTarget from './MockTarget';
 import * as defaultConfig from '../../src/DEFAULTS';
 import makeRequest from '../../src/makeRequest';
@@ -17,7 +16,7 @@ let sha;
 beforeEach(() => {
   makeRequest.mockImplementation(() => Promise.resolve({}));
   sha = 'foobar';
-  config = initConfig(Object.assign({}, defaultConfig, {
+  config = Object.assign({}, defaultConfig, {
     targets: { firefox: new MockTarget() },
     include: 'test/integrations/examples/*-plain-happo.js*',
     stylesheets: [
@@ -27,7 +26,7 @@ beforeEach(() => {
     type: 'plain',
     rootElementSelector: '.custom-root',
     plugins: [happoPluginPuppeteer({ launchOptions: { args: ['--no-sandbox'] } })],
-  }));
+  });
   subject = () => runCommand(sha, config, {});
 });
 
