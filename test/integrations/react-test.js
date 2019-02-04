@@ -1,5 +1,6 @@
 import path from 'path';
 
+import { initConfig } from '../../src/loadUserConfig';
 import MockTarget from './MockTarget';
 import * as defaultConfig from '../../src/DEFAULTS';
 import makeRequest from '../../src/makeRequest';
@@ -14,7 +15,7 @@ let sha;
 beforeEach(() => {
   makeRequest.mockImplementation(() => Promise.resolve({}));
   sha = 'foobar';
-  config = Object.assign({}, defaultConfig, {
+  config = initConfig(Object.assign({}, defaultConfig, {
     project: 'the project',
     targets: { chrome: new MockTarget() },
     include: 'test/integrations/examples/*-react-happo.js*',
@@ -48,7 +49,7 @@ beforeEach(() => {
         },
       },
     ],
-  });
+  }));
   subject = () => runCommand(sha, config, {});
 });
 

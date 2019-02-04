@@ -1,5 +1,7 @@
+import mkdirp from 'mkdirp';
 import request from 'request-promise-native';
 import requireRelative from 'require-relative';
+import rimraf from 'rimraf';
 
 import Logger from './Logger';
 import WrappedError from './WrappedError';
@@ -30,6 +32,17 @@ async function getPullRequestSecret({ endpoint }, env) {
 
   return secret;
 }
+export function initConfig(config) {
+  rimraf.sync(config.tmpdir);
+  mkdirp.sync(config.tmpdir);
+  config.publicFolders.push(config.tmpdir);
+  config.plugins.forEach(({ publicFolders }) => {
+    if (publicFolders) {
+      config.publicFolders.push(...publicFolders);
+    }
+  });
+  return config;
+}
 
 export default async function loadUserConfig(pathToConfigFile, env = process.env) {
   const { CHANGE_URL } = env;
@@ -57,11 +70,6 @@ export default async function loadUserConfig(pathToConfigFile, env = process.env
         'See https://github.com/happo/happo.io#targets for more info.',
     );
   }
-  config.publicFolders.push(config.tmpdir);
-  config.plugins.forEach(({ publicFolders }) => {
-    if (publicFolders) {
-      config.publicFolders.push(...publicFolders);
-    }
-  });
-  return config;
+  return initConfig(config);
 }
+

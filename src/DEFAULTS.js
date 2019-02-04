@@ -1,6 +1,10 @@
 import os from 'os';
+import path from 'path';
 
 import RemoteBrowserTarget from './RemoteBrowserTarget';
+import createHash from './createHash';
+
+const cwdUniqueFolderName = `happo-tmp-${createHash(process.cwd()).slice(0, 5)}`;
 
 export const apiKey = process.env.HAPPO_API_KEY;
 export const apiSecret = process.env.HAPPO_API_SECRET;
@@ -17,7 +21,7 @@ export const configFile = './.happo.js';
 export const type = 'react';
 export const plugins = [];
 export const publicFolders = [];
-export const tmpdir = os.tmpdir();
+export const tmpdir = path.join(os.tmpdir(), cwdUniqueFolderName);
 export const renderWrapperModule = require.resolve('./renderWrapper');
 export function customizeWebpackConfig(config) {
   // provide a default no-op for this config option so that we can assume it's
