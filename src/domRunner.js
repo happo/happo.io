@@ -106,7 +106,9 @@ async function generateScreenshots(
           snapPayloads,
           publicFolders,
         });
-        snapPayloads.forEach((item) => { delete item.assetPaths; });
+        snapPayloads.forEach((item) => {
+          delete item.assetPaths;
+        });
 
         const result = await targets[name].execute({
           assetsPackage,
@@ -182,7 +184,8 @@ export default async function domRunner(
     throw e;
   }
 
-  fs.copyFileSync(path.resolve(__dirname, 'debug.html'), path.resolve(tmpdir, 'index.html'));
+  const debugIndexHtml = fs.readFileSync(path.resolve(__dirname, 'debug.html'));
+  fs.writeFileSync(path.resolve(tmpdir, 'index.html'), debugIndexHtml);
 
   logger.start('Creating bundle...');
 
