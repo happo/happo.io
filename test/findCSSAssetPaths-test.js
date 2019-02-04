@@ -1,5 +1,3 @@
-import path from 'path';
-
 import findCSSAssetPaths from '../src/findCSSAssetPaths';
 
 let subject;
