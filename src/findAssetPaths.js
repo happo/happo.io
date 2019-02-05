@@ -7,11 +7,12 @@ function isAbsoluteUrl(src) {
 }
 
 export default function findAssetPaths(doc = document) {
-  const imgPaths = Array.from(doc.querySelectorAll('img[src]'))
-    .map(({ src }) => src);
+  const imgPaths = Array.from(doc.querySelectorAll('img[src]')).map((img) =>
+    img.getAttribute('src'),
+  );
 
   doc.querySelectorAll('img[srcset]').forEach((img) => {
-    Array.from(matchAll(img.srcset || '', SRCSET_ITEM)).forEach((match) => {
+    Array.from(matchAll(img.getAttribute('srcset') || '', SRCSET_ITEM)).forEach((match) => {
       imgPaths.push(match[1]);
     });
   });

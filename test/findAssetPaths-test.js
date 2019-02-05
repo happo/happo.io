@@ -8,7 +8,9 @@ let html;
 beforeEach(() => {
   html = '';
   subject = () => {
-    const dom = new JSDOM('<!DOCTYPE html>');
+    const dom = new JSDOM('<!DOCTYPE html>', {
+      url: 'http://localhost',
+    });
     dom.window.document.body.innerHTML = html;
     return findAssetPaths(dom.window.document);
   };
