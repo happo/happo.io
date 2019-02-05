@@ -65,3 +65,4 @@ export default async function loadUserConfig(pathToConfigFile, env = process.env
   });
   return config;
 }
+

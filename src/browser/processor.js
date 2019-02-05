@@ -1,6 +1,7 @@
 /* global window */
 /* eslint-disable no-continue */
 import WrappedError from '../WrappedError';
+import findAssetPaths from '../findAssetPaths';
 import getComponentNameFromFileName from '../getComponentNameFromFileName';
 
 const ROOT_ELEMENT_ID = 'happo-root';
@@ -104,7 +105,7 @@ export default class Processor {
     // Disabling eslint here since we want to run things serially
     /* eslint-disable no-await-in-loop */
     for (const variant of Object.keys(variants)) {
-      const exampleRenderFunc = variants[variant];
+      const exampleRenderFunc = typeof variants[variant] === 'function' ? variants[variant] : variants[variant].render;
       if (typeof exampleRenderFunc !== 'function') {
         // Some babel loaders add additional properties to the exports.
         // Ignore those that aren't functions.
@@ -127,12 +128,18 @@ export default class Processor {
         findRoot();
       const html = await this.waitForHTML(root);
       window.happoCleanup();
-      result.push({
+      const item = {
         html,
         css: '', // Can we remove this?
         component,
         variant,
-      });
+        assetPaths: findAssetPaths(),
+      };
+      const { stylesheets } = variants[variant];
+      if (stylesheets) {
+        item.stylesheets = stylesheets;
+      }
+      result.push(item);
     }
     /* eslint-enable no-await-in-loop */
     return result.filter(Boolean);

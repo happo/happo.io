@@ -8,6 +8,7 @@ import generateDevSha from './generateDevSha';
 import hasReportCommand from './commands/hasReport';
 import loadUserConfig from './loadUserConfig';
 import packageJson from '../package.json';
+import debugCommand from './commands/debug';
 import runCommand from './commands/run';
 import uploadReport from './uploadReport';
 
@@ -18,6 +19,7 @@ commander
   .option('-l, --link <url>', 'provide a link back to the commit')
   .option('-m, --message <message>', 'associate the run with a message (e.g. commit subject)')
   .option('-a, --author <email>', 'the author of the commit')
+  .option('--debug-port <port>', 'the port where the debug server listens')
   .usage('[options]');
 
 commander
@@ -45,6 +47,16 @@ commander
     await devCommand(await loadUserConfig(commander.config), {
       only: commander.only,
     });
+  });
+
+commander
+  .command('debug')
+  .description('start a local server where you can debug happo examples')
+  .action(async () => {
+    debugCommand(
+      { port: commander.debugPort },
+      await loadUserConfig(commander.config),
+    );
   });
 
 commander

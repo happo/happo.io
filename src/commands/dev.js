@@ -1,3 +1,6 @@
+import mkdirp from 'mkdirp';
+import rimraf from 'rimraf';
+
 import Logger from '../Logger';
 import compareReportsCommand from './compareReports';
 import domRunner from '../domRunner';
@@ -12,6 +15,8 @@ export default async function devCommand(config, { only }) {
   const { apiKey, apiSecret, endpoint, project } = config;
   let baselineSha;
   const logger = new Logger();
+  rimraf.sync(config.tmpdir);
+  mkdirp.sync(config.tmpdir);
   domRunner(config, {
     only,
     onReady: async (snaps) => {

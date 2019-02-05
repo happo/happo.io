@@ -3,18 +3,16 @@ import path from 'path';
 import webpack from 'webpack';
 
 import Logger from './Logger';
-import createHash from './createHash';
 
 const { VERBOSE = 'false' } = process.env;
 
 function generateBaseConfig({ entry, type, tmpdir }) {
-  const outFile = `happo-bundle-${type}-${createHash(process.cwd()).slice(0, 5)}.js`;
   const babelLoader = require.resolve('babel-loader');
   const baseConfig = {
     devtool: 'nosources-source-map',
     entry,
     output: {
-      filename: outFile,
+      filename: 'happo-bundle.js',
       path: tmpdir,
       devtoolModuleFilenameTemplate: '[absolute-resource-path]',
     },

@@ -10,6 +10,7 @@ import constructReport from './constructReport';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
 import createWebpackBundle from './createWebpackBundle';
 import loadCSSFile from './loadCSSFile';
+import prepareAssetsPackage from './prepareAssetsPackage';
 import processSnapsInBundle from './processSnapsInBundle';
 
 const { VERBOSE = 'false' } = process.env;
@@ -17,7 +18,7 @@ const { VERBOSE = 'false' } = process.env;
 function logTargetResults({ name, globalCSS, snapPayloads }) {
   const cssPath = path.join(os.tmpdir(), `happo-verbose-${name}.css`);
   const snippetsPath = path.join(os.tmpdir(), `happo-snippets-${name}.json`);
-  fs.writeFileSync(cssPath, globalCSS);
+  fs.writeFileSync(cssPath, JSON.stringify(globalCSS));
   fs.writeFileSync(snippetsPath, JSON.stringify(snapPayloads));
   console.log(`Recorded CSS for target "${name}" can be found in ${cssPath}`);
   console.log(`Recorded HTML snippets for target "${name}" can be found in ${snippetsPath}`);
@@ -50,21 +51,26 @@ function resolveDomProvider({ plugins, jsdomOptions }) {
 }
 
 async function generateScreenshots(
-  {
-    apiKey,
-    apiSecret,
-    stylesheets,
-    endpoint,
-    targets,
-    publicFolders,
-    jsdomOptions,
-    plugins,
-  },
+  { apiKey, apiSecret, stylesheets, endpoint, targets, publicFolders, jsdomOptions, plugins },
   bundleFile,
   logger,
 ) {
-  const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
-  plugins.forEach(({ css }) => cssBlocks.push(css || ''));
+  const cssBlocks = await Promise.all(
+    stylesheets.map(async (sheet) => {
+      const { source, id, conditional } = typeof sheet === 'string' ? { source: sheet } : sheet;
+      const result = {
+        css: await loadCSSFile(source),
+      };
+      if (id) result.id = id;
+      if (conditional) result.conditional = conditional;
+      return result;
+    }),
+  );
+  plugins.forEach(({ css }) => {
+    if (css) {
+      cssBlocks.push({ css });
+    }
+  });
 
   const targetNames = Object.keys(targets);
   const tl = targetNames.length;
@@ -73,8 +79,7 @@ async function generateScreenshots(
   try {
     const results = await Promise.all(
       targetNames.map(async (name) => {
-        const { globalCSS, snapPayloads } = await processSnapsInBundle(bundleFile, {
-          globalCSS: cssBlocks.join('').replace(/\n/g, ''),
+        const { css, snapPayloads } = await processSnapsInBundle(bundleFile, {
           publicFolders,
           viewport: targets[name].viewport,
           DomProvider,
@@ -90,10 +95,23 @@ async function generateScreenshots(
           throw new MultipleErrors(errors);
         }
 
+        const globalCSS = cssBlocks.concat([{ css }]);
+
         if (VERBOSE === 'true') {
           logTargetResults({ name, globalCSS, snapPayloads });
         }
+
+        const assetsPackage = await prepareAssetsPackage({
+          globalCSS,
+          snapPayloads,
+          publicFolders,
+        });
+        snapPayloads.forEach((item) => {
+          delete item.assetPaths;
+        });
+
         const result = await targets[name].execute({
+          assetsPackage,
           globalCSS,
           snapPayloads,
           apiKey,
@@ -165,6 +183,9 @@ export default async function domRunner(
     logger.fail(e);
     throw e;
   }
+
+  const debugIndexHtml = fs.readFileSync(path.resolve(__dirname, 'debug.html'));
+  fs.writeFileSync(path.resolve(tmpdir, 'index.html'), debugIndexHtml);
 
   logger.start('Creating bundle...');
 
