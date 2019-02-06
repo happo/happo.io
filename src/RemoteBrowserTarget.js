@@ -83,6 +83,10 @@ export default class RemoteBrowserTarget {
       promises.push(waitFor({ requestId, endpoint, apiKey, apiSecret }));
     }
 
-    await Promise.all(promises);
+    const result = [];
+    (await Promise.all(promises)).forEach((list) => {
+      result.push(...list);
+    });
+    return result;
   }
 }

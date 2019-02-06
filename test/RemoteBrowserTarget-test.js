@@ -36,7 +36,13 @@ describe('#execute', () => {
   beforeEach(() => {
     makeRequest.mockReset();
     makeRequest.mockImplementation(() =>
-      Promise.resolve({ requestId: 44, status: 'done', result: [] }),
+      Promise.resolve({
+        requestId: 44,
+        status: 'done',
+        result: [{
+          component: 'foobar',
+        }],
+      }),
     );
   });
 
@@ -47,7 +53,7 @@ describe('#execute', () => {
 
     it('sends the right requests', async () => {
       const target = subject();
-      await target.execute({
+      const result = await target.execute({
         globalCSS: '* { color: red }',
         snapPayloads: [{ html: '<div/>' }, { html: '<button/>' }, { html: '<li/>' }],
         apiKey: 'foobar',
@@ -55,12 +61,12 @@ describe('#execute', () => {
         endpoint: 'http://localhost',
       });
 
+      expect(result).toEqual([{ component: 'foobar' }, { component: 'foobar' }]);
+
       // two POSTs and two GETs
       expect(makeRequest.mock.calls.length).toBe(4);
 
-      expect(makeRequest.mock.calls[0][0].body.payload.snapPayloads).toEqual([
-        { html: '<div/>' },
-      ]);
+      expect(makeRequest.mock.calls[0][0].body.payload.snapPayloads).toEqual([{ html: '<div/>' }]);
       expect(makeRequest.mock.calls[2][0].body.payload.snapPayloads).toEqual([
         { html: '<button/>' },
         { html: '<li/>' },
@@ -75,13 +81,15 @@ describe('#execute', () => {
 
     it('sends the right requests', async () => {
       const target = subject();
-      await target.execute({
+      const result = await target.execute({
         globalCSS: '* { color: red }',
         snapPayloads: [{ html: '<div/>' }, { html: '<button/>' }, { html: '<li/>' }],
         apiKey: 'foobar',
         apiSecret: 'p@assword',
         endpoint: 'http://localhost',
       });
+
+      expect(result).toEqual([{ component: 'foobar' }]);
 
       // one POST and one GET
       expect(makeRequest.mock.calls.length).toBe(2);
