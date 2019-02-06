@@ -22,7 +22,7 @@ async function waitFor({ requestId, endpoint, apiKey, apiSecret }) {
 const MIN_INTERNET_EXPLORER_WIDTH = 400;
 
 export default class RemoteBrowserTarget {
-  constructor(browserName, { viewport }) {
+  constructor(browserName, { viewport, chunks = 1 }) {
     const viewportMatch = viewport.match(VIEWPORT_PATTERN);
     if (!viewportMatch) {
       throw new Error(
@@ -38,6 +38,7 @@ export default class RemoteBrowserTarget {
       );
     }
 
+    this.chunks = chunks;
     this.browserName = browserName;
     this.viewport = viewport;
   }
@@ -51,24 +52,41 @@ export default class RemoteBrowserTarget {
     apiSecret,
     endpoint,
   }) {
-    const { requestId } = await makeRequest(
-      {
-        url: `${endpoint}/api/snap-requests`,
-        method: 'POST',
-        json: true,
-        body: {
-          type: `browser-${this.browserName}`,
-          payload: {
-            viewport: this.viewport,
-            globalCSS,
-            snapPayloads,
-            staticPackage,
-            assetsPackage,
+    if (this.chunks > 1 && staticPackage) {
+      throw new Error("Can't use chunks > 1 when using `staticPackage`");
+    }
+    const promises = [];
+    const snapsPerChunk = snapPayloads.length / this.chunks;
+    for (let i = 0; i < this.chunks; i += 1) {
+      const slice = snapPayloads.slice(i * snapsPerChunk, (i * snapsPerChunk) + snapsPerChunk);
+      // We allow one `await` inside the loop here to avoid POSTing all payloads
+      // to the server at the same time (thus reducing load a little).
+      // eslint-disable-next-line no-await-in-loop
+      const { requestId } = await makeRequest(
+        {
+          url: `${endpoint}/api/snap-requests`,
+          method: 'POST',
+          json: true,
+          body: {
+            type: `browser-${this.browserName}`,
+            payload: {
+              viewport: this.viewport,
+              globalCSS,
+              snapPayloads: slice,
+              staticPackage,
+              assetsPackage,
+            },
           },
         },
-      },
-      { apiKey, apiSecret },
-    );
-    return waitFor({ requestId, endpoint, apiKey, apiSecret });
+        { apiKey, apiSecret },
+      );
+      promises.push(waitFor({ requestId, endpoint, apiKey, apiSecret }));
+    }
+
+    const result = [];
+    (await Promise.all(promises)).forEach((list) => {
+      result.push(...list);
+    });
+    return result;
   }
 }

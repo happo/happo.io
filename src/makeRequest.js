@@ -6,6 +6,7 @@ export default function makeRequest(requestAttributes, { apiKey, apiSecret }) {
   return request(
     Object.assign(
       {
+        gzip: true,
         auth: {
           bearer: signed,
         },
