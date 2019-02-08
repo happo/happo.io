@@ -6,6 +6,10 @@ import Archiver from 'archiver';
 
 import findCSSAssetPaths from './findCSSAssetPaths';
 
+// We're setting the creation date to the same for all files so that the zip
+// packages created for the same content ends up having the same fingerprint.
+const FILE_CREATION_DATE = new Date('Fri Feb 08 2019 13:31:55 GMT+0100 (CET)');
+
 function makePackage({ paths, publicFolders }) {
   return new Promise((resolve, reject) => {
     const archive = new Archiver('zip');
@@ -27,7 +31,10 @@ function makePackage({ paths, publicFolders }) {
       for (const folder of publicFolders) {
         const fullPath = path.join(folder, assetPath);
         if (fs.existsSync(fullPath)) {
-          archive.append(fs.createReadStream(fullPath), { name: assetPath });
+          archive.append(fs.createReadStream(fullPath), {
+            name: assetPath,
+            date: FILE_CREATION_DATE,
+          });
           return;
         }
       }
@@ -38,11 +45,7 @@ function makePackage({ paths, publicFolders }) {
   });
 }
 
-export default function prepareAssetsPackage({
-  globalCSS,
-  snapPayloads,
-  publicFolders,
-}) {
+export default function prepareAssetsPackage({ globalCSS, snapPayloads, publicFolders }) {
   const paths = new Set();
   globalCSS.forEach(({ css }) => {
     findCSSAssetPaths(css).forEach((cssPath) => {
