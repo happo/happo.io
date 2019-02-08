@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 
 import prepareAssetsPackage from '../src/prepareAssetsPackage';
@@ -11,16 +12,26 @@ beforeEach(() => {
   globalCSS = [{ css: '.foo { background: url(/inlineResources/1x1.png) }' }];
   snapPayloads = [{ assetPaths: ['inlineResources/1x1.png'] }];
   publicFolders = [__dirname];
-  subject = () => prepareAssetsPackage({
-    globalCSS,
-    snapPayloads,
-    publicFolders,
-  });
+  subject = () =>
+    prepareAssetsPackage({
+      globalCSS,
+      snapPayloads,
+      publicFolders,
+    });
 });
 
 it('creates a package when there are assets', async () => {
   const result = await subject();
   expect(result).not.toBe(undefined);
+});
+
+it('creates consistent results', async () => {
+  const first = await subject();
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  const filename = path.resolve(__dirname, 'inlineResources/1x1.png');
+  fs.utimesSync(filename, new Date(), new Date());
+  const second = await subject();
+  expect(first).toEqual(second);
 });
 
 it('does not fail when files are missing', async () => {
