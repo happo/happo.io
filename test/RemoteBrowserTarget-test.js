@@ -39,9 +39,11 @@ describe('#execute', () => {
       Promise.resolve({
         requestId: 44,
         status: 'done',
-        result: [{
-          component: 'foobar',
-        }],
+        result: [
+          {
+            component: 'foobar',
+          },
+        ],
       }),
     );
   });
@@ -99,6 +101,26 @@ describe('#execute', () => {
         { html: '<button/>' },
         { html: '<li/>' },
       ]);
+    });
+
+    describe('when there are no snapPayloads (as in happo-plugin-storybook)', () => {
+      it('sends just one request', async () => {
+        const target = subject();
+        const result = await target.execute({
+          globalCSS: '* { color: red }',
+          apiKey: 'foobar',
+          apiSecret: 'p@assword',
+          endpoint: 'http://localhost',
+          staticPackage: 'foobar',
+        });
+
+        expect(result).toEqual([{ component: 'foobar' }]);
+
+        // one POST and one GET
+        expect(makeRequest.mock.calls.length).toBe(2);
+
+        expect(makeRequest.mock.calls[0][0].body.payload.staticPackage).toEqual('foobar');
+      });
     });
   });
 });

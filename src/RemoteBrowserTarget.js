@@ -52,17 +52,8 @@ export default class RemoteBrowserTarget {
     apiSecret,
     endpoint,
   }) {
-    if (this.chunks > 1 && staticPackage) {
-      throw new Error("Can't use chunks > 1 when using `staticPackage`");
-    }
-    const promises = [];
-    const snapsPerChunk = snapPayloads.length / this.chunks;
-    for (let i = 0; i < this.chunks; i += 1) {
-      const slice = snapPayloads.slice(i * snapsPerChunk, (i * snapsPerChunk) + snapsPerChunk);
-      // We allow one `await` inside the loop here to avoid POSTing all payloads
-      // to the server at the same time (thus reducing load a little).
-      // eslint-disable-next-line no-await-in-loop
-      const { requestId } = await makeRequest(
+    const boundMakeRequest = async (slice) =>
+      makeRequest(
         {
           url: `${endpoint}/api/snap-requests`,
           method: 'POST',
@@ -80,6 +71,18 @@ export default class RemoteBrowserTarget {
         },
         { apiKey, apiSecret },
       );
+    if (staticPackage) {
+      const { requestId: staticReqId } = await boundMakeRequest();
+      return waitFor({ requestId: staticReqId, endpoint, apiKey, apiSecret });
+    }
+    const promises = [];
+    const snapsPerChunk = snapPayloads.length / this.chunks;
+    for (let i = 0; i < this.chunks; i += 1) {
+      const slice = snapPayloads.slice(i * snapsPerChunk, (i * snapsPerChunk) + snapsPerChunk);
+      // We allow one `await` inside the loop here to avoid POSTing all payloads
+      // to the server at the same time (thus reducing load a little).
+      // eslint-disable-next-line no-await-in-loop
+      const { requestId } = await boundMakeRequest(slice);
       promises.push(waitFor({ requestId, endpoint, apiKey, apiSecret }));
     }
 
