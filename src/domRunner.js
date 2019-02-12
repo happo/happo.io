@@ -59,6 +59,7 @@ async function generateScreenshots(
     stylesheets.map(async (sheet) => {
       const { source, id, conditional } = typeof sheet === 'string' ? { source: sheet } : sheet;
       const result = {
+        source,
         css: await loadCSSFile(source),
       };
       if (id) result.id = id;

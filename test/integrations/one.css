@@ -1,5 +1,5 @@
 button {
-  background-image: url(/one.jpg);
+  background-image: url(assets/one.jpg);
   border: 2px solid black;
   border-radius: 5px;
 }

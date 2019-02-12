@@ -17,7 +17,8 @@ function makePackage({ paths, publicFolders }) {
     const stream = new Writable();
     const data = [];
 
-    stream._write = (chunk, enc, done) => { // eslint-disable-line no-underscore-dangle
+    // eslint-disable-next-line no-underscore-dangle
+    stream._write = (chunk, enc, done) => {
       data.push(...chunk);
       done();
     };
@@ -37,6 +38,14 @@ function makePackage({ paths, publicFolders }) {
           });
           return;
         }
+        // findCSSAssetPaths will sometimes return absolute paths
+        if (assetPath.startsWith(folder) && fs.existsSync(assetPath)) {
+          archive.append(fs.createReadStream(assetPath), {
+            name: assetPath.replace(folder, ''),
+            date: FILE_CREATION_DATE,
+          });
+          return;
+        }
       }
     });
 
@@ -47,8 +56,8 @@ function makePackage({ paths, publicFolders }) {
 
 export default function prepareAssetsPackage({ globalCSS, snapPayloads, publicFolders }) {
   const paths = new Set();
-  globalCSS.forEach(({ css }) => {
-    findCSSAssetPaths(css).forEach((cssPath) => {
+  globalCSS.forEach(({ css, source }) => {
+    findCSSAssetPaths({ css, source }).forEach((cssPath) => {
       paths.add(cssPath);
     });
   });
