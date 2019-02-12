@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
+import AdmZip from 'adm-zip';
+
 import prepareAssetsPackage from '../src/prepareAssetsPackage';
 
 let subject;
@@ -9,7 +11,12 @@ let snapPayloads;
 let publicFolders;
 
 beforeEach(() => {
-  globalCSS = [{ css: '.foo { background: url(/inlineResources/1x1.png) }' }];
+  globalCSS = [
+    {
+      css: '.foo { background: url("1x1.jpg") }',
+      source: path.resolve(__dirname, 'inlineResources/foo.css'),
+    },
+  ];
   snapPayloads = [{ assetPaths: ['inlineResources/1x1.png'] }];
   publicFolders = [__dirname];
   subject = () =>
@@ -38,4 +45,13 @@ it('does not fail when files are missing', async () => {
   const result = await subject();
   publicFolders = [path.join(__dirname, 'foobar')];
   expect(result).not.toBe(undefined);
+});
+
+it('picks out the right files', async () => {
+  const buffer = await subject();
+  const zip = new AdmZip(buffer);
+  expect(zip.getEntries().map(({ entryName }) => entryName)).toEqual([
+    'inlineResources/1x1.jpg',
+    'inlineResources/1x1.png',
+  ]);
 });

@@ -1,10 +1,15 @@
+import path from 'path';
+
 import findCSSAssetPaths from '../src/findCSSAssetPaths';
 
 let subject;
 let css;
+let source;
 
 beforeEach(() => {
-  subject = () => findCSSAssetPaths(css);
+  css = '';
+  source = undefined;
+  subject = () => findCSSAssetPaths({ css, source });
 });
 
 it('finds images', () => {
@@ -40,4 +45,15 @@ it('finds multiple images', () => {
     .car { d: url(/circle.svg) url(/1x1.jpg); }
   `;
   expect(subject()).toEqual(['/1x1.jpg', '/1x1.png', '/circle.svg', '/circle.svg', '/1x1.jpg']);
+});
+
+describe('when there is a source', () => {
+  beforeEach(() => {
+    css = '.body { background-image: url("baz/1x1.png");';
+    source = path.join(__dirname, 'foo/bar/test.css');
+  });
+
+  it('returns absolute paths', () => {
+    expect(subject()).toEqual([path.join(__dirname, 'foo/bar/baz/1x1.png')]);
+  });
 });

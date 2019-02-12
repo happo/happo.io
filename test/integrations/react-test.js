@@ -1,5 +1,7 @@
 import path from 'path';
 
+import AdmZip from 'adm-zip';
+
 import MockTarget from './MockTarget';
 import * as defaultConfig from '../../src/DEFAULTS';
 import makeRequest from '../../src/makeRequest';
@@ -155,17 +157,27 @@ it('produces the right html', async () => {
   ]);
 });
 
+it('resolves assets correctly', async () => {
+  await subject();
+  const zip = new AdmZip(config.targets.chrome.assetsPackage);
+  expect(zip.getEntries().map(({ entryName }) => entryName)).toEqual([
+    'assets/one.jpg',
+  ]);
+});
+
 it('produces the right css', async () => {
   await subject();
   expect(config.targets.chrome.globalCSS).toEqual([
     {
       css: '.a { b: c }\n',
+      source: path.resolve(__dirname, 'styles.css'),
     },
     {
       id: 'one',
       conditional: true,
+      source: path.resolve(__dirname, 'one.css'),
       css: `button {
-  background-image: url(/one.jpg);
+  background-image: url(assets/one.jpg);
   border: 2px solid black;
   border-radius: 5px;
 }
@@ -177,6 +189,7 @@ it('produces the right css', async () => {
   color: white;
 }
 `,
+      source: path.resolve(__dirname, 'two.css'),
     },
     { css: '.plugin-injected { color: red }' },
     {
