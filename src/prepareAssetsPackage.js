@@ -47,6 +47,15 @@ function makePackage({ paths, publicFolders }) {
           });
           return;
         }
+        // as a last fallback, check if the resolve path exists in the public folder
+        const fullResolvePath = path.join(folder, resolvePath);
+        if (fs.existsSync(fullResolvePath)) {
+          archive.append(fs.createReadStream(fullResolvePath), {
+            name: resolvePath,
+            date: FILE_CREATION_DATE,
+          });
+          return;
+        }
       }
     });
 
