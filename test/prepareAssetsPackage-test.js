@@ -51,7 +51,7 @@ it('picks out the right files', async () => {
   const buffer = await subject();
   const zip = new AdmZip(buffer);
   expect(zip.getEntries().map(({ entryName }) => entryName)).toEqual([
-    'inlineResources/1x1.jpg',
+    '1x1.jpg', // this is in the root because the css is always served from the root on happo workers
     'inlineResources/1x1.png',
   ]);
 });

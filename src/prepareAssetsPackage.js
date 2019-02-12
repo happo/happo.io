@@ -28,12 +28,13 @@ function makePackage({ paths, publicFolders }) {
     });
     archive.pipe(stream);
 
-    paths.forEach((assetPath) => {
+    Object.keys(paths).forEach((assetPath) => {
+      const resolvePath = paths[assetPath];
       for (const folder of publicFolders) {
         const fullPath = path.join(folder, assetPath);
         if (fs.existsSync(fullPath)) {
           archive.append(fs.createReadStream(fullPath), {
-            name: assetPath,
+            name: resolvePath,
             date: FILE_CREATION_DATE,
           });
           return;
@@ -41,7 +42,7 @@ function makePackage({ paths, publicFolders }) {
         // findCSSAssetPaths will sometimes return absolute paths
         if (assetPath.startsWith(folder) && fs.existsSync(assetPath)) {
           archive.append(fs.createReadStream(assetPath), {
-            name: assetPath.replace(folder, ''),
+            name: resolvePath,
             date: FILE_CREATION_DATE,
           });
           return;
@@ -55,15 +56,15 @@ function makePackage({ paths, publicFolders }) {
 }
 
 export default function prepareAssetsPackage({ globalCSS, snapPayloads, publicFolders }) {
-  const paths = new Set();
+  const paths = {};
   globalCSS.forEach(({ css, source }) => {
-    findCSSAssetPaths({ css, source }).forEach((cssPath) => {
-      paths.add(cssPath);
+    findCSSAssetPaths({ css, source }).forEach(({ assetPath, resolvePath }) => {
+      paths[assetPath] = resolvePath;
     });
   });
   snapPayloads.forEach(({ assetPaths }) => {
     assetPaths.forEach((assetPath) => {
-      paths.add(assetPath);
+      paths[assetPath] = assetPath;
     });
   });
 
