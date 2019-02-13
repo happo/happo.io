@@ -9,14 +9,15 @@ export default function findCSSAssetPaths({ css, source }) {
     .map((match) => match[1])
     .filter((url) => !/^http|\/\//.test(url));
   if (!source) {
-    return paths;
+    return paths.map((p) => ({ assetPath: p, resolvePath: p }));
   }
   const dir = path.dirname(source);
   return paths.map((url) => {
     if (url.startsWith('/')) {
       // absolute url
-      return url;
+      return { assetPath: url, resolvePath: url };
     }
-    return path.join(dir, url);
+    const assetPath = path.join(dir, url);
+    return { assetPath, resolvePath: url };
   });
 }

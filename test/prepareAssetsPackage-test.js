@@ -13,12 +13,18 @@ let publicFolders;
 beforeEach(() => {
   globalCSS = [
     {
-      css: '.foo { background: url("1x1.jpg") }',
+      css: `
+        .foo { background: url("1x1.jpg") }
+        .bar { background: url(one.jpg) }
+      `,
       source: path.resolve(__dirname, 'inlineResources/foo.css'),
     },
   ];
   snapPayloads = [{ assetPaths: ['inlineResources/1x1.png'] }];
-  publicFolders = [__dirname];
+  publicFolders = [
+    __dirname, // absolute path
+    'test/integrations/assets', // relative
+  ];
   subject = () =>
     prepareAssetsPackage({
       globalCSS,
@@ -51,7 +57,8 @@ it('picks out the right files', async () => {
   const buffer = await subject();
   const zip = new AdmZip(buffer);
   expect(zip.getEntries().map(({ entryName }) => entryName)).toEqual([
-    'inlineResources/1x1.jpg',
+    '1x1.jpg', // this is in the root because the css is always served from the root on happo workers
+    'one.jpg',
     'inlineResources/1x1.png',
   ]);
 });

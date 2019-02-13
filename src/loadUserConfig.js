@@ -31,7 +31,10 @@ async function getPullRequestSecret({ endpoint }, env) {
   return secret;
 }
 
-export default async function loadUserConfig(pathToConfigFile, env = process.env) {
+export default async function loadUserConfig(
+  pathToConfigFile,
+  env = process.env,
+) {
   const { CHANGE_URL } = env;
 
   const config = load(pathToConfigFile);
@@ -44,7 +47,9 @@ export default async function loadUserConfig(pathToConfigFile, env = process.env
     }
     try {
       // Reassign api tokens to temporary ones provided for the PR
-      new Logger().info('No `apiKey` or `apiSecret` found in config. Falling back to pull-request authentication.');
+      new Logger().info(
+        'No `apiKey` or `apiSecret` found in config. Falling back to pull-request authentication.',
+      );
       config.apiKey = CHANGE_URL;
       config.apiSecret = await getPullRequestSecret(config, env);
     } catch (e) {
@@ -57,6 +62,13 @@ export default async function loadUserConfig(pathToConfigFile, env = process.env
         'See https://github.com/happo/happo.io#targets for more info.',
     );
   }
+  const defaultKeys = Object.keys(defaultConfig);
+  const usedKeys = Object.keys(config);
+  usedKeys.forEach((key) => {
+    if (!defaultKeys.includes(key)) {
+      new Logger().warn(`Unknown config key used in .happo.js: "${key}"`);
+    }
+  });
   config.publicFolders.push(config.tmpdir);
   config.plugins.forEach(({ publicFolders }) => {
     if (publicFolders) {
@@ -65,4 +77,3 @@ export default async function loadUserConfig(pathToConfigFile, env = process.env
   });
   return config;
 }
-

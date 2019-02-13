@@ -1,11 +1,27 @@
-import requireRelative from 'require-relative';
 import request from 'request-promise-native';
+import requireRelative from 'require-relative';
 
+import Logger from '../src/Logger';
 import RemoteBrowserTarget from '../src/RemoteBrowserTarget';
 import loadUserConfig from '../src/loadUserConfig';
 
 jest.mock('request-promise-native');
 jest.mock('require-relative');
+jest.mock('../src/Logger');
+
+let warn;
+let info;
+
+beforeEach(() => {
+  warn = jest.fn();
+  info = jest.fn();
+  warn.mockReset();
+  info.mockReset();
+  Logger.mockImplementation(() => ({
+    warn,
+    info,
+  }));
+});
 
 it('yells if api tokens are missing', async () => {
   requireRelative.mockImplementation(() => ({}));
@@ -53,6 +69,13 @@ describe('when CHANGE_URL is defined', () => {
     expect(config.apiSecret).toEqual('yay');
   });
 
+  it('adds a log', async () => {
+    await loadUserConfig('bogus', { CHANGE_URL: 'foo.bar' });
+    expect(info.mock.calls[0][0]).toEqual(
+      'No `apiKey` or `apiSecret` found in config. Falling back to pull-request authentication.',
+    );
+  });
+
   describe('when the API has an error response', () => {
     beforeEach(() => {
       request.mockImplementation(() => Promise.reject(new Error('nope')));
@@ -64,4 +87,20 @@ describe('when CHANGE_URL is defined', () => {
       );
     });
   });
+});
+
+it('warns when using an unknown config key', async () => {
+  requireRelative.mockImplementation(() => ({
+    apiKey: '1',
+    apiSecret: '2',
+    foobar: 'asdf',
+    targets: {
+      firefox: new RemoteBrowserTarget('firefox', { viewport: '800x600' }),
+    },
+  }));
+  const config = await loadUserConfig('bogus');
+  expect(config.apiKey).toEqual('1');
+  expect(config.apiSecret).toEqual('2');
+  expect(warn.mock.calls.length).toBe(1);
+  expect(warn.mock.calls[0][0]).toEqual('Unknown config key used in .happo.js: "foobar"');
 });

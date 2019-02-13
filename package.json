@@ -1,6 +1,6 @@
 {
   "name": "happo.io",
-  "version": "3.9.3",
+  "version": "3.9.4-rc.2",
   "description": "Visual diffing for UI components",
   "main": "./build/index.js",
   "bin": {
@@ -10,7 +10,7 @@
     "happo-ci": "./bin/happo-ci"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --runInBand",
     "lint": "eslint .",
     "build": "rimraf build && babel src --ignore 'test/.*' --out-dir build --copy-files",
     "prepublish": "yarn build"
