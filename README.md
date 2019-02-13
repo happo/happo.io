@@ -221,6 +221,10 @@ script:
 
 ### `happo-ci-circleci`
 
+*Before you start using this script, have a look at the [Happo CircleCI
+Orb](https://circleci.com/orbs/registry/orb/happo/happo). It simplifies some of
+the setup required if you use the `happo-ci-circleci` script.*
+
 This script knows about the CircleCI build environment, assuming a PR based
 model. To run it, first add this to your `package.json`:
 
