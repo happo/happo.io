@@ -30,7 +30,10 @@ function makePackage({ paths, publicFolders }) {
 
     Object.keys(paths).forEach((assetPath) => {
       const resolvePath = paths[assetPath];
-      for (const folder of publicFolders) {
+      for (const publicFolder of publicFolders) {
+        const folder = publicFolder.startsWith('/')
+          ? publicFolder
+          : path.resolve(process.cwd(), publicFolder);
         const fullPath = path.join(folder, assetPath);
         if (fs.existsSync(fullPath)) {
           archive.append(fs.createReadStream(fullPath), {

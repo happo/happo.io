@@ -21,7 +21,10 @@ beforeEach(() => {
     },
   ];
   snapPayloads = [{ assetPaths: ['inlineResources/1x1.png'] }];
-  publicFolders = [__dirname, path.resolve(__dirname, 'integrations/assets')];
+  publicFolders = [
+    __dirname, // absolute path
+    'test/integrations/assets', // relative
+  ];
   subject = () =>
     prepareAssetsPackage({
       globalCSS,
