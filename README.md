@@ -682,11 +682,12 @@ module.exports = {
 
 This is a list of all supported browsers:
 
-- `firefox` (latest stable version)
-- `chrome` (latest stable version)
+- `firefox`
+- `chrome`
 - `internet explorer` (version 11)
-- `edge` (latest stable version)
-- `safari` (latest stable version)
+- `edge`
+- `safari`
+- `ios-safari` (running on an iPhone 7)
 
 ### `customizeWebpackConfig`
 
