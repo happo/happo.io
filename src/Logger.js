@@ -63,4 +63,8 @@ export default class Logger {
     this.stderrPrint(red(stack || e.message || e));
     this.stderrPrint('\n');
   }
+  warn(message) {
+    this.stderrPrint(red(message));
+    this.stderrPrint('\n');
+  }
 }
