@@ -10,7 +10,7 @@
     "happo-ci": "./bin/happo-ci"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --runInBand",
     "lint": "eslint .",
     "build": "rimraf build && babel src --ignore 'test/.*' --out-dir build --copy-files",
     "prepublish": "yarn build"
