@@ -18,6 +18,6 @@ export default function compareReports(
         project,
       },
     },
-    { apiKey, apiSecret },
+    { apiKey, apiSecret, maxTries: 2 },
   );
 }
