@@ -10,7 +10,7 @@ async function waitFor({ requestId, endpoint, apiKey, apiSecret }) {
       method: 'GET',
       json: true,
     },
-    { apiKey, apiSecret },
+    { apiKey, apiSecret, maxTries: 3 },
   );
   if (status === 'done') {
     return result;
@@ -69,7 +69,7 @@ export default class RemoteBrowserTarget {
             },
           },
         },
-        { apiKey, apiSecret },
+        { apiKey, apiSecret, maxTries: 2 },
       );
     if (staticPackage) {
       const { requestId: staticReqId } = await boundMakeRequest();
