@@ -11,6 +11,8 @@ export const apiSecret = process.env.HAPPO_API_SECRET;
 export const endpoint = 'https://happo.io';
 export const include = '**/@(*-happo|happo).@(js|jsx|ts|tsx)';
 export const stylesheets = [];
+export const setupScript = undefined;
+export const project = undefined;
 export const targets = {
   chrome: new RemoteBrowserTarget('chrome', {
     viewport: '1024x768',

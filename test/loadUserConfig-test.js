@@ -94,6 +94,8 @@ it('warns when using an unknown config key', async () => {
     apiKey: '1',
     apiSecret: '2',
     foobar: 'asdf',
+    project: 'foobar',
+    setupScript: '/path/to/script.js',
     targets: {
       firefox: new RemoteBrowserTarget('firefox', { viewport: '800x600' }),
     },
