@@ -13,7 +13,7 @@ async function waitFor({ requestId, endpoint, apiKey, apiSecret }) {
     { apiKey, apiSecret, maxTries: 3 },
   );
   if (status === 'done') {
-    return result;
+    return result.map((i) => Object.assign({}, i, { snapRequestId: requestId }));
   }
   await new Promise((r) => setTimeout(r, POLL_INTERVAL));
   return waitFor({ requestId, endpoint, apiKey, apiSecret });
@@ -90,6 +90,7 @@ export default class RemoteBrowserTarget {
     (await Promise.all(promises)).forEach((list) => {
       result.push(...list);
     });
+
     return result;
   }
 }
