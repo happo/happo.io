@@ -11,6 +11,7 @@ import packageJson from '../package.json';
 import debugCommand from './commands/debug';
 import runCommand from './commands/run';
 import uploadReport from './uploadReport';
+import initJobCommand from './commands/initJob';
 
 commander
   .version(packageJson.version)
@@ -53,10 +54,7 @@ commander
   .command('debug')
   .description('start a local server where you can debug happo examples')
   .action(async () => {
-    debugCommand(
-      { port: commander.debugPort },
-      await loadUserConfig(commander.config),
-    );
+    debugCommand({ port: commander.debugPort }, await loadUserConfig(commander.config));
   });
 
 commander
@@ -93,6 +91,17 @@ commander
     } else {
       process.exit(113);
     }
+  });
+
+commander
+  .command('init-job <sha1> <sha2>')
+  .description('initialize a job (usually called in CI)')
+  .action(async (sha1, sha2) => {
+    await initJobCommand(
+      { sha1, sha2, link: commander.link, message: commander.message },
+      await loadUserConfig(commander.config),
+    );
+    process.exit(0);
   });
 
 export default function executeCli(argv) {

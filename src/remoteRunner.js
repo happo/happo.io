@@ -4,7 +4,7 @@ import loadCSSFile from './loadCSSFile';
 
 export default async function remoteRunner(
   { apiKey, apiSecret, endpoint, targets, plugins, stylesheets },
-  { generateStaticPackage },
+  { generateStaticPackage, job },
 ) {
   const logger = new Logger();
   try {
@@ -24,11 +24,17 @@ export default async function remoteRunner(
           endpoint,
           globalCSS: cssBlocks.join('').replace(/\n/g, ''),
         });
+        if (job) {
+          return { name };
+        }
         logger.start(`  - ${name}`);
         logger.success();
         return { name, result };
       }),
     );
+    if (job) {
+      return;
+    }
     logger.success();
     return constructReport(results);
   } catch (e) {

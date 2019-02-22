@@ -51,6 +51,7 @@ export default class RemoteBrowserTarget {
     apiKey,
     apiSecret,
     endpoint,
+    job,
   }) {
     const boundMakeRequest = async (slice) =>
       makeRequest(
@@ -60,6 +61,7 @@ export default class RemoteBrowserTarget {
           json: true,
           body: {
             type: `browser-${this.browserName}`,
+            job,
             payload: {
               viewport: this.viewport,
               globalCSS,
@@ -73,19 +75,27 @@ export default class RemoteBrowserTarget {
       );
     if (staticPackage) {
       const { requestId: staticReqId } = await boundMakeRequest();
+      if (job) {
+        // we don't need to wait for runs that are associated with a job
+        return;
+      }
       return waitFor({ requestId: staticReqId, endpoint, apiKey, apiSecret });
     }
     const promises = [];
     const snapsPerChunk = snapPayloads.length / this.chunks;
     for (let i = 0; i < this.chunks; i += 1) {
-      const slice = snapPayloads.slice(i * snapsPerChunk, (i * snapsPerChunk) + snapsPerChunk);
+      const slice = snapPayloads.slice(
+        i * snapsPerChunk,
+        (i * snapsPerChunk) + snapsPerChunk,
+      );
       // We allow one `await` inside the loop here to avoid POSTing all payloads
       // to the server at the same time (thus reducing load a little).
       // eslint-disable-next-line no-await-in-loop
       const { requestId } = await boundMakeRequest(slice);
-      promises.push(waitFor({ requestId, endpoint, apiKey, apiSecret }));
+      if (!job) {
+        promises.push(waitFor({ requestId, endpoint, apiKey, apiSecret }));
+      }
     }
-
     const result = [];
     (await Promise.all(promises)).forEach((list) => {
       result.push(...list);

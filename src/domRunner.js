@@ -51,7 +51,7 @@ function resolveDomProvider({ plugins, jsdomOptions }) {
 }
 
 async function generateScreenshots(
-  { apiKey, apiSecret, stylesheets, endpoint, targets, publicFolders, jsdomOptions, plugins },
+  { apiKey, apiSecret, stylesheets, endpoint, targets, publicFolders, jsdomOptions, plugins, job },
   bundleFile,
   logger,
 ) {
@@ -118,12 +118,19 @@ async function generateScreenshots(
           apiKey,
           apiSecret,
           endpoint,
+          job,
         });
+        if (job) {
+          return { name };
+        }
         logger.start(`  - ${name}`);
         logger.success();
         return { name, result };
       }),
     );
+    if (job) {
+      return;
+    }
     return constructReport(results);
   } catch (e) {
     logger.fail();
@@ -150,7 +157,7 @@ export default async function domRunner(
     jsdomOptions,
     asyncTimeout,
   },
-  { only, onReady },
+  { only, onReady, job },
 ) {
   const boundGenerateScreenshots = generateScreenshots.bind(null, {
     apiKey,
@@ -162,6 +169,7 @@ export default async function domRunner(
     only,
     jsdomOptions,
     plugins,
+    job,
   });
   const logger = new Logger();
   logger.start('Reading files...');
