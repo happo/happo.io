@@ -16,9 +16,9 @@ export default async function runCommand(sha, config, { only, link, message }) {
   const staticPlugin = plugins.find((plugin) => typeof plugin.generateStaticPackage === 'function');
   let snaps;
   if (staticPlugin) {
-    snaps = await remoteRunner(config, staticPlugin);
+    snaps = await remoteRunner(config, Object.assign({}, staticPlugin, { sha }));
   } else {
-    snaps = await domRunner(config, { only });
+    snaps = await domRunner(config, { only, sha });
   }
 
   logger.start(`Uploading report for ${sha}...`);

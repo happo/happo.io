@@ -51,6 +51,8 @@ export default class RemoteBrowserTarget {
     apiKey,
     apiSecret,
     endpoint,
+    sha,
+    targetName,
   }) {
     const boundMakeRequest = async (slice) =>
       makeRequest(
@@ -60,6 +62,8 @@ export default class RemoteBrowserTarget {
           json: true,
           body: {
             type: `browser-${this.browserName}`,
+            sha,
+            targetName,
             payload: {
               viewport: this.viewport,
               globalCSS,

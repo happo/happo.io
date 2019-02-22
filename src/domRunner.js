@@ -21,7 +21,9 @@ function logTargetResults({ name, globalCSS, snapPayloads }) {
   fs.writeFileSync(cssPath, JSON.stringify(globalCSS));
   fs.writeFileSync(snippetsPath, JSON.stringify(snapPayloads));
   console.log(`Recorded CSS for target "${name}" can be found in ${cssPath}`);
-  console.log(`Recorded HTML snippets for target "${name}" can be found in ${snippetsPath}`);
+  console.log(
+    `Recorded HTML snippets for target "${name}" can be found in ${snippetsPath}`,
+  );
 }
 
 function waitForAnyKey() {
@@ -51,13 +53,24 @@ function resolveDomProvider({ plugins, jsdomOptions }) {
 }
 
 async function generateScreenshots(
-  { apiKey, apiSecret, stylesheets, endpoint, targets, publicFolders, jsdomOptions, plugins },
+  {
+    apiKey,
+    apiSecret,
+    stylesheets,
+    endpoint,
+    targets,
+    publicFolders,
+    jsdomOptions,
+    plugins,
+    sha,
+  },
   bundleFile,
   logger,
 ) {
   const cssBlocks = await Promise.all(
     stylesheets.map(async (sheet) => {
-      const { source, id, conditional } = typeof sheet === 'string' ? { source: sheet } : sheet;
+      const { source, id, conditional } =
+        typeof sheet === 'string' ? { source: sheet } : sheet;
       const result = {
         source,
         css: await loadCSSFile(source),
@@ -118,6 +131,8 @@ async function generateScreenshots(
           apiKey,
           apiSecret,
           endpoint,
+          sha,
+          targetName: name,
         });
         logger.start(`  - ${name}`);
         logger.success();
@@ -150,7 +165,7 @@ export default async function domRunner(
     jsdomOptions,
     asyncTimeout,
   },
-  { only, onReady },
+  { only, onReady, sha },
 ) {
   const boundGenerateScreenshots = generateScreenshots.bind(null, {
     apiKey,
@@ -162,6 +177,7 @@ export default async function domRunner(
     only,
     jsdomOptions,
     plugins,
+    sha,
   });
   const logger = new Logger();
   logger.start('Reading files...');

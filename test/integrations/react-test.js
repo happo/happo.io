@@ -59,6 +59,12 @@ it('sends the project name in the request', async () => {
   expect(makeRequest.mock.calls[0][0].body.project).toEqual('the project');
 });
 
+it('sends the sha and targetName to the target', async () => {
+  await subject();
+  expect(config.targets.chrome.sha).toEqual(sha);
+  expect(config.targets.chrome.targetName).toEqual('chrome');
+});
+
 it('produces the right html', async () => {
   await subject();
   expect(config.targets.chrome.snapPayloads).toEqual([

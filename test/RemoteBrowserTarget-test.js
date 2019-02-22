@@ -61,6 +61,8 @@ describe('#execute', () => {
         apiKey: 'foobar',
         apiSecret: 'p@assword',
         endpoint: 'http://localhost',
+        sha: 'shashasha',
+        targetName: 'iphone',
       });
 
       expect(result).toEqual([{ component: 'foobar' }, { component: 'foobar' }]);
@@ -69,6 +71,8 @@ describe('#execute', () => {
       expect(makeRequest.mock.calls.length).toBe(4);
 
       expect(makeRequest.mock.calls[0][0].body.payload.snapPayloads).toEqual([{ html: '<div/>' }]);
+      expect(makeRequest.mock.calls[0][0].body.sha).toEqual('shashasha');
+      expect(makeRequest.mock.calls[0][0].body.targetName).toEqual('iphone');
       expect(makeRequest.mock.calls[2][0].body.payload.snapPayloads).toEqual([
         { html: '<button/>' },
         { html: '<li/>' },
