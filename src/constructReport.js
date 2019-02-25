@@ -1,7 +1,7 @@
 export default async function constructReport(results) {
   const report = [];
   results.forEach(({ name: target, result }) => {
-    result.forEach(({ component, variant, url, width, height }) => {
+    result.forEach(({ component, variant, url, width, height, snapRequestId }) => {
       report.push({
         component,
         variant,
@@ -9,6 +9,7 @@ export default async function constructReport(results) {
         width,
         height,
         target,
+        snapRequestId,
       });
     });
   });

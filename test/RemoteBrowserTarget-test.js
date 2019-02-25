@@ -63,7 +63,10 @@ describe('#execute', () => {
         endpoint: 'http://localhost',
       });
 
-      expect(result).toEqual([{ component: 'foobar' }, { component: 'foobar' }]);
+      expect(result).toEqual([
+        { component: 'foobar', snapRequestId: 44 },
+        { component: 'foobar', snapRequestId: 44 },
+      ]);
 
       // two POSTs and two GETs
       expect(makeRequest.mock.calls.length).toBe(4);
@@ -91,7 +94,7 @@ describe('#execute', () => {
         endpoint: 'http://localhost',
       });
 
-      expect(result).toEqual([{ component: 'foobar' }]);
+      expect(result).toEqual([{ component: 'foobar', snapRequestId: 44 }]);
 
       // one POST and one GET
       expect(makeRequest.mock.calls.length).toBe(2);
@@ -114,7 +117,7 @@ describe('#execute', () => {
           staticPackage: 'foobar',
         });
 
-        expect(result).toEqual([{ component: 'foobar' }]);
+        expect(result).toEqual([{ component: 'foobar', snapRequestId: 44 }]);
 
         // one POST and one GET
         expect(makeRequest.mock.calls.length).toBe(2);
