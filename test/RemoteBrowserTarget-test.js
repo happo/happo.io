@@ -126,4 +126,48 @@ describe('#execute', () => {
       });
     });
   });
+
+  [2049, 7296, 7297].forEach((count) => {
+    describe(`with ${count} snapshots`, () => {
+      let seenSnapshots;
+
+      beforeEach(() => {
+        seenSnapshots = new Set();
+        chunks = 16;
+
+        makeRequest.mockImplementation(({ body }) => {
+          if (body) {
+            const snaps = body.payload.snapPayloads;
+            snaps.forEach(({ html }) => {
+              seenSnapshots.add(html);
+            });
+          }
+          return Promise.resolve({
+            requestId: 44,
+            status: 'done',
+            result: [],
+          });
+        });
+      });
+
+      it('processes the right requests', async () => {
+        const target = subject();
+        const snaps = Array(count)
+          .fill()
+          .map((_, i) => ({
+            html: `snap-${i}`,
+          }));
+        await target.execute({
+          globalCSS: '* { color: red }',
+          snapPayloads: snaps,
+          apiKey: 'foobar',
+          apiSecret: 'p@assword',
+          endpoint: 'http://localhost',
+        });
+
+        expect(seenSnapshots.size).toEqual(count);
+        expect(makeRequest.mock.calls.length).toBe(32);
+      });
+    });
+  });
 });
