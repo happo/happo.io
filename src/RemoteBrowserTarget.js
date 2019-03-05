@@ -76,7 +76,7 @@ export default class RemoteBrowserTarget {
       return waitFor({ requestId: staticReqId, endpoint, apiKey, apiSecret });
     }
     const promises = [];
-    const snapsPerChunk = snapPayloads.length / this.chunks;
+    const snapsPerChunk = Math.ceil(snapPayloads.length / this.chunks);
     for (let i = 0; i < this.chunks; i += 1) {
       const slice = snapPayloads.slice(i * snapsPerChunk, (i * snapsPerChunk) + snapsPerChunk);
       // We allow one `await` inside the loop here to avoid POSTing all payloads
