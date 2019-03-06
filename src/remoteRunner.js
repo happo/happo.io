@@ -1,5 +1,4 @@
 import Logger from './Logger';
-import constructReport from './constructReport';
 import loadCSSFile from './loadCSSFile';
 
 export default async function remoteRunner(
@@ -14,10 +13,11 @@ export default async function remoteRunner(
     const tl = targetNames.length;
     const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
     plugins.forEach(({ css }) => cssBlocks.push(css || ''));
-    logger.info(`Generating screenshots in ${tl} target${tl > 1 ? 's' : ''}...`);
-    const results = await Promise.all(
+    logger.info(`Starting ${tl} target${tl > 1 ? 's' : ''}...`);
+    const uniqueRequestIds = new Set();
+    await Promise.all(
       targetNames.map(async (name) => {
-        const result = await targets[name].execute({
+        const requestIds = await targets[name].execute({
           staticPackage,
           apiKey,
           apiSecret,
@@ -26,11 +26,11 @@ export default async function remoteRunner(
         });
         logger.start(`  - ${name}`);
         logger.success();
-        return { name, result };
+        requestIds.push((id) => uniqueRequestIds.add(id));
       }),
     );
     logger.success();
-    return constructReport(results);
+    return Array.from(uniqueRequestIds);
   } catch (e) {
     logger.fail();
     throw e;

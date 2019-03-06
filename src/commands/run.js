@@ -2,28 +2,32 @@ import mkdirp from 'mkdirp';
 import rimraf from 'rimraf';
 
 import Logger from '../Logger';
+import createJob from '../createJob';
 import domRunner from '../domRunner';
 import remoteRunner from '../remoteRunner';
-import uploadReport from '../uploadReport';
+import waitForJob from '../waitForJob';
 
-export default async function runCommand(sha, config, { only, link, message }) {
+export default async function runCommand(
+  sha,
+  config,
+  { only, link, message, asynchronous, beforeSha },
+) {
   const logger = new Logger();
   const { apiKey, apiSecret, endpoint, project, plugins } = config;
 
   rimraf.sync(config.tmpdir);
   mkdirp.sync(config.tmpdir);
 
-  const staticPlugin = plugins.find((plugin) => typeof plugin.generateStaticPackage === 'function');
-  let snaps;
-  if (staticPlugin) {
-    snaps = await remoteRunner(config, staticPlugin);
-  } else {
-    snaps = await domRunner(config, { only });
-  }
+  const staticPlugin = plugins.find(
+    (plugin) => typeof plugin.generateStaticPackage === 'function',
+  );
+  const requestIds = staticPlugin
+    ? await remoteRunner(config, staticPlugin)
+    : await domRunner(config, { only });
 
-  logger.start(`Uploading report for ${sha}...`);
-  const { url } = await uploadReport({
-    snaps,
+  const { url, id } = await createJob({
+    beforeSha,
+    requestIds,
     sha,
     endpoint,
     apiKey,
@@ -32,7 +36,11 @@ export default async function runCommand(sha, config, { only, link, message }) {
     message,
     project,
   });
-  logger.success();
-  logger.info(`View results at ${url}`);
-  logger.info(`Done ${sha}`);
+  if (asynchronous) {
+    logger.start(`Job for ${sha} started. Follow progress at ${url}`);
+  } else {
+    const { url: reportUrl } = await waitForJob({ id, endpoint, apiKey, apiSecret });
+    logger.info(`View results at ${reportUrl}`);
+    logger.info(`Done ${sha}`);
+  }
 }

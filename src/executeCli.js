@@ -19,6 +19,8 @@ commander
   .option('-l, --link <url>', 'provide a link back to the commit')
   .option('-m, --message <message>', 'associate the run with a message (e.g. commit subject)')
   .option('-a, --author <email>', 'the author of the commit')
+  .option('--async, --asynchronous', 'run the report asynchronously')
+  .option('--compare-with <sha>', 'used together with --async to specify a base sha to compare with')
   .option('--debug-port <port>', 'the port where the debug server listens')
   .usage('[options]');
 

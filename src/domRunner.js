@@ -78,7 +78,8 @@ async function generateScreenshots(
   const DomProvider = resolveDomProvider({ plugins, jsdomOptions });
   logger.info(`Generating screenshots in ${tl} target${tl > 1 ? 's' : ''}...`);
   try {
-    const results = await Promise.all(
+    const uniqueRequestIds = new Set();
+    await Promise.all(
       targetNames.map(async (name) => {
         const { css, snapPayloads } = await processSnapsInBundle(bundleFile, {
           publicFolders,
@@ -111,7 +112,7 @@ async function generateScreenshots(
           delete item.assetPaths;
         });
 
-        const result = await targets[name].execute({
+        const requestIds = await targets[name].execute({
           assetsPackage,
           globalCSS,
           snapPayloads,
@@ -119,12 +120,12 @@ async function generateScreenshots(
           apiSecret,
           endpoint,
         });
+        requestIds.forEach((id) => uniqueRequestIds.add(id));
         logger.start(`  - ${name}`);
         logger.success();
-        return { name, result };
       }),
     );
-    return constructReport(results);
+    return Array.from(uniqueRequestIds);
   } catch (e) {
     logger.fail();
     throw e;
@@ -225,9 +226,9 @@ export default async function domRunner(
           currentLogger = mutableLogger;
           currentBuildPromise = buildPromise;
           try {
-            const report = await buildPromise;
+            const requestIds = await buildPromise;
             if (!buildPromise.cancelled) {
-              onReady(report);
+              onReady(requestIds);
             }
           } catch (e) {
             logger.error(e);

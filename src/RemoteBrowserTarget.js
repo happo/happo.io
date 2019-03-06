@@ -1,23 +1,6 @@
 import makeRequest from './makeRequest';
 
-const POLL_INTERVAL = 5000; // 5 secs
 const VIEWPORT_PATTERN = /^([0-9]+)x([0-9]+)$/;
-
-async function waitFor({ requestId, endpoint, apiKey, apiSecret }) {
-  const { status, result } = await makeRequest(
-    {
-      url: `${endpoint}/api/snap-requests/${requestId}`,
-      method: 'GET',
-      json: true,
-    },
-    { apiKey, apiSecret, maxTries: 3 },
-  );
-  if (status === 'done') {
-    return result.map((i) => Object.assign({}, i, { snapRequestId: requestId }));
-  }
-  await new Promise((r) => setTimeout(r, POLL_INTERVAL));
-  return waitFor({ requestId, endpoint, apiKey, apiSecret });
-}
 
 const MIN_INTERNET_EXPLORER_WIDTH = 400;
 
@@ -72,7 +55,7 @@ export default class RemoteBrowserTarget {
         },
         { apiKey, apiSecret, maxTries: 2 },
       );
-    const promises = [];
+    const requestIds = [];
     if (staticPackage) {
       for (let i = 0; i < this.chunks; i += 1) {
         // We allow one `await` inside the loop here to avoid POSTing all payloads
@@ -81,7 +64,7 @@ export default class RemoteBrowserTarget {
         const { requestId } = await boundMakeRequest({
           chunk: { index: i, total: this.chunks },
         });
-        promises.push(waitFor({ requestId, endpoint, apiKey, apiSecret }));
+        requestIds.push(requestId);
       }
     } else {
       const snapsPerChunk = Math.ceil(snapPayloads.length / this.chunks);
@@ -91,15 +74,10 @@ export default class RemoteBrowserTarget {
         // to the server at the same time (thus reducing load a little).
         // eslint-disable-next-line no-await-in-loop
         const { requestId } = await boundMakeRequest({ slice });
-        promises.push(waitFor({ requestId, endpoint, apiKey, apiSecret }));
+        requestIds.push(requestId);
       }
     }
 
-    const result = [];
-    (await Promise.all(promises)).forEach((list) => {
-      result.push(...list);
-    });
-
-    return result;
+    return requestIds;
   }
 }
