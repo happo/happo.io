@@ -77,6 +77,37 @@ describe('#execute', () => {
       ]);
       expect(makeRequest.mock.calls[2][0].body.payload.snapPayloads).toEqual([{ html: '<li/>' }]);
     });
+
+    describe('with a staticPackage', () => {
+      it('sends the right requests', async () => {
+        const target = subject();
+        const result = await target.execute({
+          globalCSS: '* { color: red }',
+          apiKey: 'foobar',
+          apiSecret: 'p@assword',
+          endpoint: 'http://localhost',
+          staticPackage: 'foobar',
+        });
+
+        expect(result).toEqual([
+          { component: 'foobar', snapRequestId: 44 },
+          { component: 'foobar', snapRequestId: 44 },
+        ]);
+
+        // two POSTs and two GETs
+        expect(makeRequest.mock.calls.length).toBe(4);
+
+        expect(makeRequest.mock.calls[0][0].body.payload.staticPackage).toEqual('foobar');
+        expect(makeRequest.mock.calls[0][0].body.payload.chunk).toEqual({
+          index: 0,
+          total: 2,
+        });
+        expect(makeRequest.mock.calls[2][0].body.payload.chunk).toEqual({
+          index: 1,
+          total: 2,
+        });
+      });
+    });
   });
 
   describe('when chunks is equal to one', () => {
