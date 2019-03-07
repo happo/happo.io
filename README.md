@@ -689,6 +689,26 @@ This is a list of all supported browsers:
 - `safari`
 - `ios-safari` (running on an iPhone 7)
 
+Targets are executed in parallel by default. If you want to split up a specific
+target into multiple chunks (running in parallel), the experimental `chunks`
+option for `RemoteBrowserTarget` can help out:
+
+```js
+
+module.exports = {
+  targets: {
+    'ie': new RemoteBrowserTarget('internet explorer', {
+      viewport: '1024x768',
+      chunks: 2,
+    }),
+  }
+};
+```
+
+Happo.io will do its best to run chunks in parallel, but there's no guarantee.
+The `chunks` option also has some overhead. If your test suite isn't large,
+using more than one chunk might actually slow things down.
+
 ### `customizeWebpackConfig`
 
 A function you can use to override or modify the default webpack config used
