@@ -149,6 +149,12 @@ it('produces the right html', async () => {
       variant: 'three',
     },
     {
+      component: 'Generated',
+      css: '',
+      html: '<button>Four</button>',
+      variant: '_four',
+    },
+    {
       component: 'Plugin-Component',
       css: '',
       html: '<div>Hello world</div>',
