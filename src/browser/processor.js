@@ -3,6 +3,8 @@
 import WrappedError from '../WrappedError';
 import findAssetPaths from '../findAssetPaths';
 import getComponentNameFromFileName from '../getComponentNameFromFileName';
+import getRenderFunc from './getRenderFunc';
+import validateAndFilterExamples from './validateAndFilterExamples';
 
 const ROOT_ELEMENT_ID = 'happo-root';
 
@@ -83,20 +85,25 @@ export default class Processor {
     } else {
       const component = getComponentNameFromFileName(fileName);
       window.verbose(`Found ${Object.keys(exportsFromFile).length} variant(s) for component ${component} in ${fileName}`);
+
       this.flattenedExamples.push({ fileName, component, variants: exportsFromFile });
     }
   }
 
   next() {
+    if (this.cursor === -1) {
+      // validate examples before we start rendering
+      validateAndFilterExamples(this.flattenedExamples);
+    }
     this.cursor += 1;
     const item = this.flattenedExamples[this.cursor];
     if (!item) {
-      return undefined;
+      return false;
     }
     if (this.onlyComponent && this.onlyComponent === item.component) {
       return this.next();
     }
-    return item;
+    return true;
   }
 
   async processCurrent() {
@@ -104,20 +111,15 @@ export default class Processor {
     const result = [];
     // Disabling eslint here since we want to run things serially
     /* eslint-disable no-await-in-loop */
-    for (const variant of Object.keys(variants)) {
-      const exampleRenderFunc = typeof variants[variant] === 'function' ? variants[variant] : variants[variant].render;
-      if (typeof exampleRenderFunc !== 'function') {
-        // Some babel loaders add additional properties to the exports.
-        // Ignore those that aren't functions.
-        continue;
-      }
+    for (const variantName of Object.keys(variants)) {
+      const exampleRenderFunc = getRenderFunc(variants[variantName]);
       try {
-        window.verbose(`Rendering component ${component}, variant ${variant}`);
+        window.verbose(`Rendering component ${component}, variant ${variantName}`);
         await renderExample(exampleRenderFunc);
       } catch (e) {
         result.push(
           new WrappedError(
-            `Failed to render component "${component}", variant "${variant}" in ${fileName}`,
+            `Failed to render component "${component}", variant "${variantName}" in ${fileName}`,
             e,
           ),
         );
@@ -132,10 +134,10 @@ export default class Processor {
         html,
         css: '', // Can we remove this?
         component,
-        variant,
+        variant: variantName,
         assetPaths: findAssetPaths(),
       };
-      const { stylesheets } = variants[variant];
+      const { stylesheets } = variants[variantName];
       if (stylesheets) {
         item.stylesheets = stylesheets;
       }
