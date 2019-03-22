@@ -31,7 +31,7 @@ export default class Logger {
   }
 
   info(msg) {
-    this.print(msg.replace(/https?:\/\/[^ ]+/g, underline));
+    this.print(`${msg}`.replace(/https?:\/\/[^ ]+/g, underline));
     this.print('\n');
   }
 
