@@ -21,6 +21,8 @@ module.exports = {
     'no-restricted-syntax': 0,
     'react/no-multi-comp': 0,
     'class-methods-use-this': 0,
+    'no-nested-ternary': 0,
+    indent: 0,
   },
 
   globals: {

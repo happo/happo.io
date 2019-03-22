@@ -12,7 +12,11 @@ export default function startJob(
       method: 'POST',
       json: true,
       body: {
-        projects: expectedProjects ? expectedProjects.split(',') : [project],
+        projects: expectedProjects
+          ? expectedProjects.split(',')
+          : project
+          ? [project]
+          : undefined,
       },
     },
     { apiKey, apiSecret },
