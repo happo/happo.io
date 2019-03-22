@@ -8,6 +8,7 @@ set -eou pipefail
 
 # Initialize optional env variables
 INSTALL_CMD=${INSTALL_CMD:-}
+EXPECTED_PROJECTS=${EXPECTED_PROJECTS:-}
 
 # Make sure we use the full commit shas
 if [ ! -z "$PREVIOUS_SHA" ]; then
@@ -20,6 +21,7 @@ echo "PREVIOUS_SHA: ${PREVIOUS_SHA}"
 echo "CURRENT_SHA: ${CURRENT_SHA}"
 echo "CHANGE_URL: ${CHANGE_URL}"
 echo "INSTALL_CMD: ${INSTALL_CMD}"
+echo "EXPECTED_PROJECTS: ${EXPECTED_PROJECTS}"
 
 NPM_CLIENT="npm"
 NPM_CLIENT_FLAGS="--no-save"
@@ -65,6 +67,9 @@ if [ "$CURRENT_SHA" = "$PREVIOUS_SHA" ] || [ -z "$PREVIOUS_SHA" ]; then
   run-happo "$CURRENT_SHA"
   exit 0;
 fi
+
+"$NPM_BIN"/happo start-job "$PREVIOUS_SHA" "$CURRENT_SHA" \
+  --expected-projects="$EXPECTED_PROJECTS"
 
 # Check if we need to generate a baseline. In some cases, the baseline is
 # already there (some other PR uploaded it), and we can just use the existing
