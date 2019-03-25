@@ -32,6 +32,15 @@ if [ -f "yarn.lock" ]; then
   CHECK_FOR_HAPPO="grep 'happo\.io@' yarn.lock"
 fi
 
+resolve-npm-bin() {
+  NPM_BIN=$(${NPM_CLIENT} bin)
+  if [ ! -f "${NPM_BIN}/happo" ]; then
+    # When invoked via `npx run` happo might not be installed locally. In this
+    # case we can use the npx directory (where this script is currently located).
+    NPM_BIN="$(cd "$(dirname "${BASH_SOURCE[0]}" )" > /dev/null 2>&1 && pwd)"
+  fi
+}
+
 run-happo() {
   SHA=$1
   git checkout --force --quiet "$SHA"
@@ -47,6 +56,8 @@ run-happo() {
     eval "$INSTALL_CMD"
   fi
 
+  resolve-npm-bin
+
   if eval "$CHECK_FOR_HAPPO"; then
     "$NPM_BIN"/happo run "$SHA" \
     --link "${CHANGE_URL}" \
@@ -57,14 +68,14 @@ run-happo() {
   fi
 }
 
-NPM_BIN=$(${NPM_CLIENT} bin)
-
 if [ "$CURRENT_SHA" = "$PREVIOUS_SHA" ] || [ -z "$PREVIOUS_SHA" ]; then
   echo "We're not on a branch, so there's nothing to compare against."
   echo "Running a single happo run on ${CURRENT_SHA}"
   run-happo "$CURRENT_SHA"
   exit 0;
 fi
+
+resolve-npm-bin
 
 "$NPM_BIN"/happo start-job "$PREVIOUS_SHA" "$CURRENT_SHA"
 
