@@ -8,7 +8,6 @@ set -eou pipefail
 
 # Initialize optional env variables
 INSTALL_CMD=${INSTALL_CMD:-}
-EXPECTED_PROJECTS=${EXPECTED_PROJECTS:-}
 
 # Make sure we use the full commit shas
 if [ ! -z "$PREVIOUS_SHA" ]; then
@@ -21,7 +20,6 @@ echo "PREVIOUS_SHA: ${PREVIOUS_SHA}"
 echo "CURRENT_SHA: ${CURRENT_SHA}"
 echo "CHANGE_URL: ${CHANGE_URL}"
 echo "INSTALL_CMD: ${INSTALL_CMD}"
-echo "EXPECTED_PROJECTS: ${EXPECTED_PROJECTS}"
 
 NPM_CLIENT="npm"
 NPM_CLIENT_FLAGS="--no-save"
@@ -33,6 +31,15 @@ if [ -f "yarn.lock" ]; then
   NPM_CLIENT_FLAGS="--pure-lockfile"
   CHECK_FOR_HAPPO="grep 'happo\.io@' yarn.lock"
 fi
+
+resolve-npm-bin() {
+  NPM_BIN=$(${NPM_CLIENT} bin)
+  if [ ! -f "${NPM_BIN}/happo" ]; then
+    # When invoked via `npx run` happo might not be installed locally. In this
+    # case we can use the npx directory (where this script is currently located).
+    NPM_BIN="$(cd "$(dirname "${BASH_SOURCE[0]}" )" > /dev/null 2>&1 && pwd)"
+  fi
+}
 
 run-happo() {
   SHA=$1
@@ -49,6 +56,8 @@ run-happo() {
     eval "$INSTALL_CMD"
   fi
 
+  resolve-npm-bin
+
   if eval "$CHECK_FOR_HAPPO"; then
     "$NPM_BIN"/happo run "$SHA" \
     --link "${CHANGE_URL}" \
@@ -59,8 +68,6 @@ run-happo() {
   fi
 }
 
-NPM_BIN=$(${NPM_CLIENT} bin)
-
 if [ "$CURRENT_SHA" = "$PREVIOUS_SHA" ] || [ -z "$PREVIOUS_SHA" ]; then
   echo "We're not on a branch, so there's nothing to compare against."
   echo "Running a single happo run on ${CURRENT_SHA}"
@@ -68,8 +75,9 @@ if [ "$CURRENT_SHA" = "$PREVIOUS_SHA" ] || [ -z "$PREVIOUS_SHA" ]; then
   exit 0;
 fi
 
-"$NPM_BIN"/happo start-job "$PREVIOUS_SHA" "$CURRENT_SHA" \
-  --expected-projects="$EXPECTED_PROJECTS"
+resolve-npm-bin
+
+"$NPM_BIN"/happo start-job "$PREVIOUS_SHA" "$CURRENT_SHA"
 
 # Check if we need to generate a baseline. In some cases, the baseline is
 # already there (some other PR uploaded it), and we can just use the existing
