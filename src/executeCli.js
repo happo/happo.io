@@ -25,10 +25,6 @@ commander
   .option('-a, --author <email>', 'the author of the commit')
   .option('--debug-port <port>', 'the port where the debug server listens')
   .option('--debug-port <port>', 'the port where the debug server listens')
-  .option(
-    '--expected-projects <projects>',
-    'a comma-separated list of projects to associate a job with',
-  )
   .usage('[options]');
 
 commander
@@ -121,9 +117,6 @@ commander
       sha1,
       sha2,
       await loadUserConfig(commander.config),
-      {
-        expectedProjects: commander.expectedProjects,
-      },
     );
     new Logger().info(result.id);
   });
