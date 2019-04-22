@@ -7,6 +7,7 @@ import JSDOMDomProvider from './JSDOMDomProvider';
 import Logger from './Logger';
 import MultipleErrors from './MultipleErrors';
 import constructReport from './constructReport';
+import createStaticPackage from './createStaticPackage';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
 import createWebpackBundle from './createWebpackBundle';
 import loadCSSFile from './loadCSSFile';
@@ -21,7 +22,9 @@ function logTargetResults({ name, globalCSS, snapPayloads }) {
   fs.writeFileSync(cssPath, JSON.stringify(globalCSS));
   fs.writeFileSync(snippetsPath, JSON.stringify(snapPayloads));
   console.log(`Recorded CSS for target "${name}" can be found in ${cssPath}`);
-  console.log(`Recorded HTML snippets for target "${name}" can be found in ${snippetsPath}`);
+  console.log(
+    `Recorded HTML snippets for target "${name}" can be found in ${snippetsPath}`,
+  );
 }
 
 function waitForAnyKey() {
@@ -50,14 +53,78 @@ function resolveDomProvider({ plugins, jsdomOptions }) {
   return JSDOMDomProvider.bind(JSDOMDomProvider, jsdomOptions);
 }
 
+async function executeTargetWithPrerender({
+  name,
+  targets,
+  bundleFile,
+  publicFolders,
+  DomProvider,
+  cssBlocks,
+  apiKey,
+  apiSecret,
+  endpoint,
+}) {
+  const { css, snapPayloads } = await processSnapsInBundle(bundleFile, {
+    publicFolders,
+    viewport: targets[name].viewport,
+    DomProvider,
+  });
+  if (!snapPayloads.length) {
+    throw new Error('No examples found');
+  }
+  const errors = snapPayloads.filter((p) => p.isError);
+  if (errors.length === 1) {
+    throw errors[0];
+  }
+  if (errors.length > 1) {
+    throw new MultipleErrors(errors);
+  }
+
+  const globalCSS = cssBlocks.concat([{ css }]);
+
+  if (VERBOSE === 'true') {
+    logTargetResults({ name, globalCSS, snapPayloads });
+  }
+
+  const assetsPackage = await prepareAssetsPackage({
+    globalCSS,
+    snapPayloads,
+    publicFolders,
+  });
+  snapPayloads.forEach((item) => {
+    delete item.assetPaths;
+  });
+
+  const result = await targets[name].execute({
+    assetsPackage,
+    globalCSS,
+    snapPayloads,
+    apiKey,
+    apiSecret,
+    endpoint,
+  });
+  return result;
+}
+
 async function generateScreenshots(
-  { apiKey, apiSecret, stylesheets, endpoint, targets, publicFolders, jsdomOptions, plugins },
+  {
+    apiKey,
+    apiSecret,
+    stylesheets,
+    endpoint,
+    targets,
+    publicFolders,
+    jsdomOptions,
+    plugins,
+    prerender,
+  },
   bundleFile,
   logger,
 ) {
   const cssBlocks = await Promise.all(
     stylesheets.map(async (sheet) => {
-      const { source, id, conditional } = typeof sheet === 'string' ? { source: sheet } : sheet;
+      const { source, id, conditional } =
+        typeof sheet === 'string' ? { source: sheet } : sheet;
       const result = {
         source,
         css: await loadCSSFile(source),
@@ -78,47 +145,38 @@ async function generateScreenshots(
   const DomProvider = resolveDomProvider({ plugins, jsdomOptions });
   logger.info(`Generating screenshots in ${tl} target${tl > 1 ? 's' : ''}...`);
   try {
+    const staticPackage = prerender
+      ? undefined
+      : await createStaticPackage({
+          bundleFile,
+          publicFolders,
+        });
     const results = await Promise.all(
       targetNames.map(async (name) => {
-        const { css, snapPayloads } = await processSnapsInBundle(bundleFile, {
-          publicFolders,
-          viewport: targets[name].viewport,
-          DomProvider,
-        });
-        if (!snapPayloads.length) {
-          throw new Error('No examples found');
+        let result;
+        if (prerender) {
+          result = await executeTargetWithPrerender({
+            name,
+            targets,
+            bundleFile,
+            publicFolders,
+            viewport: targets[name].viewport,
+            DomProvider,
+            cssBlocks,
+            apiKey,
+            apiSecret,
+            endpoint,
+            logger,
+          });
+        } else {
+          result = await targets[name].execute({
+            staticPackage,
+            globalCSS: cssBlocks,
+            apiKey,
+            apiSecret,
+            endpoint,
+          });
         }
-        const errors = snapPayloads.filter((p) => p.isError);
-        if (errors.length === 1) {
-          throw errors[0];
-        }
-        if (errors.length > 1) {
-          throw new MultipleErrors(errors);
-        }
-
-        const globalCSS = cssBlocks.concat([{ css }]);
-
-        if (VERBOSE === 'true') {
-          logTargetResults({ name, globalCSS, snapPayloads });
-        }
-
-        const assetsPackage = await prepareAssetsPackage({
-          globalCSS,
-          snapPayloads,
-          publicFolders,
-        });
-        snapPayloads.forEach((item) => {
-          delete item.assetPaths;
-        });
-
-        const result = await targets[name].execute({
-          assetsPackage,
-          globalCSS,
-          snapPayloads,
-          apiKey,
-          apiSecret,
-          endpoint,
-        });
         logger.start(`  - ${name}`);
         logger.success();
         return { name, result };
@@ -144,6 +202,7 @@ export default async function domRunner(
     publicFolders,
     rootElementSelector,
     renderWrapperModule,
+    prerender,
     type,
     plugins,
     tmpdir,
@@ -159,6 +218,7 @@ export default async function domRunner(
     endpoint,
     targets,
     publicFolders,
+    prerender,
     only,
     jsdomOptions,
     plugins,

@@ -786,6 +786,22 @@ module.exports = {
 }
 ```
 
+### `prerender` (experimental)
+
+Controls whether or not examples are pre-rendered in a JSDOM environment (or
+Chrome if you are using
+[happo-plugin-puppeteer](https://github.com/happo/happo-plugin-puppeteer)). The
+default is `true`. Set to `false` to let your examples render remotely on the
+happo.io browser workers instead. This can help resolve certain rendering
+issues (e.g. when using a shadow DOM). The downside of rendering remotely is
+that errors are harder to surface.
+
+```js
+module.exports = {
+  prerender: false,
+}
+```
+
 ### `setupScript`
 
 An absolute path to a file that will be executed before rendering your

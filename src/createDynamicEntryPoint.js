@@ -13,6 +13,7 @@ export default async function createDynamicEntryPoint({
   only,
   type,
   plugins,
+  prerender,
   tmpdir,
   rootElementSelector,
   renderWrapperModule,
@@ -63,10 +64,15 @@ export default async function createDynamicEntryPoint({
     `.trim(),
     );
   }
+
   if (setupScript) {
     strings.push(`require('${setupScript}');`);
   }
   strings.push(...fileStrings);
+  if (!prerender) {
+    const pathToRemoteRenderer = require.resolve('./browser/remoteRenderer');
+    strings.push(`require('${pathToRemoteRenderer}');`);
+  }
   strings.push('window.onBundleReady && window.onBundleReady();');
   const entryFile = path.join(tmpdir, 'happo-entry.js');
 
