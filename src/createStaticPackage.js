@@ -48,12 +48,9 @@ export default function createStaticPackage({ bundleFile, publicFolders }) {
     });
 
     publicFolders.forEach((folder) => {
-      if (!folder.startsWith(process.cwd())) {
-        throw new Error(
-          `Public folder ${folder} is not a descendant of cwd (${process.cwd})`,
-        );
+      if (folder.startsWith(process.cwd())) {
+        archive.directory(folder.slice(process.cwd().length + 1));
       }
-      archive.directory(folder.slice(process.cwd().length + 1));
     });
 
     archive.on('error', reject);
