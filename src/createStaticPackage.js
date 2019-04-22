@@ -12,9 +12,9 @@ const IFRAME_CONTENT = `
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="happo-bundle.js"></script>
   </head>
   <body>
+    <script src="happo-bundle.js"></script>
   </body>
 </html>
 `;
