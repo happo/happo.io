@@ -271,6 +271,11 @@ you need to set a few environment variables:
 
 ### Posting statuses back to PRs/commits
 
+*The instructions in this section only work if you are using github.com. If
+you're using a local Github Enterprise setup, there is an alternative solution
+described in the [next
+section](#posting-statuses-without-installing-the-happo-github-app)*
+
 By installing the [Happo Github App](https://github.com/apps/happo) and
 connecting to it on the [Github integration page on
 happo.io](https://happo.io/github-integration), you allow Happo to update the
@@ -292,6 +297,27 @@ installed and connected on
 need to make sure that you provide a `--link <url>` with your calls to `happo
 compare`. If you're using any of the standard CI scripts listed above, the
 `--link` is automatically taken care of for you.
+
+### Posting statuses without installing the Happo Github App
+
+If you for some reason can't install the Happo Github App (e.g. when using
+Github Enterprise) you can still get the Happo status posted to your PR -- as a
+comment on the pull request. To get this working, you have to provide the Happo
+CI script with user credentials containing a username and a personal access
+token, through `HAPPO_GITHUB_USER_CREDENTIALS`. E.g.
+
+```bash
+HAPPO_GITHUB_USER_CREDENTIALS="trotzig:21A4XgnSkt7f36ehlK5"
+```
+[Here's a guide from
+github.com](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line)
+on how to generate the personal token.
+
+The environment variable must contain both the username of the profile and the
+personal access token, separated by a colon.
+
+If you're using Github Enterprise, apart from defining the environment variable
+you also need to add [`githubApiUrl` to `.happo.js`](#githubapiurl).
 
 ## Defining examples
 
@@ -893,6 +919,15 @@ module.exports = {
   asyncTimeout: 500,
 }
 ```
+
+### `githubApiUrl`
+
+Used when you have the CI script configured to [post Happo statuses as
+comments](#posting-statuses-without-installing-the-happo-github-app).
+The default if `https://api.github.com`. If you're using Github Enterprise,
+enter the URL to the local Github API here, e.g.
+`https://ghe.mycompany.zone/api/v3` (the default for GHE installation is for
+the API to be located at `/api/v3`).
 
 ## Command-Line-Interface (CLI)
 

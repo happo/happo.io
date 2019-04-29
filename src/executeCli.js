@@ -11,6 +11,7 @@ import packageJson from '../package.json';
 import debugCommand from './commands/debug';
 import runCommand from './commands/run';
 import startJobCommand from './commands/startJob';
+import postGithubComment from './postGithubComment';
 import uploadReport from './uploadReport';
 
 commander
@@ -91,16 +92,20 @@ commander
   .command('compare <sha1> <sha2>')
   .description('compare reports for two different shas')
   .action(async (sha1, sha2) => {
-    const result = await compareReportsCommand(
-      sha1,
-      sha2,
-      await loadUserConfig(commander.config),
-      {
+    const config = await loadUserConfig(commander.config);
+    const result = await compareReportsCommand(sha1, sha2, config, {
+      link: commander.link,
+      message: commander.message,
+      author: commander.author,
+    });
+    if (commander.link && process.env.HAPPO_GITHUB_USER_CREDENTIALS) {
+      await postGithubComment({
         link: commander.link,
-        message: commander.message,
-        author: commander.author,
-      },
-    );
+        statusImageUrl: result.statusImageUrl,
+        compareUrl: result.compareUrl,
+        githubApiUrl: config.githubApiUrl,
+      });
+    }
     new Logger().info(result.summary);
     if (result.equal) {
       process.exit(0);
