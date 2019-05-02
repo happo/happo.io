@@ -25,15 +25,15 @@
         const results = [];
         while (happoProcessor.next()) {
           const result = await happoProcessor.processCurrent();
-          results.push(...result);
+          results.push(result);
         }
         summarize(results);
       }
 
       async function renderOne(index) {
         happoProcessor.cursor = index;
-        const results = await happoProcessor.processCurrent();
-        summarize(results);
+        const result = await happoProcessor.processCurrent();
+        summarize([result]);
       }
 
       async function populateList() {
@@ -41,7 +41,7 @@
         happoProcessor.flattenedExamples.forEach((example, i) => {
           const li = document.createElement('li');
           li.innerHTML = `
-          ${example.component} <button onclick="renderOne(${i})">render</button>
+          ${example.component}-${example-variant} <button onclick="renderOne(${i})">render</button>
           `;
           allUl.appendChild(li)
         });

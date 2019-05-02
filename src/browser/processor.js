@@ -38,7 +38,8 @@ async function renderExample(exampleRenderFunc) {
   rootElement.setAttribute('id', ROOT_ELEMENT_ID);
   document.body.appendChild(rootElement);
 
-  const renderInDom = (renderResult) => window.happoRender(renderResult, { rootElement });
+  const renderInDom = (renderResult) =>
+    window.happoRender(renderResult, { rootElement });
 
   const result = exampleRenderFunc(renderInDom);
   if (result && typeof result.then === 'function') {
@@ -70,6 +71,15 @@ export default class Processor {
     this.cursor = -1;
   }
 
+  addExamples(examples) {
+    examples.forEach(({ fileName, component, variants }) => {
+      Object.keys(variants).forEach((variant) => {
+        const render = variants[variant];
+        this.flattenedExamples.push({ fileName, component, variant, render });
+      });
+    });
+  }
+
   prepare(fileName, exportsFromFile) {
     const keys = Object.keys(exportsFromFile);
     if (keys.includes('default') && Array.isArray(exportsFromFile.default)) {
@@ -79,21 +89,25 @@ export default class Processor {
     }
     if (Array.isArray(exportsFromFile)) {
       window.verbose(`Found ${exportsFromFile.length} component(s) in ${fileName}`);
-      this.flattenedExamples = this.flattenedExamples.concat(
+      this.addExamples(
         exportsFromFile.map((obj) => Object.assign({ fileName }, obj)),
       );
     } else {
       const component = getComponentNameFromFileName(fileName);
-      window.verbose(`Found ${Object.keys(exportsFromFile).length} variant(s) for component ${component} in ${fileName}`);
+      window.verbose(
+        `Found ${
+          Object.keys(exportsFromFile).length
+        } variant(s) for component ${component} in ${fileName}`,
+      );
 
-      this.flattenedExamples.push({ fileName, component, variants: exportsFromFile });
+      this.addExamples([{ fileName, component, variants: exportsFromFile }]);
     }
   }
 
   next() {
     if (this.cursor === -1) {
       // validate examples before we start rendering
-      validateAndFilterExamples(this.flattenedExamples);
+      this.flattenedExamples = validateAndFilterExamples(this.flattenedExamples);
     }
     this.cursor += 1;
     const item = this.flattenedExamples[this.cursor];
@@ -107,44 +121,37 @@ export default class Processor {
   }
 
   async processCurrent() {
-    const { component, fileName, variants } = this.flattenedExamples[this.cursor];
-    const result = [];
-    // Disabling eslint here since we want to run things serially
-    /* eslint-disable no-await-in-loop */
-    for (const variantName of Object.keys(variants)) {
-      const exampleRenderFunc = getRenderFunc(variants[variantName]);
-      try {
-        window.verbose(`Rendering component ${component}, variant ${variantName}`);
-        await renderExample(exampleRenderFunc);
-      } catch (e) {
-        result.push(
-          new WrappedError(
-            `Failed to render component "${component}", variant "${variantName}" in ${fileName}`,
-            e,
-          ),
-        );
-        continue;
-      }
-      const root =
-        (this.rootElementSelector && document.body.querySelector(this.rootElementSelector)) ||
-        findRoot();
-      const html = await this.waitForHTML(root);
-      window.happoCleanup();
-      const item = {
-        html,
-        css: '', // Can we remove this?
-        component,
-        variant: variantName,
-        assetPaths: findAssetPaths(),
-      };
-      const { stylesheets } = variants[variantName];
-      if (stylesheets) {
-        item.stylesheets = stylesheets;
-      }
-      result.push(item);
+    const { component, fileName, variant, render } = this.flattenedExamples[
+      this.cursor
+    ];
+    const exampleRenderFunc = getRenderFunc(render);
+    window.happoCleanup();
+    try {
+      window.verbose(`Rendering component ${component}, variant ${variant}`);
+      await renderExample(exampleRenderFunc);
+    } catch (e) {
+      return new WrappedError(
+        `Failed to render component "${component}", variant "${variant}" in ${fileName}`,
+        e,
+      );
     }
-    /* eslint-enable no-await-in-loop */
-    return result.filter(Boolean);
+    const root =
+      (this.rootElementSelector &&
+        document.body.querySelector(this.rootElementSelector)) ||
+      findRoot();
+    const html = await this.waitForHTML(root);
+    const item = {
+      html,
+      css: '', // Can we remove this?
+      component,
+      variant,
+      assetPaths: findAssetPaths(),
+    };
+    const { stylesheets } = render;
+    if (stylesheets) {
+      item.stylesheets = stylesheets;
+    }
+    return item;
   }
 
   extractCSS() {
@@ -169,7 +176,9 @@ export default class Processor {
       );
     }
     if (attempt > 0) {
-      window.verbose(`Content not available on first render. Had to wait ${duration}ms.`);
+      window.verbose(
+        `Content not available on first render. Had to wait ${duration}ms.`,
+      );
     }
     return html;
   }

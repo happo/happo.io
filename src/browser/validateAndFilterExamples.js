@@ -1,22 +1,20 @@
 import getRenderFunc from './getRenderFunc';
 
 export default function validateAndFilterExamples(examples) {
-  for (const example of examples) {
-    const variantKeys = Object.keys(example.variants);
-    for (const variantKey of variantKeys) {
-      const variant = example.variants[variantKey];
-      const renderFunc = getRenderFunc(variant);
+  return examples
+    .map((example) => {
+      const renderFunc = getRenderFunc(example.render);
       if (!renderFunc) {
-        if (variantKey.startsWith('_')) {
-          delete example.variants[variantKey];
-        } else {
-          throw new Error(
-            `Variant ${variantKey} in component ${
-              example.component
-            } has no render function\nFound in ${example.fileName}`,
-          );
+        if (example.variant.startsWith('_')) {
+          return undefined;
         }
+        throw new Error(
+          `Variant ${example.variant} in component ${
+            example.component
+          } has no render function\nFound in ${example.fileName}`,
+        );
       }
-    }
-  }
+      return example;
+    })
+    .filter(Boolean);
 }

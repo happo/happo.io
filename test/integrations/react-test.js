@@ -204,3 +204,44 @@ button { color: red }`,
     },
   ]);
 });
+
+it('works with prerender=false', async () => {
+  config.prerender = false;
+  config.publicFolders = [path.resolve(__dirname, 'assets')];
+  await subject();
+  expect(config.targets.chrome.globalCSS).toEqual([
+    {
+      css: '.a { b: c }\n',
+      source: path.resolve(__dirname, 'styles.css'),
+    },
+    {
+      id: 'one',
+      conditional: true,
+      source: path.resolve(__dirname, 'one.css'),
+      css: `button {
+  background-image: url(assets/one.jpg);
+  border: 2px solid black;
+  border-radius: 5px;
+}
+`,
+    },
+    {
+      css: `button {
+  background-color: green;
+  color: white;
+}
+`,
+      source: path.resolve(__dirname, 'two.css'),
+    },
+    { css: '.plugin-injected { color: red }' },
+  ]);
+
+  const zip = new AdmZip(config.targets.chrome.staticPackage);
+  expect(zip.getEntries().map(({ entryName }) => entryName)).toEqual([
+    'happo-bundle.js',
+    'iframe.html',
+    'test/integrations/assets/one.jpg',
+  ]);
+  // require('fs').writeFileSync('staticPackage.zip',
+  //   Buffer.from(config.targets.chrome.staticPackage, 'base64'));
+});

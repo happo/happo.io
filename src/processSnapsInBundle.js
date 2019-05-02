@@ -23,8 +23,8 @@ export default async function processSnapsInBundle(
       if (VERBOSE === 'true') {
         console.log(`Viewport ${viewport}`);
       }
-      const payloads = await domProvider.processCurrent();
-      result.snapPayloads.push(...payloads);
+      const payload = await domProvider.processCurrent();
+      result.snapPayloads.push(payload);
     }
 
     result.css = await domProvider.extractCSS();

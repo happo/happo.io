@@ -22,9 +22,11 @@ export const asyncTimeout = 200;
 export const configFile = './.happo.js';
 export const type = 'react';
 export const plugins = [];
+export const prerender = true;
 export const publicFolders = [];
 export const tmpdir = path.join(os.tmpdir(), cwdUniqueFolderName);
 export const renderWrapperModule = require.resolve('./renderWrapper');
+export const githubApiUrl = 'https://api.github.com';
 export function customizeWebpackConfig(config) {
   // provide a default no-op for this config option so that we can assume it's
   // always there.
