@@ -51,8 +51,9 @@ export default class RemoteBrowserTarget {
     apiKey,
     apiSecret,
     endpoint,
+    pages,
   }) {
-    const boundMakeRequest = async ({ slice, chunk }) =>
+    const boundMakeRequest = async ({ slice, chunk, pageSlice }) =>
       makeRequest(
         {
           url: `${endpoint}/api/snap-requests`,
@@ -67,6 +68,7 @@ export default class RemoteBrowserTarget {
               chunk,
               staticPackage,
               assetsPackage,
+              pages: pageSlice,
             },
           },
         },
@@ -83,10 +85,26 @@ export default class RemoteBrowserTarget {
         });
         promises.push(waitFor({ requestId, endpoint, apiKey, apiSecret }));
       }
+    } else if (pages) {
+      const pagesPerChunk = Math.ceil(pages.length / this.chunks);
+      for (let i = 0; i < this.chunks; i += 1) {
+        const pageSlice = pages.slice(
+          i * pagesPerChunk,
+          i * pagesPerChunk + pagesPerChunk,
+        );
+        // We allow one `await` inside the loop here to avoid POSTing all payloads
+        // to the server at the same time (thus reducing load a little).
+        // eslint-disable-next-line no-await-in-loop
+        const { requestId } = await boundMakeRequest({ pageSlice });
+        promises.push(waitFor({ requestId, endpoint, apiKey, apiSecret }));
+      }
     } else {
       const snapsPerChunk = Math.ceil(snapPayloads.length / this.chunks);
       for (let i = 0; i < this.chunks; i += 1) {
-        const slice = snapPayloads.slice(i * snapsPerChunk, (i * snapsPerChunk) + snapsPerChunk);
+        const slice = snapPayloads.slice(
+          i * snapsPerChunk,
+          i * snapsPerChunk + snapsPerChunk,
+        );
         // We allow one `await` inside the loop here to avoid POSTing all payloads
         // to the server at the same time (thus reducing load a little).
         // eslint-disable-next-line no-await-in-loop

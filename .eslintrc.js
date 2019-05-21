@@ -22,6 +22,7 @@ module.exports = {
     'react/no-multi-comp': 0,
     'class-methods-use-this': 0,
     'no-nested-ternary': 0,
+    'no-mixed-operators': 0,
     indent: 0,
   },
 
