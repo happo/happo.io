@@ -706,14 +706,18 @@ module.exports = {
 };
 ```
 
+Viewports can range from `300x300` to `2000x2000` for Chrome and Firefox. Edge, Internet Explorer and Safari
+need to be in the `400x400` to `1200x1200` range. The `ios-safari` target runs on iPhone 7 which means the 
+viewport config is always `375x667`. 
+
 This is a list of all supported browsers:
 
 - `firefox`
 - `chrome`
 - `internet explorer` (version 11)
-- `edge`
+- `edge` 
 - `safari`
-- `ios-safari` (running on an iPhone 7)
+- `ios-safari` (runs on iPhone 7)
 
 Targets are executed in parallel by default. If you want to split up a specific
 target into multiple chunks (running in parallel), the experimental `chunks`
