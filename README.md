@@ -707,15 +707,15 @@ module.exports = {
 ```
 
 Viewports can range from `300x300` to `2000x2000` for Chrome and Firefox. Edge, Internet Explorer and Safari
-need to be in the `400x400` to `1200x1200` range. The `ios-safari` target runs on iPhone 7 which means the 
-viewport config is always `375x667`. 
+need to be in the `400x400` to `1200x1200` range. The `ios-safari` target runs on iPhone 7 which means the
+viewport config is always `375x667`.
 
 This is a list of all supported browsers:
 
 - `firefox`
 - `chrome`
 - `internet explorer` (version 11)
-- `edge` 
+- `edge`
 - `safari`
 - `ios-safari` (runs on iPhone 7)
 
@@ -954,6 +954,45 @@ desire.
   being installed). If an `--author <email>` is provided, any comment made on a diff
   will notify the author. Also supports `--message <message>`, which is used
   together with `--link <url>` to further contextualize the comparison.
+
+## Preventing spurious diffs
+
+An important factor when constructing a good screenshot testing setup is to
+keep the number of spurious diffs to a minimum. A spurious diff (or a false
+positive) is when Happo finds a difference that isn't caused by a change in the
+code. These involve (but are not limited to):
+
+- image loading
+- font loading
+- asynchronous behavior (e.g. components fetching data)
+- animations
+- random data, counters, etc
+- dates
+
+Happo tries to take care of as many of these as possible, automatically. For
+instance, the following tasks are performed before taking the screenshot:
+
+- wait for images (including background images, srcset)
+- wait for custom fonts
+- wait for asynchronous data fetching (XHR, `window.fetch`)
+- disable CSS animations/transitions
+- stop SVG animations
+
+In some cases however, Happo can't automatically detect things that cause
+spuriousness. Here are some tips & tricks that you might find useful when
+dealing with spurious diffs:
+
+- If you have dates/timestamps, either injecting a fixed `new
+  Date('2019-05-23T08:28:02.446Z')` into your component or freezing time via
+  something like [Sinon.js](https://sinonjs.org/) can help.
+- If a component depends on external data (via some API), consider splitting
+  out the data-fetching from the component and test the component without data
+  fetching, injecting the data needed to render it.
+- If you have animations controlled from javascript, find a way to disable them
+  for the Happo test suite.
+- If individual elements are known to cause spuriousness, consider adding the
+  `data-happo-hide` attribute. This will render the element invisible in the
+  screenshot. E.g. `<div data-happo-hide>{Math.random()}</div>`.
 
 ## Frequently Asked Questions (FAQ)
 
