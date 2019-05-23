@@ -994,30 +994,31 @@ dealing with spurious diffs:
   `data-happo-hide` attribute. This will render the element invisible in the
   screenshot. E.g. `<div data-happo-hide>{Math.random()}</div>`.
 
-## Frequently Asked Questions (FAQ)
+## FAQ/Troubleshooting
 
-This section aims to explain a few things that might come as surprises to
-anyone using happo.io.
+### My CSS isn't applied
 
-### Can happo render any component?
+There are multiple ways of letting Happo know what styling to apply. By
+default, Happo will record all CSS injected in the page while it's prerendering
+examples locally. In some cases (like when using web components), the CSS isn't
+always available to extract. In those cases, setting [`prerender:
+false`](#prerender-experimental) can help.
 
-It can, but results may not always be what you want. For performance and
-security reasons, happo renders all examples in a JSDOM environment. The HTML
-and CSS is collected and sent to real browsers. Because of that, components
-that depend on any of these strategies/technologies might not look exactly
-right:
+If you have an external stylesheet, you have to specify it using the
+[`stylesheets`](#stylesheets) option.
 
-- Measuring dimensions (e.g. `getBoundingClientRect`)
-- Async data
+### My fonts aren't loading
 
-There might be ways to break these dependencies that make your component render
-better in a happo.io environment. You can for instance inject dimensions and
-data as props instead of relying on the component to compute it itself.
+If you're using custom fonts that aren't loaded via webpack, you will most
+likely have to use the [`publicFolders`](#publicfolders) option.
 
-### Can I use external fonts
+### My component needs measurements from the DOM to render correctly
 
-Yes, either through providing an external stylesheet in the `stylesheets`
-config or by injecting them as inline base64 urls through a `happoSetup` file.
+By default, Happo prerenders components in a JSDOM environment. If you're
+depending on measurements from the DOM (e.g. `getBoundingClientRect`), you will
+most likely not get the right results. In these cases, you can either inject
+the dimensions as properties of the component or use [`prerender:
+false`](#prerender-experimental)
 
 ### How do I troubleshoot local issues?
 
