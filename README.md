@@ -32,7 +32,9 @@ files. If you already have an existing source of component examples (e.g. an
 existing [storybook](https://storybook.js.org/) integration, a
 style-guide/component gallery), you can either use a [plugin](#plugins) or
 follow the instructions in the [Generated examples](#generated-examples)
-section. If not, continue reading!
+section. If you're looking to screenshot pages of an existing application,
+check out the [full-page support](#full-page-support). If not, continue
+reading!
 
 We'll use React here, which is the default `type` that this client library
 supports. Let's assume there's a `<Button>` component that we're adding
@@ -160,7 +162,26 @@ If you open this URL in a browser, you'll see something like this:
 We've now covered the most important steps and commands involved in making a
 full happo run. Normally, you won't run all these commands locally. Instead,
 you'll configure your CI environment to do it for you, on every
-PR/commit/branch pushed. Let's look at how you can do that next.
+PR/commit/branch pushed. When you're ready, jump ahead to the
+[Integrating with
+CI](#integrating-with-your-continuous-integration-ci-environment) section.
+
+## Full-page support
+
+Apart from making component snapshots, Happo can also be leveraged for
+full-page screenshots via the [`pages`](#pages) configuration. In full-page
+mode, URLs are loaded and rendered just like a user would see them when they
+use their web browser. Any URLs specified here must be publicly accessible.
+
+```js
+// .happo.js
+module.exports = {
+  pages: [
+    { url: 'https://www.google.com/', title: 'Google' },
+    { url: 'https://www.airbnb.com/', title: 'Airbnb' },
+  ]
+}
+```
 
 ## Integrating with your Continuous Integration (CI) environment
 
@@ -831,6 +852,28 @@ module.exports = {
   prerender: false,
 }
 ```
+
+### `pages`
+
+An array containing pages that you want to screenshot. E.g.
+
+```js
+module.exports = {
+  pages: [
+    { url: 'https://www.google.com/', title: 'Google' },
+    { url: 'https://www.airbnb.com/', title: 'Airbnb' },
+  ]
+}
+```
+
+The `url` of a page needs to be publicly accessible, else the Happo browser
+workers won't be able to find it.
+
+The `title` of a page is used as the "component" identifier in the happo.io UI,
+so make sure it is unique for each page.
+
+*Note:* when you're using the `pages` config, most other configuration options
+are ignored.
 
 ### `setupScript`
 
