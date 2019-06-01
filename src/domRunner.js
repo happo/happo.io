@@ -65,6 +65,7 @@ async function executeTargetWithPrerender({
   endpoint,
 }) {
   const { css, snapPayloads } = await processSnapsInBundle(bundleFile, {
+    targetName: name,
     publicFolders,
     viewport: targets[name].viewport,
     DomProvider,

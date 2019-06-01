@@ -2,7 +2,7 @@ const { VERBOSE = 'false' } = process.env;
 
 export default async function processSnapsInBundle(
   webpackBundle,
-  { viewport, DomProvider },
+  { viewport, DomProvider, targetName },
 ) {
   const [width, height] = viewport.split('x').map((s) => parseInt(s, 10));
   const domProvider = new DomProvider({
@@ -15,7 +15,7 @@ export default async function processSnapsInBundle(
     snapPayloads: [],
   };
   try {
-    await domProvider.init();
+    await domProvider.init({ targetName });
 
     // Disabling eslint here because we actually want to run things serially.
     /* eslint-disable no-await-in-loop */
