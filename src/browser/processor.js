@@ -67,15 +67,30 @@ export default class Processor {
     //    },
     //    { fileName: '/bar/car.js', ... etc }
     // ]
-    this.flattenedExamples = [];
+    this.flattenedUnfilteredExamples = [];
     this.cursor = -1;
+  }
+
+  init({ targetName } = {}) {
+    // validate examples before we start rendering
+    this.flattenedExamples = validateAndFilterExamples(
+      this.flattenedUnfilteredExamples,
+      {
+        targetName,
+      },
+    );
   }
 
   addExamples(examples) {
     examples.forEach(({ fileName, component, variants }) => {
       Object.keys(variants).forEach((variant) => {
         const render = variants[variant];
-        this.flattenedExamples.push({ fileName, component, variant, render });
+        this.flattenedUnfilteredExamples.push({
+          fileName,
+          component,
+          variant,
+          render,
+        });
       });
     });
   }
@@ -105,9 +120,13 @@ export default class Processor {
   }
 
   next() {
-    if (this.cursor === -1) {
-      // validate examples before we start rendering
-      this.flattenedExamples = validateAndFilterExamples(this.flattenedExamples);
+    if (!this.flattenedExamples && this.cursor === -1) {
+      // TODO: remove this block when happo-plugin-puppeteer has been updated
+      // with call to init({ flattenedExamples })
+      this.flattenedExamples = validateAndFilterExamples(
+        this.flattenedUnfilteredExamples,
+        { targetName: undefined },
+      );
     }
     this.cursor += 1;
     const item = this.flattenedExamples[this.cursor];

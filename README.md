@@ -367,8 +367,56 @@ module.exports = {
 };
 ```
 
+You can define examples as objects instead of functions if you want to. This
+will open up for a few extra features: [conditionally applied
+stylesheets](#conditionally-applied-stylesheets) and [limiting targets for an
+example](#$limiting-targets). When you use an object, you need at least a
+`render` key defining a render function.
+
+```jsx
+export default () => {
+  render: () => <Button>Submit</Button>,
+  stylesheets: ['main'],
+  targets: ['chrome-small', 'ios-safari'],
+}
+```
+
 Happo will infer the component name from the file. In the example above, if the
 file is named `Button-happo.jsx`, the inferred name will be `Button`.
+
+
+### Conditionally applied stylesheets
+
+An example may conditionally apply styles from certain
+[`stylesheets`](#stylesheets) by using a `stylesheets` array:
+
+```js
+// Button-happo.js
+export default () => {
+  render: () => <Button>Submit</Button>,
+  stylesheets: ['main', 'secondary'],
+}
+```
+
+The strings in the array need to match `id`s of [`stylesheets`](#stylesheets)
+defined in `.happo.js` config.
+
+
+### Limiting targets
+
+If you want to avoid rendering an example in all targets, you can use a
+`targets` array defined for an example. The example will then be rendered in
+the specified targets exclusively.
+
+```jsx
+export default () => {
+  render: () => <Button>Submit</Button>,
+  targets: ['chrome-small'],
+}
+```
+
+The target strings in the array need to match [target keys](#targets) in
+`.happo.js` config.
 
 ### Generated examples
 
@@ -661,7 +709,23 @@ different naming scheme, e.g. `**/*-examples.js`.
 ### `stylesheets`
 
 If you rely on external stylesheets, list their URLs or (absolute) file paths
-in this config option, e.g. `['/path/to/file.css', 'http://cdn/style.css']`.
+in this config option, e.g. `['/path/to/file.css', 'http://cdn/style.css']`. If
+you're using [conditionally applied
+stylesheets](#conditionally-applied-stylesheets), you need to use objects
+instead of paths:
+
+```js
+module.exports = {
+  stylesheets: [
+    { id: 'main', source: '/path/to/main.css' },
+    { id: 'secondary', source: '/path/to/conditional.css', conditional: true },
+  ],
+};
+```
+
+By default, all stylesheets are applied at render time. If you specify
+`conditional: true`, only those examples that conditionally apply the
+stylesheet will get styles applied from that stylesheet.
 
 ### `type`
 

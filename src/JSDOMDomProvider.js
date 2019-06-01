@@ -54,10 +54,11 @@ export default class JSDOMDomProvider {
     );
   }
 
-  init() {
-    return new Promise((resolve) => {
+  async init({ targetName }) {
+    await new Promise((resolve) => {
       this.dom.window.onBundleReady = resolve;
     });
+    return this.dom.window.happoProcessor.init({ targetName });
   }
 
   next() {
