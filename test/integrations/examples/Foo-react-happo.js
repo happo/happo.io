@@ -27,7 +27,7 @@ const PortalComponent = ({ children }) => {
 
 export const portalExample = () => (
   <PortalComponent>
-    {navigator.userAgent === 'happo-puppeteer'
+    {window.navigator.userAgent === 'happo-puppeteer'
       ? 'forbidden'
       : window.localStorage.getItem('foobar')}
     <button>I am in a portal</button>
