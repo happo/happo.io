@@ -22,7 +22,7 @@ async function waitFor({ requestId, endpoint, apiKey, apiSecret }) {
 const MIN_INTERNET_EXPLORER_WIDTH = 400;
 
 export default class RemoteBrowserTarget {
-  constructor(browserName, { viewport, chunks = 1 }) {
+  constructor(browserName, { viewport, chunks = 1, maxHeight }) {
     const viewportMatch = viewport.match(VIEWPORT_PATTERN);
     if (!viewportMatch) {
       throw new Error(
@@ -41,6 +41,7 @@ export default class RemoteBrowserTarget {
     this.chunks = chunks;
     this.browserName = browserName;
     this.viewport = viewport;
+    this.maxHeight = maxHeight;
   }
 
   async execute({
@@ -63,6 +64,7 @@ export default class RemoteBrowserTarget {
             type: `browser-${this.browserName}`,
             payload: {
               viewport: this.viewport,
+              maxHeight: this.maxHeight,
               globalCSS,
               snapPayloads: slice,
               chunk,
