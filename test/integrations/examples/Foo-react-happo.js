@@ -27,7 +27,9 @@ const PortalComponent = ({ children }) => {
 
 export const portalExample = () => (
   <PortalComponent>
-    {window.localStorage.getItem('foobar')}
+    {navigator.userAgent === 'happo-puppeteer'
+      ? 'forbidden'
+      : window.localStorage.getItem('foobar')}
     <button>I am in a portal</button>
   </PortalComponent>
 );
@@ -93,14 +95,14 @@ export const dynamicImportExample = () => <DynamicImportExample />;
 
 export const themedExample = () => (
   <ThemeContext.Consumer>
-    {theme => <button>I am {theme}</button>}
+    {(theme) => <button>I am {theme}</button>}
   </ThemeContext.Consumer>
 );
 
 export const themedExampleAsync = (renderInDom) => {
   renderInDom(
     <ThemeContext.Consumer>
-      {theme => <button>I am {theme}</button>}
+      {(theme) => <button>I am {theme}</button>}
     </ThemeContext.Consumer>,
   );
   return new Promise((resolve) => setTimeout(resolve, 20));

@@ -1,6 +1,7 @@
 import path from 'path';
 
 import AdmZip from 'adm-zip';
+import happoPluginPuppeteer from 'happo-plugin-puppeteer';
 
 import MockTarget from './MockTarget';
 import * as defaultConfig from '../../src/DEFAULTS';
@@ -161,6 +162,21 @@ it('produces the right html', async () => {
       variant: 'pluginVariantOne',
     },
   ]);
+});
+
+describe('with the puppeteer plugin', () => {
+  beforeEach(() => {
+    config.plugins.push(
+      happoPluginPuppeteer({
+        launchOptions: { args: ['--no-sandbox', '--user-agent=happo-puppeteer'] },
+      }),
+    );
+  });
+
+  it('produces the right number of snaps', async () => {
+    await subject();
+    expect(config.targets.chrome.snapPayloads.length).toBe(16);
+  });
 });
 
 it('resolves assets correctly', async () => {
