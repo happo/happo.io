@@ -791,6 +791,22 @@ module.exports = {
 };
 ```
 
+You can also use `maxHeight` to override the default max height used by Happo
+workers (5000 pixels). This is useful if you're taking screenshots of long
+components/pages in your test suite. An example:
+
+```js
+
+module.exports = {
+  targets: {
+    'chrome': new RemoteBrowserTarget('chrome', {
+      viewport: '1024x768',
+      maxHeight: 10000,
+    }),
+  }
+};
+```
+
 Happo.io will do its best to run chunks in parallel, but there's no guarantee.
 The `chunks` option also has some overhead. If your test suite isn't large,
 using more than one chunk might actually slow things down.
