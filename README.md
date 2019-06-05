@@ -272,6 +272,19 @@ jobs:
           command: npm run happo-ci-circleci
 ```
 
+The `happo-ci-circleci` script assumes your PRs are based off of the master
+branch. If you're using a different default branch, you can set the
+`BASE_BRANCH` environment variable.
+
+```json
+{
+  "scripts": {
+    "happo": "happo",
+    "happo-ci-circleci": "BASE_BRANCH=\"origin/dev\" happo-ci-circleci"
+  }
+}
+```
+
 ### `happo-ci`
 
 This is a generic script that can run in most CI environments. Before using it,
