@@ -3,7 +3,10 @@
 # Make the whole script fail on errors
 set -euo pipefail
 
-PREVIOUS_SHA=$(git merge-base origin/master "${CIRCLE_SHA1}")
+BASE_BRANCH=${BASE_BRANCH:-"origin/master"}
+echo "Using ${BASE_BRANCH} as the base branch"
+PREVIOUS_SHA=$(git merge-base "${BASE_BRANCH}" "${CIRCLE_SHA1}")
+
 export PREVIOUS_SHA
 export CURRENT_SHA="${CIRCLE_SHA1}"
 
