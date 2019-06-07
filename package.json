@@ -10,6 +10,7 @@
     "happo-ci": "./bin/happo-ci"
   },
   "scripts": {
+    "update-toc": "./scripts/gh-md-toc --insert README.md",
     "test": "jest --runInBand",
     "lint": "eslint .",
     "build": "rimraf build && babel src --ignore 'test/.*' --out-dir build --copy-files",

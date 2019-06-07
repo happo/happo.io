@@ -5,6 +5,64 @@ compare the visual appearance of UI components before and after a change.
 Screenshots are taken in different browsers and across different screen sizes
 to ensure consistent cross-browser and responsive styling of your application.
 
+<!--ts-->
+   * [Happo.io <a href="https://camo.githubusercontent.com/192f268f4e37ae06a0648e3e99a4923be7f45124/68747470733a2f2f686170706f2e696f2f7374617469632f686170706f2d686970706f2e706e67" target="_blank" rel="nofollow"><img src="https://camo.githubusercontent.com/192f268f4e37ae06a0648e3e99a4923be7f45124/68747470733a2f2f686170706f2e696f2f7374617469632f686170706f2d686970706f2e706e67" width="40" height="40" data-canonical-src="https://happo.io/static/happo-hippo.png" style="max-width:100\x;"></a>](#happoio-)
+      * [Installation](#installation)
+      * [Getting started](#getting-started)
+      * [Full-page support](#full-page-support)
+      * [Integrating with your Continuous Integration (CI) environment](#integrating-with-your-continuous-integration-ci-environment)
+         * [happo-ci-travis](#happo-ci-travis)
+         * [happo-ci-circleci](#happo-ci-circleci)
+         * [happo-ci](#happo-ci)
+         * [Posting statuses back to PRs/commits](#posting-statuses-back-to-prscommits)
+         * [Posting statuses without installing the Happo Github App](#posting-statuses-without-installing-the-happo-github-app)
+      * [Defining examples](#defining-examples)
+         * [Conditionally applied stylesheets](#conditionally-applied-stylesheets)
+         * [Limiting targets](#limiting-targets)
+         * [Generated examples](#generated-examples)
+         * [Asynchronous examples](#asynchronous-examples)
+      * [Plugins](#plugins)
+         * [TypeScript](#typescript)
+         * [Scraping](#scraping)
+         * [Storybook](#storybook)
+         * [Gatsby](#gatsby)
+         * [Puppeteer](#puppeteer)
+      * [Local development](#local-development)
+      * [Image loading](#image-loading)
+      * [CSS Loading Strategies](#css-loading-strategies)
+      * [Configuration](#configuration)
+         * [project](#project)
+         * [include](#include)
+         * [stylesheets](#stylesheets)
+         * [type](#type)
+         * [targets](#targets)
+         * [customizeWebpackConfig](#customizewebpackconfig)
+         * [plugins](#plugins-1)
+         * [publicFolders](#publicfolders)
+         * [prerender (experimental)](#prerender-experimental)
+         * [pages](#pages)
+         * [setupScript](#setupscript)
+         * [renderWrapperModule](#renderwrappermodule)
+         * [rootElementSelector](#rootelementselector)
+         * [tmpdir](#tmpdir)
+         * [jsdomOptions](#jsdomoptions)
+         * [asyncTimeout](#asynctimeout)
+         * [githubApiUrl](#githubapiurl)
+      * [Command-Line-Interface (CLI)](#command-line-interface-cli)
+      * [Preventing spurious diffs](#preventing-spurious-diffs)
+      * [FAQ/Troubleshooting](#faqtroubleshooting)
+         * [CSS/Styling](#cssstyling)
+         * [Custom fonts](#custom-fonts)
+         * [DOM measurements](#dom-measurements)
+         * [How do I troubleshoot local issues?](#how-do-i-troubleshoot-local-issues)
+         * [View source](#view-source)
+         * [Cut-off snapshots, or snapshots with missing content](#cut-off-snapshots-or-snapshots-with-missing-content)
+         * [Spurious diffs](#spurious-diffs)
+
+<!-- Added by: henrictrotzig, at: Fri Jun  7 14:23:18 CEST 2019 -->
+
+<!--te-->
+
 ## Installation
 
 ```bash
@@ -1139,27 +1197,27 @@ VERBOSE=true npm run happo run
 
 ### View source
 
-A helpful tool to debug rendering issues is the `View source...` option presented in the 
-Happo reports for all snapshots, in the overflow (three-dot menu) next to the snapshot/diff. 
-The source is the html + css recorded by the `happo` command, unless you are running with 
-`prerender: false` or using the 
-[Storybook plugin](https://github.com/happo/happo-plugin-storybook). In the latter case, 
-the source will be a zip file as prepared by the `happo` command. 
+A helpful tool to debug rendering issues is the `View source...` option presented in the
+Happo reports for all snapshots, in the overflow (three-dot menu) next to the snapshot/diff.
+The source is the html + css recorded by the `happo` command, unless you are running with
+`prerender: false` or using the
+[Storybook plugin](https://github.com/happo/happo-plugin-storybook). In the latter case,
+the source will be a zip file as prepared by the `happo` command.
 
-To save on storage, sources are available a limited time only (currently 24 hours). 
+To save on storage, sources are available a limited time only (currently 24 hours).
 
 ### Cut-off snapshots, or snapshots with missing content
 
-To ensure tests run quickly, happo is eager to take the screenshot. As soon as there is some 
-markup rendered on the page, and all assets (images, fonts, etc) are loaded, the screenshot 
-capture is made. In most cases, the assumption that components are ready on first render is 
-okay, but in some cases you might have to tell Happo workers to hold off a little. There are 
-two ways you can do that, depending on your setup: 
+To ensure tests run quickly, happo is eager to take the screenshot. As soon as there is some
+markup rendered on the page, and all assets (images, fonts, etc) are loaded, the screenshot
+capture is made. In most cases, the assumption that components are ready on first render is
+okay, but in some cases you might have to tell Happo workers to hold off a little. There are
+two ways you can do that, depending on your setup:
 - Return a promise from your render method (see [Asynchronous examples](#asynchronous-examples)
-- If you're using [the Storybook plugin](https://github.com/happo/happo-plugin-storybook) - set 
+- If you're using [the Storybook plugin](https://github.com/happo/happo-plugin-storybook) - set
 [a delay](https://github.com/happo/happo-plugin-storybook#setting-delay-for-a-story)
 
 ### Spurious diffs
 
-If you're getting diffs that aren't motivated by changes you've made (i.e. false positives), 
-see the section on [Preventing spurious diffs](#preventing-spurious-diffs). 
+If you're getting diffs that aren't motivated by changes you've made (i.e. false positives),
+see the section on [Preventing spurious diffs](#preventing-spurious-diffs).
