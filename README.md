@@ -1103,7 +1103,7 @@ dealing with spurious diffs:
 
 ## FAQ/Troubleshooting
 
-### My CSS isn't applied
+### CSS/Styling
 
 There are multiple ways of letting Happo know what styling to apply. By
 default, Happo will record all CSS injected in the page while it's prerendering
@@ -1114,12 +1114,12 @@ false`](#prerender-experimental) can help.
 If you have an external stylesheet, you have to specify it using the
 [`stylesheets`](#stylesheets) option.
 
-### My fonts aren't loading
+### Custom fonts
 
 If you're using custom fonts that aren't loaded via webpack, you will most
 likely have to use the [`publicFolders`](#publicfolders) option.
 
-### My component needs measurements from the DOM to render correctly
+### DOM measurements
 
 By default, Happo prerenders components in a JSDOM environment. If you're
 depending on measurements from the DOM (e.g. `getBoundingClientRect`), you will
@@ -1136,3 +1136,30 @@ when asking for support. Here's one way to use it:
 ```bash
 VERBOSE=true npm run happo run
 ```
+
+### View source
+
+A helpful tool to debug rendering issues is the `View source...` option presented in the 
+Happo reports for all snapshots, in the overflow (three-dot menu) next to the snapshot/diff. 
+The source is the html + css recorded by the `happo` command, unless you are running with 
+`prerender: false` or using the 
+[Storybook plugin](https://github.com/happo/happo-plugin-storybook). In the latter case, 
+the source will be a zip file as prepared by the `happo` command. 
+
+To save on storage, sources are available a limited time only (currently 24 hours). 
+
+### Cut-off snapshots, or snapshots with missing content
+
+To ensure tests run quickly, happo is eager to take the screenshot. As soon as there is some 
+markup rendered on the page, and all assets (images, fonts, etc) are loaded, the screenshot 
+capture is made. In most cases, the assumption that components are ready on first render is 
+okay, but in some cases you might have to tell Happo workers to hold off a little. There are 
+two ways you can do that, depending on your setup: 
+- Return a promise from your render method (see [Asynchronous examples](#asynchronous-examples)
+- If you're using [the Storybook plugin](https://github.com/happo/happo-plugin-storybook) - set 
+[a delay](https://github.com/happo/happo-plugin-storybook#setting-delay-for-a-story)
+
+### Spurious diffs
+
+If you're getting diffs that aren't motivated by changes you've made (i.e. false positives), 
+see the section on [Preventing spurious diffs](#preventing-spurious-diffs). 
