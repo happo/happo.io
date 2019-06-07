@@ -1,4 +1,4 @@
-<img src="happo-dot-io-logo.png" width="400" height="103" />
+<img src="happo-dot-io-logo.png" width="200" height="51" />
 
 Happo is a visual regression testing tool. It hooks into your CI environment to
 compare the visual appearance of UI components before and after a change.
