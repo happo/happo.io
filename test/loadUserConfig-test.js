@@ -5,6 +5,8 @@ import Logger from '../src/Logger';
 import RemoteBrowserTarget from '../src/RemoteBrowserTarget';
 import loadUserConfig from '../src/loadUserConfig';
 
+const actualRequireRelative = jest.requireActual('require-relative');
+
 jest.mock('request-promise-native');
 jest.mock('require-relative');
 jest.mock('../src/Logger');
@@ -50,6 +52,18 @@ it('does not yell if all required things are in place', async () => {
   expect(config.apiSecret).toEqual('2');
   expect(config.targets).toEqual({
     firefox: new RemoteBrowserTarget('firefox', { viewport: '800x600' }),
+  });
+});
+
+describe('when HAPPO_CONFIG_URL is defined', () => {
+  beforeEach(() => {
+    requireRelative.mockImplementation(actualRequireRelative);
+  });
+
+  it('uses config from that file', async () => {
+    const config = await loadUserConfig('bogus', { HAPPO_CONFIG_FILE: './test/.happo-alternate.js' });
+    expect(config.apiKey).toEqual('tom');
+    expect(config.apiSecret).toEqual('dooner');
   });
 });
 
