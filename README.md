@@ -761,8 +761,9 @@ module.exports = {
 
 Happo will look for configuration in a `.happo.js` file in the current working
 folder. You can override the path to this file through the `--config` CLI
-option. This file isn't subject to babel transpilation, so it's best to stay
-with good old CommonJS syntax unless you're on the very latest Node version.
+option or a `HAPPO_CONFIG_FILE` environment variable. The config file isn't
+subject to babel transpilation, so it's best to stay with good old CommonJS
+syntax unless you're on the very latest Node version.
 
 ## `project`
 

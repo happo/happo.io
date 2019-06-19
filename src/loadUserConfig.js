@@ -35,7 +35,11 @@ export default async function loadUserConfig(
   pathToConfigFile,
   env = process.env,
 ) {
-  const { CHANGE_URL } = env;
+  const { CHANGE_URL, HAPPO_CONFIG_FILE } = env;
+
+  if (HAPPO_CONFIG_FILE) {
+    pathToConfigFile = HAPPO_CONFIG_FILE;
+  }
 
   const config = load(pathToConfigFile);
   if (!config.apiKey || !config.apiSecret) {
