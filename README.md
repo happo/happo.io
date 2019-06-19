@@ -1,11 +1,68 @@
-# Happo.io <img src="https://happo.io/static/happo-hippo.png" width="40" height="40" />
+<img src="happo-dot-io-logo.png" width="200" height="51" />
 
 Happo is a visual regression testing tool. It hooks into your CI environment to
 compare the visual appearance of UI components before and after a change.
 Screenshots are taken in different browsers and across different screen sizes
 to ensure consistent cross-browser and responsive styling of your application.
 
-## Installation
+<!--ts-->
+   * [Installation](#installation)
+   * [Getting started](#getting-started)
+   * [Full-page support](#full-page-support)
+   * [Integrating with your Continuous Integration (CI) environment](#integrating-with-your-continuous-integration-ci-environment)
+      * [happo-ci-travis](#happo-ci-travis)
+      * [happo-ci-circleci](#happo-ci-circleci)
+      * [happo-ci](#happo-ci)
+      * [Posting statuses back to PRs/commits](#posting-statuses-back-to-prscommits)
+      * [Posting statuses without installing the Happo Github App](#posting-statuses-without-installing-the-happo-github-app)
+   * [Defining examples](#defining-examples)
+      * [Conditionally applied stylesheets](#conditionally-applied-stylesheets)
+      * [Limiting targets](#limiting-targets)
+      * [Generated examples](#generated-examples)
+      * [Asynchronous examples](#asynchronous-examples)
+   * [Plugins](#plugins)
+      * [TypeScript](#typescript)
+      * [Scraping](#scraping)
+      * [Storybook](#storybook)
+      * [Gatsby](#gatsby)
+      * [Puppeteer](#puppeteer)
+   * [Local development](#local-development)
+   * [Image loading](#image-loading)
+   * [CSS Loading Strategies](#css-loading-strategies)
+   * [Configuration](#configuration)
+      * [project](#project)
+      * [include](#include)
+      * [stylesheets](#stylesheets)
+      * [type](#type)
+      * [targets](#targets)
+      * [customizeWebpackConfig](#customizewebpackconfig)
+      * [plugins](#plugins-1)
+      * [publicFolders](#publicfolders)
+      * [prerender (experimental)](#prerender-experimental)
+      * [pages](#pages)
+      * [setupScript](#setupscript)
+      * [renderWrapperModule](#renderwrappermodule)
+      * [rootElementSelector](#rootelementselector)
+      * [tmpdir](#tmpdir)
+      * [jsdomOptions](#jsdomoptions)
+      * [asyncTimeout](#asynctimeout)
+      * [githubApiUrl](#githubapiurl)
+   * [Command-Line-Interface (CLI)](#command-line-interface-cli)
+   * [Preventing spurious diffs](#preventing-spurious-diffs)
+   * [FAQ/Troubleshooting](#faqtroubleshooting)
+      * [CSS/Styling](#cssstyling)
+      * [Custom fonts](#custom-fonts)
+      * [DOM measurements](#dom-measurements)
+      * [How do I troubleshoot local issues?](#how-do-i-troubleshoot-local-issues)
+      * [View source](#view-source)
+      * [Cut-off snapshots, or snapshots with missing content](#cut-off-snapshots-or-snapshots-with-missing-content)
+      * [Spurious diffs](#spurious-diffs)
+
+<!-- Added by: henrictrotzig, at: Fri Jun  7 14:44:09 CEST 2019 -->
+
+<!--te-->
+
+# Installation
 
 ```bash
 npm install --save-dev happo.io
@@ -25,7 +82,7 @@ npm install --save-dev webpack @babel/core babel-loader
 npm install --save-dev webpack babel-core babel-loader@7
 ```
 
-## Getting started
+# Getting started
 
 Before you can run happo, you need to define one or more component example
 files. If you already have an existing source of component examples (e.g. an
@@ -166,7 +223,7 @@ PR/commit/branch pushed. When you're ready, jump ahead to the
 [Integrating with
 CI](#integrating-with-your-continuous-integration-ci-environment) section.
 
-## Full-page support
+# Full-page support
 
 Apart from making component snapshots, Happo can also be leveraged for
 full-page screenshots via the [`pages`](#pages) configuration. In full-page
@@ -183,7 +240,7 @@ module.exports = {
 }
 ```
 
-## Integrating with your Continuous Integration (CI) environment
+# Integrating with your Continuous Integration (CI) environment
 
 Once you've gone through the Getting Started guide, you should have a good
 understanding of what commands are involved in making a full, two-pass, Happo
@@ -218,7 +275,7 @@ INSTALL_CMD="lerna bootstrap" npm run happo-ci-travis
 In this example, the `lerna bootstrap` command will be invoked before running
 `happo run` on each commit, instead of `yarn install`/`npm install`.
 
-### `happo-ci-travis`
+## `happo-ci-travis`
 
 This script knows about the Travis build environment, assuming a PR based
 model. To run it, first add this to your `package.json`:
@@ -240,7 +297,7 @@ script:
 - npm run happo-ci-travis
 ```
 
-### `happo-ci-circleci`
+## `happo-ci-circleci`
 
 *Before you start using this script, have a look at the [Happo CircleCI
 Orb](https://circleci.com/orbs/registry/orb/happo/happo). It simplifies some of
@@ -285,7 +342,7 @@ branch. If you're using a different default branch, you can set the
 }
 ```
 
-### `happo-ci`
+## `happo-ci`
 
 This is a generic script that can run in most CI environments. Before using it,
 you need to set a few environment variables:
@@ -303,7 +360,7 @@ you need to set a few environment variables:
 }
 ```
 
-### Posting statuses back to PRs/commits
+## Posting statuses back to PRs/commits
 
 *The instructions in this section only work if you are using github.com. If
 you're using a local Github Enterprise setup, there is an alternative solution
@@ -332,7 +389,7 @@ need to make sure that you provide a `--link <url>` with your calls to `happo
 compare`. If you're using any of the standard CI scripts listed above, the
 `--link` is automatically taken care of for you.
 
-### Posting statuses without installing the Happo Github App
+## Posting statuses without installing the Happo Github App
 
 If you for some reason can't install the Happo Github App (e.g. when using
 Github Enterprise) you can still get the Happo status posted to your PR -- as a
@@ -353,7 +410,7 @@ personal access token, separated by a colon.
 If you're using Github Enterprise, apart from defining the environment variable
 you also need to add [`githubApiUrl` to `.happo.js`](#githubapiurl).
 
-## Defining examples
+# Defining examples
 
 The default way of defining happo examples for a component is through a
 `ComponentName-happo.jsx` file, with an ES export for each variant you are
@@ -398,7 +455,7 @@ Happo will infer the component name from the file. In the example above, if the
 file is named `Button-happo.jsx`, the inferred name will be `Button`.
 
 
-### Conditionally applied stylesheets
+## Conditionally applied stylesheets
 
 An example may conditionally apply styles from certain
 [`stylesheets`](#stylesheets) by using a `stylesheets` array:
@@ -415,7 +472,7 @@ The strings in the array need to match `id`s of [`stylesheets`](#stylesheets)
 defined in `.happo.js` config.
 
 
-### Limiting targets
+## Limiting targets
 
 If you want to avoid rendering an example in all targets, you can use a
 `targets` array defined for an example. The example will then be rendered in
@@ -431,7 +488,7 @@ export default () => {
 The target strings in the array need to match [target keys](#targets) in
 `.happo.js` config.
 
-### Generated examples
+## Generated examples
 
 If you want to group multiple components in one file you can export an array
 instead, with objects defining the component and its variants. This can be
@@ -457,7 +514,7 @@ export default [
 ]
 ```
 
-### Asynchronous examples
+## Asynchronous examples
 
 If you have examples that won't look right on the initial render, you can
 return a promise from the example function. Happo will then wait for the
@@ -503,9 +560,9 @@ Be careful about overusing async rendering as it has a tendency to lead to a
 more complicated setup. In many cases it's better to factor out a "view
 component" which you render synchronously in the Happo test.
 
-## Plugins
+# Plugins
 
-### TypeScript
+## TypeScript
 
 The Happo plugin for TypeScript will inject the necessary webpack configuration
 to make Happo process TypeScript files correctly. See
@@ -527,13 +584,13 @@ module.exports {
 };
 ```
 
-### Scraping
+## Scraping
 
 The Happo "scrape" plugin will make it possible to grab Happo examples from an
 existing website. See https://github.com/happo/happo-plugin-scrape. Make sure
 to also check out the built-in [full-page support](#full-page-support).
 
-### Storybook
+## Storybook
 
 The Happo plugin for [Storybook](https://storybook.js.org/) will automatically
 turn your stories into Happo examples. See https://github.com/happo/happo-plugin-storybook.
@@ -554,7 +611,7 @@ module.exports {
 };
 ```
 
-### Gatsby
+## Gatsby
 
 The Happo plugin for [Gatsby](https://www.gatsbyjs.org/) turns all your
 static pages into Happo tests. See https://github.com/happo/happo-plugin-gatsby.
@@ -576,7 +633,7 @@ module.exports {
 };
 ```
 
-### Puppeteer
+## Puppeteer
 
 If you have Happo examples that rely on measuring the DOM, the default
 pre-renderer (JSDOM) might not produce the results you need. By using a real
@@ -600,7 +657,7 @@ module.exports {
 ```
 
 
-## Local development
+# Local development
 
 The `happo dev` command is designed to help local development of components. In
 dev mode, happo will watch the file system for changes, and regenerate
@@ -664,7 +721,7 @@ single file. Here's an example:
 In this case, only the "Button" component in the file named e.g.
 `**/AllComponents/happo.js` will be included in the report.
 
-## Image loading
+# Image loading
 
 Examples can reference images in a few different ways:
 
@@ -678,7 +735,7 @@ Examples can reference images in a few different ways:
   config, so that for you can `import fooImage from './images/foo.png'`
   directly.
 
-## CSS Loading Strategies
+# CSS Loading Strategies
 
 Happo works best when CSS code is co-located with the components. In some
 cases, you'll get away with zero configuration to get this working. But in many
@@ -700,26 +757,26 @@ module.exports = {
 }
 ```
 
-## Configuration
+# Configuration
 
 Happo will look for configuration in a `.happo.js` file in the current working
 folder. You can override the path to this file through the `--config` CLI
 option. This file isn't subject to babel transpilation, so it's best to stay
 with good old CommonJS syntax unless you're on the very latest Node version.
 
-### `project`
+## `project`
 
 If you have multiple projects configured for your happo.io account, you can
 specify the name of the project you want to associate with. If you leave this
 empty, the default project will be used.
 
-### `include`
+## `include`
 
 Controls what files happo will grab examples from. The default is
 `'**/@(*-happo|happo).@(js|jsx)'`. This option is useful if you want to apply a
 different naming scheme, e.g. `**/*-examples.js`.
 
-### `stylesheets`
+## `stylesheets`
 
 If you rely on external stylesheets, list their URLs or (absolute) file paths
 in this config option, e.g. `['/path/to/file.css', 'http://cdn/style.css']`. If
@@ -740,7 +797,7 @@ By default, all stylesheets are applied at render time. If you specify
 `conditional: true`, only those examples that conditionally apply the
 stylesheet will get styles applied from that stylesheet.
 
-### `type`
+## `type`
 
 Either `react` (default) or `plain`. Decides what strategy happo will use when
 rendering examples. When the value is `react`, it is assumed that example
@@ -749,7 +806,7 @@ the value is `plain`, it is assumed that example functions write things
 straight to `document`, e.g.
 `export default () => { document.body.appendChild(foo()) }`.
 
-### `targets`
+## `targets`
 
 This is where you specify the browsers you want to be part of your happo run. E.g.
 
@@ -824,7 +881,7 @@ Happo.io will do its best to run chunks in parallel, but there's no guarantee.
 The `chunks` option also has some overhead. If your test suite isn't large,
 using more than one chunk might actually slow things down.
 
-### `customizeWebpackConfig`
+## `customizeWebpackConfig`
 
 A function you can use to override or modify the default webpack config used
 internally by happo during a run. Make sure to always return the passed in
@@ -870,7 +927,7 @@ module.exports = {
 }
 ```
 
-### `plugins`
+## `plugins`
 
 An array of happo plugins. Find available plugins in the [Plugins](#plugins)
 section.
@@ -885,7 +942,7 @@ module.exports = {
 }
 ```
 
-### `publicFolders`
+## `publicFolders`
 
 An array of (absolute) paths specifying the places where public assets are
 located. Useful if you have examples that depend on publicly available images
@@ -901,7 +958,7 @@ module.exports = {
 }
 ```
 
-### `prerender` (experimental)
+## `prerender` (experimental)
 
 Controls whether or not examples are pre-rendered in a JSDOM environment (or
 Chrome if you are using
@@ -917,7 +974,7 @@ module.exports = {
 }
 ```
 
-### `pages`
+## `pages`
 
 An array containing pages that you want to screenshot. E.g.
 
@@ -939,7 +996,7 @@ so make sure it is unique for each page.
 *Note:* when you're using the `pages` config, most other configuration options
 are ignored.
 
-### `setupScript`
+## `setupScript`
 
 An absolute path to a file that will be executed before rendering your
 components. This is useful if you for instance want to inject global css
@@ -954,7 +1011,7 @@ module.exports = {
 }
 ```
 
-### `renderWrapperModule`
+## `renderWrapperModule`
 
 An absolute path to a file exporting a function where you can wrap rendering of
 Happo examples. This can be useful if you for instance have a theme provider or
@@ -977,7 +1034,7 @@ import ThemeProvider from '../ThemeProvider';
 export default (component) => <ThemeProvider>{component}</ThemeProvider>;
 ```
 
-### `rootElementSelector`
+## `rootElementSelector`
 
 A selector used to find a DOM element that Happo will use as the container. In
 most cases, you should leave this empty and let Happo figure out the root
@@ -992,7 +1049,7 @@ module.exports = {
 ```
 (example from [mineral-ui](https://github.com/mineral-ui/mineral-ui/blob/e48a47d917477b58e496fe43edbfa4bb6ceb88e9/.happo.js#L35))
 
-### `tmpdir`
+## `tmpdir`
 
 Happo uses webpack internally. By default, bundles are created in the temp
 folder provided by the operating system. You can override where bundles are
@@ -1004,7 +1061,7 @@ module.exports = {
 }
 ```
 
-### `jsdomOptions`
+## `jsdomOptions`
 
 Happo uses jsdom internally. By default, it provides sane defaults to the
 `JSDOM` constructor. See
@@ -1021,7 +1078,7 @@ module.exports = {
 }
 ```
 
-### `asyncTimeout`
+## `asyncTimeout`
 
 If an example renders nothing to the DOM, Happo will wait a short while for content to appear. Specified in milliseconds, the default is `200`.
 
@@ -1031,7 +1088,7 @@ module.exports = {
 }
 ```
 
-### `githubApiUrl`
+## `githubApiUrl`
 
 Used when you have the CI script configured to [post Happo statuses as
 comments](#posting-statuses-without-installing-the-happo-github-app).
@@ -1040,7 +1097,7 @@ enter the URL to the local Github API here, e.g.
 `https://ghe.mycompany.zone/api/v3` (the default for GHE installation is for
 the API to be located at `/api/v3`).
 
-## Command-Line-Interface (CLI)
+# Command-Line-Interface (CLI)
 
 While you are most likely getting most value from the ready-made CI integration
 scripts, there are times when you want better control. In these cases, you can
@@ -1062,7 +1119,7 @@ desire.
   will notify the author. Also supports `--message <message>`, which is used
   together with `--link <url>` to further contextualize the comparison.
 
-## Preventing spurious diffs
+# Preventing spurious diffs
 
 An important factor when constructing a good screenshot testing setup is to
 keep the number of spurious diffs to a minimum. A spurious diff (or a false
@@ -1101,9 +1158,9 @@ dealing with spurious diffs:
   `data-happo-hide` attribute. This will render the element invisible in the
   screenshot. E.g. `<div data-happo-hide>{Math.random()}</div>`.
 
-## FAQ/Troubleshooting
+# FAQ/Troubleshooting
 
-### CSS/Styling
+## CSS/Styling
 
 There are multiple ways of letting Happo know what styling to apply. By
 default, Happo will record all CSS injected in the page while it's prerendering
@@ -1114,12 +1171,12 @@ false`](#prerender-experimental) can help.
 If you have an external stylesheet, you have to specify it using the
 [`stylesheets`](#stylesheets) option.
 
-### Custom fonts
+## Custom fonts
 
 If you're using custom fonts that aren't loaded via webpack, you will most
 likely have to use the [`publicFolders`](#publicfolders) option.
 
-### DOM measurements
+## DOM measurements
 
 By default, Happo prerenders components in a JSDOM environment. If you're
 depending on measurements from the DOM (e.g. `getBoundingClientRect`), you will
@@ -1127,7 +1184,7 @@ most likely not get the right results. In these cases, you can either inject
 the dimensions as properties of the component or use [`prerender:
 false`](#prerender-experimental)
 
-### How do I troubleshoot local issues?
+## How do I troubleshoot local issues?
 
 By running happo with a `VERBOSE=true` environment variable, more logs will show up in
 the console. This can help track down certain issues, and is a good tool to use
@@ -1137,29 +1194,29 @@ when asking for support. Here's one way to use it:
 VERBOSE=true npm run happo run
 ```
 
-### View source
+## View source
 
-A helpful tool to debug rendering issues is the `View source...` option presented in the 
-Happo reports for all snapshots, in the overflow (three-dot menu) next to the snapshot/diff. 
-The source is the html + css recorded by the `happo` command, unless you are running with 
-`prerender: false` or using the 
-[Storybook plugin](https://github.com/happo/happo-plugin-storybook). In the latter case, 
-the source will be a zip file as prepared by the `happo` command. 
+A helpful tool to debug rendering issues is the `View source...` option presented in the
+Happo reports for all snapshots, in the overflow (three-dot menu) next to the snapshot/diff.
+The source is the html + css recorded by the `happo` command, unless you are running with
+`prerender: false` or using the
+[Storybook plugin](https://github.com/happo/happo-plugin-storybook). In the latter case,
+the source will be a zip file as prepared by the `happo` command.
 
-To save on storage, sources are available a limited time only (currently 24 hours). 
+To save on storage, sources are available a limited time only (currently 24 hours).
 
-### Cut-off snapshots, or snapshots with missing content
+## Cut-off snapshots, or snapshots with missing content
 
-To ensure tests run quickly, happo is eager to take the screenshot. As soon as there is some 
-markup rendered on the page, and all assets (images, fonts, etc) are loaded, the screenshot 
-capture is made. In most cases, the assumption that components are ready on first render is 
-okay, but in some cases you might have to tell Happo workers to hold off a little. There are 
-two ways you can do that, depending on your setup: 
+To ensure tests run quickly, happo is eager to take the screenshot. As soon as there is some
+markup rendered on the page, and all assets (images, fonts, etc) are loaded, the screenshot
+capture is made. In most cases, the assumption that components are ready on first render is
+okay, but in some cases you might have to tell Happo workers to hold off a little. There are
+two ways you can do that, depending on your setup:
 - Return a promise from your render method (see [Asynchronous examples](#asynchronous-examples)
-- If you're using [the Storybook plugin](https://github.com/happo/happo-plugin-storybook) - set 
+- If you're using [the Storybook plugin](https://github.com/happo/happo-plugin-storybook) - set
 [a delay](https://github.com/happo/happo-plugin-storybook#setting-delay-for-a-story)
 
-### Spurious diffs
+## Spurious diffs
 
-If you're getting diffs that aren't motivated by changes you've made (i.e. false positives), 
-see the section on [Preventing spurious diffs](#preventing-spurious-diffs). 
+If you're getting diffs that aren't motivated by changes you've made (i.e. false positives),
+see the section on [Preventing spurious diffs](#preventing-spurious-diffs).
