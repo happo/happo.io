@@ -14,7 +14,7 @@ to ensure consistent cross-browser and responsive styling of your application.
       * [happo-ci-circleci](#happo-ci-circleci)
       * [happo-ci](#happo-ci)
       * [Posting statuses back to PRs/commits](#posting-statuses-back-to-prscommits)
-      * [Posting statuses without installing the Happo Github App](#posting-statuses-without-installing-the-happo-github-app)
+      * [Posting statuses without installing the Happo GitHub App](#posting-statuses-without-installing-the-happo-github-app)
    * [Defining examples](#defining-examples)
       * [Conditionally applied stylesheets](#conditionally-applied-stylesheets)
       * [Limiting targets](#limiting-targets)
@@ -247,7 +247,7 @@ understanding of what commands are involved in making a full, two-pass, Happo
 run. Happo works by running twice. Once to create a baseline, and a second time
 to compare against this baseline.
 
-Since a lot of projects these days follow a pull-request model using Github,
+Since a lot of projects these days follow a pull-request model using GitHub,
 Happo provides ready-made scripts that you can run in CI:
 
 - `happo-ci-travis` - a script designed to be run in a Travis environment.
@@ -363,12 +363,12 @@ you need to set a few environment variables:
 ## Posting statuses back to PRs/commits
 
 *The instructions in this section only work if you are using github.com. If
-you're using a local Github Enterprise setup, there is an alternative solution
+you're using a local GitHub Enterprise setup, there is an alternative solution
 described in the [next
 section](#posting-statuses-without-installing-the-happo-github-app)*
 
-By installing the [Happo Github App](https://github.com/apps/happo) and
-connecting to it on the [Github integration page on
+By installing the [Happo GitHub App](https://github.com/apps/happo) and
+connecting to it on the [GitHub integration page on
 happo.io](https://happo.io/github-integration), you allow Happo to update the
 status of a PR/commit.
 
@@ -382,17 +382,17 @@ The status over on github.com will then change to green for the PR/commit.
 
 ![Happo status manually accepted cross-posted to github](happo-status-accepted.png)
 
-Apart from having the [Happo Github App](https://github.com/apps/happo)
+Apart from having the [Happo GitHub App](https://github.com/apps/happo)
 installed and connected on
 [happo.io/github-integration](https://happo.io/github-integration), you also
 need to make sure that you provide a `--link <url>` with your calls to `happo
 compare`. If you're using any of the standard CI scripts listed above, the
 `--link` is automatically taken care of for you.
 
-## Posting statuses without installing the Happo Github App
+## Posting statuses without installing the Happo GitHub App
 
-If you for some reason can't install the Happo Github App (e.g. when using
-Github Enterprise) you can still get the Happo status posted to your PR -- as a
+If you for some reason can't install the Happo GitHub App (e.g. when using
+GitHub Enterprise) you can still get the Happo status posted to your PR -- as a
 comment on the pull request. To get this working, you have to provide the Happo
 CI script with user credentials containing a username and a personal access
 token, through `HAPPO_GITHUB_USER_CREDENTIALS`. E.g.
@@ -407,7 +407,7 @@ on how to generate the personal token.
 The environment variable must contain both the username of the profile and the
 personal access token, separated by a colon.
 
-If you're using Github Enterprise, apart from defining the environment variable
+If you're using GitHub Enterprise, apart from defining the environment variable
 you also need to add [`githubApiUrl` to `.happo.js`](#githubapiurl).
 
 # Defining examples
@@ -1093,8 +1093,8 @@ module.exports = {
 
 Used when you have the CI script configured to [post Happo statuses as
 comments](#posting-statuses-without-installing-the-happo-github-app).
-The default if `https://api.github.com`. If you're using Github Enterprise,
-enter the URL to the local Github API here, e.g.
+The default if `https://api.github.com`. If you're using GitHub Enterprise,
+enter the URL to the local GitHub API here, e.g.
 `https://ghe.mycompany.zone/api/v3` (the default for GHE installation is for
 the API to be located at `/api/v3`).
 
