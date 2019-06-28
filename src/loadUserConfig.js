@@ -5,9 +5,10 @@ import Logger from './Logger';
 import WrappedError from './WrappedError';
 import * as defaultConfig from './DEFAULTS';
 
-function load(pathToConfigFile) {
+async function load(pathToConfigFile) {
   try {
-    return Object.assign({}, defaultConfig, requireRelative(pathToConfigFile, process.cwd()));
+    const userConfig = await Promise.resolve(requireRelative(pathToConfigFile, process.cwd()));
+    return Object.assign({}, defaultConfig, userConfig);
   } catch (e) {
     // We only check for the default config file here, so that a missing custom
     // config path isn't ignored.
@@ -41,7 +42,7 @@ export default async function loadUserConfig(
     pathToConfigFile = HAPPO_CONFIG_FILE;
   }
 
-  const config = load(pathToConfigFile);
+  const config = await load(pathToConfigFile);
   if (!config.apiKey || !config.apiSecret) {
     if (!CHANGE_URL) {
       throw new Error(
