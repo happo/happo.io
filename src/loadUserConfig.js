@@ -7,7 +7,11 @@ import * as defaultConfig from './DEFAULTS';
 
 async function load(pathToConfigFile) {
   try {
-    const userConfig = await Promise.resolve(requireRelative(pathToConfigFile, process.cwd()));
+    let userConfig = requireRelative(pathToConfigFile, process.cwd());
+    //await if the config is a function, async or not
+    if(typeof userConfig === 'function'){
+        userConfig = await userConfig();
+    }
     return Object.assign({}, defaultConfig, userConfig);
   } catch (e) {
     // We only check for the default config file here, so that a missing custom
