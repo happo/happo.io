@@ -8,7 +8,7 @@ import * as defaultConfig from './DEFAULTS';
 async function load(pathToConfigFile) {
   try {
     let userConfig = requireRelative(pathToConfigFile, process.cwd());
-    //await if the config is a function, async or not
+    // await if the config is a function, async or not
     if (typeof userConfig === 'function') {
       userConfig = await userConfig();
     }
