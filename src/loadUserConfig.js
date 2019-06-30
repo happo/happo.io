@@ -9,8 +9,8 @@ async function load(pathToConfigFile) {
   try {
     let userConfig = requireRelative(pathToConfigFile, process.cwd());
     //await if the config is a function, async or not
-    if(typeof userConfig === 'function'){
-        userConfig = await userConfig();
+    if (typeof userConfig === 'function') {
+      userConfig = await userConfig();
     }
     return Object.assign({}, defaultConfig, userConfig);
   } catch (e) {
