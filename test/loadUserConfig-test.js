@@ -65,6 +65,12 @@ describe('when HAPPO_CONFIG_URL is defined', () => {
     expect(config.apiKey).toEqual('tom');
     expect(config.apiSecret).toEqual('dooner');
   });
+
+  it('allows async config', async () => {
+    const config = await loadUserConfig('bogus', { HAPPO_CONFIG_FILE: './test/.happo-alternate-async.js' });
+    expect(config.apiKey).toEqual('tom');
+    expect(config.apiSecret).toEqual('dooner');
+  });
 });
 
 describe('when CHANGE_URL is defined', () => {
