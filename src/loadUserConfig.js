@@ -12,7 +12,7 @@ async function load(pathToConfigFile) {
     if (typeof userConfig === 'function') {
       userConfig = await userConfig();
     }
-    return Object.assign({}, defaultConfig, userConfig);
+    return { ...defaultConfig, ...userConfig };
   } catch (e) {
     // We only check for the default config file here, so that a missing custom
     // config path isn't ignored.
