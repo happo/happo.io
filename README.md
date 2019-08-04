@@ -351,6 +351,8 @@ you need to set a few environment variables:
 - `CURRENT_SHA` - the sha of the current HEAD
 - `CHANGE_URL` - a link back to the change
 
+The CHANGE_URL variable should be a url to the pull request or the commit. For Happo to update the GitHub pull request panel with the camparison status  use the pull request url. This is also used by Happo to update the comparisons' and reports' "Trigged by `commit message`" line on the dashboard.
+
 ```json
 {
   "scripts": {
