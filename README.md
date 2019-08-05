@@ -351,7 +351,7 @@ you need to set a few environment variables:
 - `PREVIOUS_SHA` - the sha of the baseline commit
 - `CURRENT_SHA` - the sha of the current HEAD
 - `CHANGE_URL` - a link back to the change ([further
-  instructions](#setting-the-right---linkchange_url)
+  instructions](#setting-the-right---linkchange_url))
 
 ```json
 {
@@ -398,8 +398,6 @@ status, the `--link` (for CLI) or `CHANGE_URL` (env variable) needs to be a
 link to a GitHub Pull Request or a link to a commit in a GitHub repo. E.g.
 - https://github.com/happo/happo-io/pull/3`
 - https://github.com/happo/happo.io/commit/47054d85bd799b72e46eb2d7b24d7eaaa78445d6
-
-Happo wants a
 
 ## Posting statuses without installing the Happo GitHub App
 
