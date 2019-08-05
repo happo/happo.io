@@ -14,6 +14,7 @@ to ensure consistent cross-browser and responsive styling of your application.
       * [happo-ci-circleci](#happo-ci-circleci)
       * [happo-ci](#happo-ci)
       * [Posting statuses back to PRs/commits](#posting-statuses-back-to-prscommits)
+         * [Setting the right --link/CHANGE_URL](#setting-the-right---linkchange_url)
       * [Posting statuses without installing the Happo GitHub App](#posting-statuses-without-installing-the-happo-github-app)
    * [Defining examples](#defining-examples)
       * [Conditionally applied stylesheets](#conditionally-applied-stylesheets)
@@ -58,7 +59,7 @@ to ensure consistent cross-browser and responsive styling of your application.
       * [Cut-off snapshots, or snapshots with missing content](#cut-off-snapshots-or-snapshots-with-missing-content)
       * [Spurious diffs](#spurious-diffs)
 
-<!-- Added by: henrictrotzig, at: Fri Jun  7 14:44:09 CEST 2019 -->
+<!-- Added by: henrictrotzig, at: Mon Aug  5 21:53:53 CEST 2019 -->
 
 <!--te-->
 
@@ -109,7 +110,7 @@ export const secondary = () => <Button type="secondary">Secondary</Button>;
 ```
 
 Then, we need to add some configuration. API tokens are used to authenticate
-you with the remote happo.io service: `apiKey` and `apiSecret`.  These can be
+you with the remote happo.io service: `apiKey` and `apiSecret`. These can be
 found on your account page at https://happo.io/account. You also need to tell
 happo what browsers you want to target. In this example, we're using two
 Chrome targets. One at 1024 x 768 screen ("desktop") and one on a 320 x 640
@@ -186,6 +187,7 @@ npm run happo run
 ```
 
 This time, we'll get a different hash:
+
 ```
 Uploading report for h1a2p3p4o5...
 View results at https://happo.io/a/28/report/h1a2p3p4o5
@@ -236,8 +238,8 @@ module.exports = {
   pages: [
     { url: 'https://www.google.com/', title: 'Google' },
     { url: 'https://www.airbnb.com/', title: 'Airbnb' },
-  ]
-}
+  ],
+};
 ```
 
 # Integrating with your Continuous Integration (CI) environment
@@ -258,13 +260,12 @@ Happo provides ready-made scripts that you can run in CI:
 
 These scripts will all:
 
-1) Run happo on the commit which the PR is based on
-2) Run happo on the current HEAD commit
-3) Compare the two reports
-4) If allowed to, post back a status to the PR (the HEAD commit)
+1. Run happo on the commit which the PR is based on
+2. Run happo on the current HEAD commit
+3. Compare the two reports
+4. If allowed to, post back a status to the PR (the HEAD commit)
 
-These scripts will detect your npm client (yarn or npm) and run `npm
-install`/`yarn install` before running happo on the commits. If you have other
+These scripts will detect your npm client (yarn or npm) and run `npm install`/`yarn install` before running happo on the commits. If you have other
 dependencies/preprocessing steps that need to happen, you can override this
 with the `INSTALL_CMD` environment variable. E.g.
 
@@ -294,14 +295,14 @@ Then, configure `.travis.yml` to run this script:
 ```yaml
 language: node_js
 script:
-- npm run happo-ci-travis
+  - npm run happo-ci-travis
 ```
 
 ## `happo-ci-circleci`
 
-*Before you start using this script, have a look at the [Happo CircleCI
+_Before you start using this script, have a look at the [Happo CircleCI
 Orb](https://circleci.com/orbs/registry/orb/happo/happo). It simplifies some of
-the setup required if you use the `happo-ci-circleci` script.*
+the setup required if you use the `happo-ci-circleci` script._
 
 This script knows about the CircleCI build environment, assuming a PR based
 model. To run it, first add this to your `package.json`:
@@ -349,9 +350,8 @@ you need to set a few environment variables:
 
 - `PREVIOUS_SHA` - the sha of the baseline commit
 - `CURRENT_SHA` - the sha of the current HEAD
-- `CHANGE_URL` - a link back to the change
-
-The CHANGE_URL variable should be a url to the pull request or the commit. For Happo to update the GitHub pull request panel with the camparison status  use the pull request url. This is also used by Happo to update the comparisons' and reports' "Trigged by `commit message`" line on the dashboard.
+- `CHANGE_URL` - a link back to the change ([further
+  instructions](#setting-the-right---linkchange_url)
 
 ```json
 {
@@ -364,10 +364,10 @@ The CHANGE_URL variable should be a url to the pull request or the commit. For H
 
 ## Posting statuses back to PRs/commits
 
-*The instructions in this section only work if you are using github.com. If
+_The instructions in this section only work if you are using github.com. If
 you're using a local GitHub Enterprise setup, there is an alternative solution
 described in the [next
-section](#posting-statuses-without-installing-the-happo-github-app)*
+section](#posting-statuses-without-installing-the-happo-github-app)_
 
 By installing the [Happo GitHub App](https://github.com/apps/happo) and
 connecting to it on the [GitHub integration page on
@@ -387,9 +387,19 @@ The status over on github.com will then change to green for the PR/commit.
 Apart from having the [Happo GitHub App](https://github.com/apps/happo)
 installed and connected on
 [happo.io/github-integration](https://happo.io/github-integration), you also
-need to make sure that you provide a `--link <url>` with your calls to `happo
-compare`. If you're using any of the standard CI scripts listed above, the
-`--link` is automatically taken care of for you.
+need to make sure that you provide a `--link <url>` with your calls to `happo compare`. If you're using any of the standard CI scripts listed above, the
+`--link` is automatically taken care of for you. If you're generating/setting
+the link yourself, follow the instructions down below.
+
+### Setting the right `--link`/`CHANGE_URL`
+
+To get Happo to update the GitHub Pull Request panel with the comparison
+status, the `--link` (for CLI) or `CHANGE_URL` (env variable) needs to be a
+link to a GitHub Pull Request or a link to a commit in a GitHub repo. E.g.
+- https://github.com/happo/happo-io/pull/3`
+- https://github.com/happo/happo.io/commit/47054d85bd799b72e46eb2d7b24d7eaaa78445d6
+
+Happo wants a
 
 ## Posting statuses without installing the Happo GitHub App
 
@@ -402,6 +412,7 @@ token, through `HAPPO_GITHUB_USER_CREDENTIALS`. E.g.
 ```bash
 HAPPO_GITHUB_USER_CREDENTIALS="trotzig:21A4XgnSkt7f36ehlK5"
 ```
+
 [Here's a guide from
 github.com](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line)
 on how to generate the personal token.
@@ -456,7 +467,6 @@ export default () => {
 Happo will infer the component name from the file. In the example above, if the
 file is named `Button-happo.jsx`, the inferred name will be `Button`.
 
-
 ## Conditionally applied stylesheets
 
 An example may conditionally apply styles from certain
@@ -472,7 +482,6 @@ export default () => {
 
 The strings in the array need to match `id`s of [`stylesheets`](#stylesheets)
 defined in `.happo.js` config.
-
 
 ## Limiting targets
 
@@ -513,7 +522,7 @@ export default [
       large: () => <Icon size="large" />,
     },
   },
-]
+];
 ```
 
 ## Asynchronous examples
@@ -658,7 +667,6 @@ module.exports {
 };
 ```
 
-
 # Local development
 
 The `happo dev` command is designed to help local development of components. In
@@ -708,7 +716,7 @@ Comparing with previous run...
   https://happo.io/compare?q=dev-ff4c58da118671bd8826..dev-87ae2e31d6014fe4bd65
 ```
 
-*NOTE*: The `--only` flag will match against the file name exporting the happo
+_NOTE_: The `--only` flag will match against the file name exporting the happo
 examples by default. So `--only Button` will match against e.g.
 `src/components/Button/happo.jsx`, `src/components/Button-happo.js`. If you are
 exporting a lot of happo examples from a single file you can use the `#`
@@ -753,10 +761,10 @@ module.exports = {
       test: /\.css$/,
       use: [{ loader: cssLoader }],
     });
-   // it's important that we return the modified config
+    // it's important that we return the modified config
     return config;
   },
-}
+};
 ```
 
 # Configuration
@@ -827,7 +835,7 @@ module.exports = {
     'firefox-mobile': new RemoteBrowserTarget('firefox', {
       viewport: '320x640',
     }),
-    'chrome': new RemoteBrowserTarget('chrome', {
+    chrome: new RemoteBrowserTarget('chrome', {
       viewport: '800x600',
     }),
     'internet explorer': new RemoteBrowserTarget('internet explorer', {
@@ -855,14 +863,13 @@ target into multiple chunks (running in parallel), the experimental `chunks`
 option for `RemoteBrowserTarget` can help out:
 
 ```js
-
 module.exports = {
   targets: {
-    'ie': new RemoteBrowserTarget('internet explorer', {
+    ie: new RemoteBrowserTarget('internet explorer', {
       viewport: '1024x768',
       chunks: 2,
     }),
-  }
+  },
 };
 ```
 
@@ -871,14 +878,13 @@ workers (5000 pixels). This is useful if you're taking screenshots of long
 components/pages in your test suite. An example:
 
 ```js
-
 module.exports = {
   targets: {
-    'chrome': new RemoteBrowserTarget('chrome', {
+    chrome: new RemoteBrowserTarget('chrome', {
       viewport: '1024x768',
       maxHeight: 10000,
     }),
-  }
+  },
 };
 ```
 
@@ -899,10 +905,10 @@ module.exports = {
       test: /\.css$/,
       use: [{ loader: cssLoader }],
     });
-   // it's important that we return the modified config
+    // it's important that we return the modified config
     return config;
   },
-}
+};
 ```
 
 In many cases, directly depending on the `modules` object of an existing
@@ -916,7 +922,7 @@ module.exports = {
     config.module = require('react-scripts/config/webpack.config.dev').module;
     return config;
   },
-}
+};
 ```
 
 If you need to perform asynchronous actions to generate a webpack
@@ -929,7 +935,7 @@ module.exports = {
     config.module = await doSomethingAsync();
     return config;
   },
-}
+};
 ```
 
 ## `plugins`
@@ -941,10 +947,8 @@ section.
 const happoPluginStorybook = require('happo-plugin-storybook');
 
 module.exports = {
-  plugins: [
-    happoPluginStorybook(),
-  ],
-}
+  plugins: [happoPluginStorybook()],
+};
 ```
 
 ## `publicFolders`
@@ -957,10 +961,8 @@ located. Useful if you have examples that depend on publicly available images
 const path = require('path');
 
 module.exports = {
-  publicFolders: [
-    path.resolve(__dirname, 'src/public'),
-  ],
-}
+  publicFolders: [path.resolve(__dirname, 'src/public')],
+};
 ```
 
 ## `prerender` (experimental)
@@ -976,7 +978,7 @@ that errors are harder to surface.
 ```js
 module.exports = {
   prerender: false,
-}
+};
 ```
 
 ## `pages`
@@ -988,8 +990,8 @@ module.exports = {
   pages: [
     { url: 'https://www.google.com/', title: 'Google' },
     { url: 'https://www.airbnb.com/', title: 'Airbnb' },
-  ]
-}
+  ],
+};
 ```
 
 The `url` of a page needs to be publicly accessible, else the Happo browser
@@ -998,7 +1000,7 @@ workers won't be able to find it.
 The `title` of a page is used as the "component" identifier in the happo.io UI,
 so make sure it is unique for each page.
 
-*Note:* when you're using the `pages` config, most other configuration options
+_Note:_ when you're using the `pages` config, most other configuration options
 are ignored.
 
 ## `setupScript`
@@ -1013,7 +1015,7 @@ const path = require('path');
 
 module.exports = {
   setupScript: path.resolve(__dirname, 'happoSetup.js'),
-}
+};
 ```
 
 ## `renderWrapperModule`
@@ -1028,7 +1030,7 @@ const path = require('path');
 
 module.exports = {
   renderWrapperModule: path.resolve(__dirname, 'happoWrapper.js'),
-}
+};
 ```
 
 ```js
@@ -1050,8 +1052,9 @@ components that you don't want to be part of the screenshot.
 ```js
 module.exports = {
   rootElementSelector: '.react-live-preview',
-}
+};
 ```
+
 (example from [mineral-ui](https://github.com/mineral-ui/mineral-ui/blob/e48a47d917477b58e496fe43edbfa4bb6ceb88e9/.happo.js#L35))
 
 ## `tmpdir`
@@ -1063,7 +1066,7 @@ stored with the `tmpdir` configuration option.
 ```js
 module.exports = {
   tmpdir: '/some/absolute/path/to/an/existing/folder',
-}
+};
 ```
 
 ## `jsdomOptions`
@@ -1079,8 +1082,8 @@ document's `referrer` is being set:
 module.exports = {
   jsdomOptions: {
     referrer: 'http://google.com',
-  }
-}
+  },
+};
 ```
 
 ## `asyncTimeout`
@@ -1090,7 +1093,7 @@ If an example renders nothing to the DOM, Happo will wait a short while for cont
 ```js
 module.exports = {
   asyncTimeout: 500,
-}
+};
 ```
 
 ## `githubApiUrl`
@@ -1151,8 +1154,7 @@ In some cases however, Happo can't automatically detect things that cause
 spuriousness. Here are some tips & tricks that you might find useful when
 dealing with spurious diffs:
 
-- If you have dates/timestamps, either injecting a fixed `new
-  Date('2019-05-23T08:28:02.446Z')` into your component or freezing time via
+- If you have dates/timestamps, either injecting a fixed `new Date('2019-05-23T08:28:02.446Z')` into your component or freezing time via
   something like [Sinon.js](https://sinonjs.org/) can help.
 - If a component depends on external data (via some API), consider splitting
   out the data-fetching from the component and test the component without data
@@ -1170,8 +1172,7 @@ dealing with spurious diffs:
 There are multiple ways of letting Happo know what styling to apply. By
 default, Happo will record all CSS injected in the page while it's prerendering
 examples locally. In some cases (like when using web components), the CSS isn't
-always available to extract. In those cases, setting [`prerender:
-false`](#prerender-experimental) can help.
+always available to extract. In those cases, setting [`prerender: false`](#prerender-experimental) can help.
 
 If you have an external stylesheet, you have to specify it using the
 [`stylesheets`](#stylesheets) option.
@@ -1186,8 +1187,7 @@ likely have to use the [`publicFolders`](#publicfolders) option.
 By default, Happo prerenders components in a JSDOM environment. If you're
 depending on measurements from the DOM (e.g. `getBoundingClientRect`), you will
 most likely not get the right results. In these cases, you can either inject
-the dimensions as properties of the component or use [`prerender:
-false`](#prerender-experimental)
+the dimensions as properties of the component or use [`prerender: false`](#prerender-experimental)
 
 ## How do I troubleshoot local issues?
 
@@ -1217,9 +1217,10 @@ markup rendered on the page, and all assets (images, fonts, etc) are loaded, the
 capture is made. In most cases, the assumption that components are ready on first render is
 okay, but in some cases you might have to tell Happo workers to hold off a little. There are
 two ways you can do that, depending on your setup:
+
 - Return a promise from your render method (see [Asynchronous examples](#asynchronous-examples)
 - If you're using [the Storybook plugin](https://github.com/happo/happo-plugin-storybook) - set
-[a delay](https://github.com/happo/happo-plugin-storybook#setting-delay-for-a-story)
+  [a delay](https://github.com/happo/happo-plugin-storybook#setting-delay-for-a-story)
 
 ## Spurious diffs
 
