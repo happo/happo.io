@@ -32,7 +32,7 @@ if [ -f "yarn.lock" ]; then
   CHECK_FOR_HAPPO="grep 'happo\.io@' yarn.lock"
 fi
 
-HAPPO_COMMAND="node node_modules/happo.io/build/cli.js"
+HAPPO_COMMAND="node_modules/happo.io/build/cli.js"
 
 run-happo() {
   SHA=$1
