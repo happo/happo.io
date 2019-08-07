@@ -32,14 +32,7 @@ if [ -f "yarn.lock" ]; then
   CHECK_FOR_HAPPO="grep 'happo\.io@' yarn.lock"
 fi
 
-resolve-npm-bin() {
-  NPM_BIN=$(${NPM_CLIENT} bin)
-  if [ ! -f "${NPM_BIN}/happo" ]; then
-    # When invoked via `npx run` happo might not be installed locally. In this
-    # case we can use the npx directory (where this script is currently located).
-    NPM_BIN="$(cd "$(dirname "${BASH_SOURCE[0]}" )" > /dev/null 2>&1 && pwd)"
-  fi
-}
+HAPPO_COMMAND="node node_modules/happo.io/build/cli.js"
 
 run-happo() {
   SHA=$1
@@ -56,10 +49,8 @@ run-happo() {
     eval "$INSTALL_CMD"
   fi
 
-  resolve-npm-bin
-
   if eval "$CHECK_FOR_HAPPO"; then
-    "$NPM_BIN"/happo run "$SHA" \
+    "$HAPPO_COMMAND" run "$SHA" \
     --link "${CHANGE_URL}" \
     --message "${COMMIT_SUBJECT}"
   else
@@ -75,14 +66,12 @@ if [ "$CURRENT_SHA" = "$PREVIOUS_SHA" ] || [ -z "$PREVIOUS_SHA" ]; then
   exit 0;
 fi
 
-resolve-npm-bin
-
-"$NPM_BIN"/happo start-job "$PREVIOUS_SHA" "$CURRENT_SHA"
+"$HAPPO_COMMAND" start-job "$PREVIOUS_SHA" "$CURRENT_SHA"
 
 # Check if we need to generate a baseline. In some cases, the baseline is
 # already there (some other PR uploaded it), and we can just use the existing
 # one.
-if ! "$NPM_BIN"/happo has-report "$PREVIOUS_SHA"; then
+if ! "$HAPPO_COMMAND" has-report "$PREVIOUS_SHA"; then
   echo "No previous report found for ${PREVIOUS_SHA}. Generating one..."
   run-happo "$PREVIOUS_SHA"
 fi
@@ -90,7 +79,7 @@ fi
 run-happo "$CURRENT_SHA"
 
 if [ "$FIRST_RUN" = "true" ]; then
-  "$NPM_BIN"/happo empty "$PREVIOUS_SHA"
+  "$HAPPO_COMMAND" empty "$PREVIOUS_SHA"
 fi
 
 # Compare reports from the two SHAs.
@@ -100,7 +89,7 @@ COMMIT_AUTHOR="$(git show -s --format=%ae)"
 # `happo compare` exits with an exit code of 113 if there is a diff. To work with
 # the exit status, we need to temporarily turn off the fail-on-error behavior.
 set +e
-SUMMARY=$("$NPM_BIN"/happo compare "$PREVIOUS_SHA" "$CURRENT_SHA" \
+SUMMARY=$("$HAPPO_COMMAND" compare "$PREVIOUS_SHA" "$CURRENT_SHA" \
   --link "$CHANGE_URL" \
   --message "$COMMIT_SUBJECT" \
   --author "$COMMIT_AUTHOR")
