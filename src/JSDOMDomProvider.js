@@ -46,7 +46,7 @@ export default class JSDOMDomProvider {
               availHeight: { value: height },
             });
             win.requestAnimationFrame = (callback) => setTimeout(callback, 0);
-            win.cancelAnimationFrame = () => {};
+            win.cancelAnimationFrame = clearTimeout;
           },
         },
         jsdomOptions,
