@@ -24,7 +24,10 @@ export default async function makeRequest(
     if (tryNumber >= maxTries) {
       throw e;
     }
-    console.warn(`Failed to make request to ${requestAttributes.url}. Retrying after 2s...`);
+
+    const { method, url } = requestAttributes;
+    console.warn(`Failed ${method} ${url}. Retrying after 2s...`);
+
     await new Promise((resolve) => setTimeout(resolve, 2000));
     return makeRequest(
       requestAttributes,
