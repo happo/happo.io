@@ -126,6 +126,18 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
+      html: '<div>Loaded</div>',
+      variant: 'rafExample',
+    },
+    {
+      component: 'Foo-react',
+      css: '',
+      html: '<div>Not loaded</div>',
+      variant: 'rafUnmountExample',
+    },
+    {
+      component: 'Foo-react',
+      css: '',
       html: '<button>Click me</button>',
       variant: 'default',
     },
@@ -175,7 +187,7 @@ describe('with the puppeteer plugin', () => {
 
   it('produces the right number of snaps', async () => {
     await subject();
-    expect(config.targets.chrome.snapPayloads.length).toBe(16);
+    expect(config.targets.chrome.snapPayloads.length).toBe(18);
   });
 });
 

@@ -107,3 +107,41 @@ export const themedExampleAsync = (renderInDom) => {
   );
   return new Promise((resolve) => setTimeout(resolve, 20));
 };
+
+class RAFExample extends React.Component {
+  async componentDidMount() {
+    window.requestAnimationFrame(() => {
+      this.setState({ label: 'Loaded' });
+    });
+  }
+
+  render() {
+    if (!this.state) {
+      return null;
+    }
+    return <div>{this.state.label}</div>;
+  }
+}
+
+export const rafExample = () => <RAFExample />;
+
+class RAFUnmountExample extends React.Component {
+  async componentDidMount() {
+    this.raf = window.requestAnimationFrame(() => {
+      document.title = 'Foobar';
+    });
+  }
+
+  componentWillUnmount() {
+    window.cancelAnimationFrame(this.raf);
+  }
+
+  render() {
+    if (!this.state) {
+      return <div>Not loaded</div>;
+    }
+    return <div>{this.state.label}</div>;
+  }
+}
+
+export const rafUnmountExample = () => <RAFUnmountExample />;
