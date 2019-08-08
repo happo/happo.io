@@ -225,7 +225,7 @@ export default async function domRunner(
     plugins,
   });
   const logger = new Logger();
-  logger.start('Reading files...');
+  logger.start('Searching for happo test files...');
   let entryFile;
   try {
     const entryPointResult = await createDynamicEntryPoint({
