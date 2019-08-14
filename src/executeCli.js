@@ -46,6 +46,7 @@ commander
       link: commander.link,
       message: commander.message,
     });
+    process.exit(0);
   });
 
 commander
