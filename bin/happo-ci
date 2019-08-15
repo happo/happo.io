@@ -10,7 +10,7 @@ set -eou pipefail
 INSTALL_CMD=${INSTALL_CMD:-}
 
 # Make sure we use the full commit shas
-if [ ! -z "$PREVIOUS_SHA" ]; then
+if [ -n "$PREVIOUS_SHA" ]; then
   PREVIOUS_SHA="$(git rev-parse "$PREVIOUS_SHA")"
 fi
 CURRENT_SHA="$(git rev-parse "$CURRENT_SHA")"
