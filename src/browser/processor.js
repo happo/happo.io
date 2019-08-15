@@ -9,27 +9,27 @@ import validateAndFilterExamples from './validateAndFilterExamples';
 const ROOT_ELEMENT_ID = 'happo-root';
 
 function findRoot() {
-  // Grab the element that we add to the dom by default. This element will
-  // usually be the right element, at least in the react case.
-  const root = document.getElementById(ROOT_ELEMENT_ID);
+  const { children } = document.body;
 
-  if (!root) {
-    // The root element may very well have been overridden in the render method
-    // for an example. In that case, fall back to the <body> element.
+  // Find nodes that have some inner content and aren't script nodes.
+  const layoutChildren = Array.from(children).filter(
+    (node) => node.tagName.toLowerCase() !== 'script' && node.innerHTML !== '',
+  );
+
+  if (layoutChildren.length === 0) {
+    // None of the children have content. Use the default root element or fall
+    // back to the first child.
+    return document.getElementById(ROOT_ELEMENT_ID) || children[0];
+  }
+
+  if (layoutChildren.length > 1) {
+    // When multiple elements have content, use the body as the root (thus
+    // forcing all elements to be included in the captured html).
     return document.body;
   }
 
-  if (root.innerHTML === '') {
-    // The root has no content. Which means we're potentially rendering to a
-    // portal element. Iterate through other root elements to see if any other
-    // has content.
-    for (const potentialRoot of document.body.children) {
-      if (potentialRoot.innerHTML !== '') {
-        return potentialRoot;
-      }
-    }
-  }
-  return root;
+  // Only one child has content. Use it!
+  return layoutChildren[0];
 }
 
 async function renderExample(exampleRenderFunc) {
