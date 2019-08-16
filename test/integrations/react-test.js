@@ -90,6 +90,13 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
+      html:
+      '<div id="happo-root"><div>Outside portal</div></div><div>Inside portal</div>',
+      variant: 'innerPortal',
+    },
+    {
+      component: 'Foo-react',
+      css: '',
       html: '<button>Ready</button>',
       variant: 'asyncExample',
     },
@@ -187,7 +194,7 @@ describe('with the puppeteer plugin', () => {
 
   it('produces the right number of snaps', async () => {
     await subject();
-    expect(config.targets.chrome.snapPayloads.length).toBe(18);
+    expect(config.targets.chrome.snapPayloads.length).toBe(19);
   });
 });
 

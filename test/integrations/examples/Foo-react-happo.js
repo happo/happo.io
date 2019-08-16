@@ -34,6 +34,15 @@ export const portalExample = () => (
   </PortalComponent>
 );
 
+export const innerPortal = () => (
+  <React.Fragment>
+    <div>Outside portal</div>
+    <PortalComponent>
+      Inside portal
+    </PortalComponent>
+  </React.Fragment>
+);
+
 class AsyncComponent extends React.Component {
   constructor(props) {
     super(props);
