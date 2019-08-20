@@ -8,13 +8,13 @@ export default class JSDOMDomProvider {
   constructor(jsdomOptions, { width, height, webpackBundle }) {
     const virtualConsole = new VirtualConsole();
     virtualConsole.on('jsdomError', (e) => {
-      const len = e.detail.length;
-      if (VERBOSE || len < MAX_ERROR_DETAIL_LENGTH || typeof e.detail !== 'string') {
-        console.error(e.stack, e.detail);
+      const { stack, detail = '' } = e;
+      if (VERBOSE || typeof detail !== 'string' || detail.length < MAX_ERROR_DETAIL_LENGTH) {
+        console.error(stack, detail);
       } else {
-        const newDetail = `${(e.detail || '').slice(0, MAX_ERROR_DETAIL_LENGTH)}...
+        const newDetail = `${(detail || '').slice(0, MAX_ERROR_DETAIL_LENGTH)}...
           To see the full error, run happo with "VERBOSE=true")`;
-        console.error(e.stack, newDetail);
+        console.error(stack, newDetail);
       }
     });
     virtualConsole.sendTo(console, { omitJSDOMErrors: true });
