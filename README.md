@@ -364,9 +364,9 @@ you need to set a few environment variables:
 
 ## Posting statuses back to PRs/commits
 
-_The instructions in this section only work if you are using github.com. If
-you're using a local GitHub Enterprise setup, there is an alternative solution
-described in the [next
+_The instructions in this section only work if you are using github.com or the 
+on-premise version of happo.io. If you're using a local GitHub Enterprise setup, 
+there is an alternative solution described in the [next
 section](#posting-statuses-without-installing-the-happo-github-app)_
 
 By installing the [Happo GitHub App](https://github.com/apps/happo) and
