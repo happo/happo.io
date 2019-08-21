@@ -35,6 +35,14 @@ it('does not find absolute urls', () => {
   expect(subject()).toEqual([]);
 });
 
+it('does not find empty urls', () => {
+  css = `
+    .body { background-image: url(); }
+    .foo { background-image: url(''); }
+  `;
+  expect(subject()).toEqual([]);
+});
+
 it('finds multiple images', () => {
   css = `
     .body { background-image: url(/1x1.jpg); }

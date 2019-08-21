@@ -26,6 +26,11 @@ it('finds path-relative urls', () => {
   expect(subject()).toEqual(['circle.svg']);
 });
 
+it('does not find empty images', () => {
+  html = '<img src=""><img src=" ">';
+  expect(subject()).toEqual([]);
+});
+
 it('finds multiple images', () => {
   html = `
     <div>
@@ -35,23 +40,14 @@ it('finds multiple images', () => {
       <img src="/1x1.jpg">
     </div>
   `;
-  expect(subject()).toEqual([
-    '/1x1.jpg',
-    '/1x1.png',
-    '/circle.svg',
-    '/1x1.jpg',
-  ]);
+  expect(subject()).toEqual(['/1x1.jpg', '/1x1.png', '/circle.svg', '/1x1.jpg']);
 });
 
 it('finds assets in srcset attributes', () => {
   html = `
     <img src="/1x1.jpg" srcset="/1x1.jpg 197w, /1x1.png 393w, http://dns/1.png 600w">
   `;
-  expect(subject()).toEqual([
-    '/1x1.jpg',
-    '/1x1.jpg',
-    '/1x1.png',
-  ]);
+  expect(subject()).toEqual(['/1x1.jpg', '/1x1.jpg', '/1x1.png']);
 });
 
 it('handles invalid srcset attributes', () => {
@@ -79,10 +75,7 @@ it('handles srcset with commas', () => {
   html = `
     <img srcset="/f1,2,3.png 100w, /f1,3.png 200w">
   `;
-  expect(subject()).toEqual([
-    '/f1,2,3.png',
-    '/f1,3.png',
-  ]);
+  expect(subject()).toEqual(['/f1,2,3.png', '/f1,3.png']);
 });
 
 it('handles srcset with plenty of whitespace', () => {
@@ -92,8 +85,5 @@ it('handles srcset with plenty of whitespace', () => {
       /f1,3.png   200w"
     >
   `;
-  expect(subject()).toEqual([
-    '/1x1.png',
-    '/f1,3.png',
-  ]);
+  expect(subject()).toEqual(['/1x1.png', '/f1,3.png']);
 });
