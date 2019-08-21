@@ -26,6 +26,11 @@ it('finds path-relative urls', () => {
   expect(subject()).toEqual(['circle.svg']);
 });
 
+it('does not find empty images', () => {
+  html = '<img src="">';
+  expect(subject()).toEqual([]);
+});
+
 it('finds multiple images', () => {
   html = `
     <div>

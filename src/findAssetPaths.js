@@ -17,5 +17,5 @@ export default function findAssetPaths(doc = document) {
     });
   });
 
-  return imgPaths.filter((url) => !isAbsoluteUrl(url));
+  return imgPaths.filter((url) => !isAbsoluteUrl(url) && url.length);
 }
