@@ -30,6 +30,11 @@ function makePackage({ paths, publicFolders }) {
 
     Object.keys(paths).forEach((assetPath) => {
       const resolvePath = paths[assetPath];
+
+      if (!resolvePath) {
+        throw new Error(`Unable to resolve asset path: ${assetPath}`);
+      }
+
       for (const publicFolder of publicFolders) {
         const folder = publicFolder.startsWith('/')
           ? publicFolder
