@@ -87,3 +87,10 @@ it('handles srcset with plenty of whitespace', () => {
   `;
   expect(subject()).toEqual(['/1x1.png', '/f1,3.png']);
 });
+
+it('handles srcset with multiple URLs with mixed descriptors', () => {
+  html = `
+    <img srcset="/1x1.png, /f1,3.png 200w">
+  `;
+  expect(subject()).toEqual(['/1x1.png', '/f1,3.png']);
+});
