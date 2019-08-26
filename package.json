@@ -59,6 +59,7 @@
     "jsdom": "^12.0.0",
     "jsonwebtoken": "^8.2.1",
     "mkdirp": "^0.5.1",
+    "parse-srcset": "^1.0.2",
     "request": "^2.85.0",
     "request-promise-native": "^1.0.5",
     "require-relative": "^0.8.7",

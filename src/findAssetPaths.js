@@ -1,6 +1,4 @@
-import matchAll from 'string.prototype.matchall';
-
-const SRCSET_ITEM = /([^\s]+)(\s+[0-9.]+[wx])?(,?\s*)/g;
+import parseSrcset from 'parse-srcset';
 
 function isAbsoluteUrl(src) {
   return src.startsWith('http') || src.startsWith('//');
@@ -12,8 +10,8 @@ export default function findAssetPaths(doc = document) {
   );
 
   doc.querySelectorAll('img[srcset]').forEach((img) => {
-    Array.from(matchAll(img.getAttribute('srcset') || '', SRCSET_ITEM)).forEach((match) => {
-      imgPaths.push(match[1]);
+    parseSrcset(img.getAttribute('srcset')).forEach((parsed) => {
+      imgPaths.push(parsed.url);
     });
   });
 
