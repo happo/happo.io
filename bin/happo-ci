@@ -8,12 +8,14 @@ set -eou pipefail
 
 # Initialize optional env variables
 INSTALL_CMD=${INSTALL_CMD:-}
+HAPPO_GIT_COMMAND=${HAPPO_GIT_COMMAND:-git}
+HAPPO_COMMAND=${HAPPO_COMMAND:-"node_modules/happo.io/build/cli.js"}
 
 # Make sure we use the full commit shas
 if [ -n "$PREVIOUS_SHA" ]; then
-  PREVIOUS_SHA="$(git rev-parse "$PREVIOUS_SHA")"
+  PREVIOUS_SHA="$(${HAPPO_GIT_COMMAND} rev-parse "$PREVIOUS_SHA")"
 fi
-CURRENT_SHA="$(git rev-parse "$CURRENT_SHA")"
+CURRENT_SHA="$(${HAPPO_GIT_COMMAND} rev-parse "$CURRENT_SHA")"
 
 echo "Using the following ENV variables:"
 echo "PREVIOUS_SHA: ${PREVIOUS_SHA}"
@@ -32,24 +34,28 @@ if [ -f "yarn.lock" ]; then
   CHECK_FOR_HAPPO="grep 'happo\.io@' yarn.lock"
 fi
 
-HAPPO_COMMAND="node_modules/happo.io/build/cli.js"
+CHECK_FOR_HAPPO=${HAPPO_CHECK:-"${CHECK_FOR_HAPPO}"}
 
 run-happo() {
   SHA=$1
-  git checkout --force --quiet "$SHA"
-  COMMIT_SUBJECT="$(git show -s --format=%s)"
+  QUICK=$2
 
-  # Install dependencies (again, since we're potentially in a different place in
-  # git history)
-  if [ -z "$INSTALL_CMD" ]; then
-    # Run yarn/npm install
-    ${NPM_CLIENT} install ${NPM_CLIENT_FLAGS}
-  else
-    # Run custom install command(s)
-    eval "$INSTALL_CMD"
+  ${HAPPO_GIT_COMMAND} checkout --force --quiet "$SHA"
+  COMMIT_SUBJECT="$(${HAPPO_GIT_COMMAND} show -s --format=%s)"
+
+  if [ "$QUICK" = "false" ]; then
+    # Install dependencies (again, since we're potentially in a different place in
+    # git history)
+    if [ -z "$INSTALL_CMD" ]; then
+      # Run yarn/npm install
+      ${NPM_CLIENT} install ${NPM_CLIENT_FLAGS}
+    else
+      # Run custom install command(s)
+      eval "$INSTALL_CMD"
+    fi
   fi
 
-  if eval "$CHECK_FOR_HAPPO"; then
+  if [ "$QUICK" = "true" ] || eval "$CHECK_FOR_HAPPO"; then
     "$HAPPO_COMMAND" run "$SHA" \
     --link "${CHANGE_URL}" \
     --message "${COMMIT_SUBJECT}"
@@ -62,29 +68,31 @@ run-happo() {
 if [ "$CURRENT_SHA" = "$PREVIOUS_SHA" ] || [ -z "$PREVIOUS_SHA" ]; then
   echo "We're not on a branch, so there's nothing to compare against."
   echo "Running a single happo run on ${CURRENT_SHA}"
-  run-happo "$CURRENT_SHA"
+  run-happo "$CURRENT_SHA" true
   exit 0;
 fi
 
 "$HAPPO_COMMAND" start-job "$PREVIOUS_SHA" "$CURRENT_SHA"
+
+run-happo "$CURRENT_SHA" true
 
 # Check if we need to generate a baseline. In some cases, the baseline is
 # already there (some other PR uploaded it), and we can just use the existing
 # one.
 if ! "$HAPPO_COMMAND" has-report "$PREVIOUS_SHA"; then
   echo "No previous report found for ${PREVIOUS_SHA}. Generating one..."
-  run-happo "$PREVIOUS_SHA"
+  run-happo "$PREVIOUS_SHA" false
+else
+  echo "Re-using existing report for ${PREVIOUS_SHA}."
 fi
-
-run-happo "$CURRENT_SHA"
 
 if [ "$FIRST_RUN" = "true" ]; then
   "$HAPPO_COMMAND" empty "$PREVIOUS_SHA"
 fi
 
 # Compare reports from the two SHAs.
-COMMIT_SUBJECT="$(git show -s --format=%s)"
-COMMIT_AUTHOR="$(git show -s --format=%ae)"
+COMMIT_SUBJECT="$(${HAPPO_GIT_COMMAND} show -s --format=%s)"
+COMMIT_AUTHOR="$(${HAPPO_GIT_COMMAND} show -s --format=%ae)"
 
 # `happo compare` exits with an exit code of 113 if there is a diff. To work with
 # the exit status, we need to temporarily turn off the fail-on-error behavior.
