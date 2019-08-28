@@ -91,8 +91,8 @@ describe('when there is a report for PREVIOUS_SHA', () => {
     subject();
     expect(getCliLog()).toEqual([
       'start-job foo bar',
-      'has-report foo',
       'run bar --link http://foo.bar/ --message Commit message',
+      'has-report foo',
       'compare foo bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
     ]);
   });
@@ -107,9 +107,9 @@ describe('when there is no report for PREVIOUS_SHA', () => {
     subject();
     expect(getCliLog()).toEqual([
       'start-job no-report bar',
+      'run bar --link http://foo.bar/ --message Commit message',
       'has-report no-report',
       'run no-report --link http://foo.bar/ --message Commit message',
-      'run bar --link http://foo.bar/ --message Commit message',
       'compare no-report bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
     ]);
   });
@@ -124,8 +124,8 @@ describe('when the compare call fails', () => {
     expect(subject).toThrow();
     expect(getCliLog()).toEqual([
       'start-job fail bar',
-      'has-report fail',
       'run bar --link http://foo.bar/ --message Commit message',
+      'has-report fail',
       'compare fail bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
     ]);
   });
@@ -140,8 +140,8 @@ describe('when happo.io is not installed for the PREVIOUS_SHA', () => {
     subject();
     expect(getCliLog()).toEqual([
       'start-job no-happo bar',
-      'has-report no-happo',
       'run bar --link http://foo.bar/ --message Commit message',
+      'has-report no-happo',
       'empty no-happo',
       'compare no-happo bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
     ]);
