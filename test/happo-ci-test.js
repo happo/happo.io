@@ -4,14 +4,15 @@ import path from 'path';
 import os from 'os';
 
 const cliLogFile = path.join(os.tmpdir(), 'cli-mock-log.txt');
+const gitLogFile = path.join(os.tmpdir(), 'git-mock-log.txt');
 
 let subject;
 let env;
 
-function getCliLog() {
+function getLog(file) {
   try {
     return fs
-      .readFileSync(cliLogFile, 'utf-8')
+      .readFileSync(file, 'utf-8')
       .split('\n')
       .filter(Boolean);
   } catch (e) {
@@ -21,6 +22,8 @@ function getCliLog() {
     throw e;
   }
 }
+const getCliLog = getLog.bind(undefined, cliLogFile);
+const getGitLog = getLog.bind(undefined, gitLogFile);
 
 beforeEach(() => {
   env = {
@@ -35,6 +38,9 @@ beforeEach(() => {
   };
   if (fs.existsSync(cliLogFile)) {
     fs.unlinkSync(cliLogFile);
+  }
+  if (fs.existsSync(gitLogFile)) {
+    fs.unlinkSync(gitLogFile);
   }
   subject = () => {
     execSync('./bin/happo-ci', {
@@ -83,6 +89,12 @@ describe('when CURRENT_SHA and PREVIOUS_SHA is the same', () => {
     expect(getCliLog()).toEqual([
       'run bar --link http://foo.bar/ --message Commit message',
     ]);
+    expect(getGitLog()).toEqual([
+      'rev-parse bar',
+      'rev-parse bar',
+      'checkout --force --quiet bar',
+      'show -s --format=%s',
+    ]);
   });
 });
 
@@ -94,6 +106,15 @@ describe('when there is a report for PREVIOUS_SHA', () => {
       'run bar --link http://foo.bar/ --message Commit message',
       'has-report foo',
       'compare foo bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
+    ]);
+    expect(getGitLog()).toEqual([
+      'rev-parse foo',
+      'rev-parse bar',
+      'checkout --force --quiet bar',
+      'show -s --format=%s',
+      'show -s --format=%s',
+      'show -s --format=%ae',
+      'checkout --force --quiet bar',
     ]);
   });
 });
@@ -112,6 +133,17 @@ describe('when there is no report for PREVIOUS_SHA', () => {
       'run no-report --link http://foo.bar/ --message Commit message',
       'compare no-report bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
     ]);
+    expect(getGitLog()).toEqual([
+      'rev-parse no-report',
+      'rev-parse bar',
+      'checkout --force --quiet bar',
+      'show -s --format=%s',
+      'checkout --force --quiet no-report',
+      'show -s --format=%s',
+      'show -s --format=%s',
+      'show -s --format=%ae',
+      'checkout --force --quiet bar',
+    ]);
   });
 });
 
@@ -127,6 +159,15 @@ describe('when the compare call fails', () => {
       'run bar --link http://foo.bar/ --message Commit message',
       'has-report fail',
       'compare fail bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
+    ]);
+    expect(getGitLog()).toEqual([
+      'rev-parse fail',
+      'rev-parse bar',
+      'checkout --force --quiet bar',
+      'show -s --format=%s',
+      'show -s --format=%s',
+      'show -s --format=%ae',
+      'checkout --force --quiet bar',
     ]);
   });
 });
@@ -144,6 +185,17 @@ describe('when happo.io is not installed for the PREVIOUS_SHA', () => {
       'has-report no-happo',
       'empty no-happo',
       'compare no-happo bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
+    ]);
+    expect(getGitLog()).toEqual([
+      'rev-parse no-happo',
+      'rev-parse bar',
+      'checkout --force --quiet bar',
+      'show -s --format=%s',
+      'checkout --force --quiet no-happo',
+      'show -s --format=%s',
+      'show -s --format=%s',
+      'show -s --format=%ae',
+      'checkout --force --quiet bar',
     ]);
   });
 });

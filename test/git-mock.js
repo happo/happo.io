@@ -1,6 +1,13 @@
 #!/usr/bin/env node
 
+const path = require('path');
+const fs = require('fs');
+const os = require('os');
+
 const cmd = process.argv[2];
+
+const tmpFile = path.join(os.tmpdir(), 'git-mock-log.txt');
+fs.writeFileSync(tmpFile, `${process.argv.slice(2).join(' ')}\n`, { flag: 'a' });
 
 if (cmd === 'rev-parse') {
   // simply echo the sha/identifier
