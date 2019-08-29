@@ -396,7 +396,7 @@ the link yourself, follow the instructions down below.
 To get Happo to update the GitHub Pull Request panel with the comparison
 status, the `--link` (for CLI) or `CHANGE_URL` (env variable) needs to be a
 link to a GitHub Pull Request or a link to a commit in a GitHub repo. E.g.
-- https://github.com/happo/happo-io/pull/3`
+- https://github.com/happo/happo-io/pull/3
 - https://github.com/happo/happo.io/commit/47054d85bd799b72e46eb2d7b24d7eaaa78445d6
 
 ## Posting statuses without installing the Happo GitHub App
