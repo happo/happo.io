@@ -36,6 +36,16 @@ fi
 
 CHECK_FOR_HAPPO=${HAPPO_CHECK:-"${CHECK_FOR_HAPPO}"}
 
+run-install() {
+  if [ -z "$INSTALL_CMD" ]; then
+    # Run yarn/npm install
+    ${NPM_CLIENT} install ${NPM_CLIENT_FLAGS}
+  else
+    # Run custom install command(s)
+    eval "$INSTALL_CMD"
+  fi
+}
+
 run-happo() {
   SHA=$1
   QUICK=$2
@@ -46,13 +56,7 @@ run-happo() {
   if [ "$QUICK" = "false" ]; then
     # Install dependencies (again, since we're potentially in a different place in
     # git history)
-    if [ -z "$INSTALL_CMD" ]; then
-      # Run yarn/npm install
-      ${NPM_CLIENT} install ${NPM_CLIENT_FLAGS}
-    else
-      # Run custom install command(s)
-      eval "$INSTALL_CMD"
-    fi
+    run-install
   fi
 
   if [ "$QUICK" = "true" ] || eval "$CHECK_FOR_HAPPO"; then
@@ -82,6 +86,11 @@ run-happo "$CURRENT_SHA" true
 if ! "$HAPPO_COMMAND" has-report "$PREVIOUS_SHA"; then
   echo "No previous report found for ${PREVIOUS_SHA}. Generating one..."
   run-happo "$PREVIOUS_SHA" false
+  
+  # Restore git and node_modules to their original state, for anything that
+  # might be run after this script.
+  git checkout "$CURRENT_SHA"
+  run-install
 else
   echo "Re-using existing report for ${PREVIOUS_SHA}."
 fi
