@@ -86,11 +86,6 @@ run-happo "$CURRENT_SHA" true
 if ! "$HAPPO_COMMAND" has-report "$PREVIOUS_SHA"; then
   echo "No previous report found for ${PREVIOUS_SHA}. Generating one..."
   run-happo "$PREVIOUS_SHA" false
-  
-  # Restore git and node_modules to their original state, for anything that
-  # might be run after this script.
-  git checkout "$CURRENT_SHA"
-  run-install
 else
   echo "Re-using existing report for ${PREVIOUS_SHA}."
 fi
@@ -114,6 +109,12 @@ EXIT_CODE=$?
 set -e
 
 echo "$SUMMARY"
+
+
+# Restore git and node_modules to their original state, for anything that
+# might be run after this script.
+"$HAPPO_GIT_COMMAND" checkout --force --quiet "$CURRENT_SHA"
+run-install
 
 if [ "$EXIT_CODE" = "113" ]; then
   # There is a diff. We don't want to fail the script in this case.
