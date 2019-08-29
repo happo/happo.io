@@ -4,6 +4,8 @@ addons:
 node_js:
   - "6"
   - "8"
+  - "10"
+  - "12"
 env:
   - WEBPACK_VERSION=4
   - WEBPACK_VERSION=3
