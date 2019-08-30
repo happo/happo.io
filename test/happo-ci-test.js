@@ -102,7 +102,7 @@ describe('when there is a report for PREVIOUS_SHA', () => {
   it('runs the right happo commands', () => {
     subject();
     expect(getCliLog()).toEqual([
-      'start-job foo bar',
+      'start-job foo bar --link http://foo.bar/ --message Commit message',
       'run bar --link http://foo.bar/ --message Commit message',
       'has-report foo',
       'compare foo bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
@@ -110,10 +110,10 @@ describe('when there is a report for PREVIOUS_SHA', () => {
     expect(getGitLog()).toEqual([
       'rev-parse foo',
       'rev-parse bar',
-      'checkout --force --quiet bar',
-      'show -s --format=%s',
       'show -s --format=%s',
       'show -s --format=%ae',
+      'checkout --force --quiet bar',
+      'show -s --format=%s',
       'checkout --force --quiet bar',
     ]);
   });
@@ -127,7 +127,7 @@ describe('when there is no report for PREVIOUS_SHA', () => {
   it('runs the right happo commands', () => {
     subject();
     expect(getCliLog()).toEqual([
-      'start-job no-report bar',
+      'start-job no-report bar --link http://foo.bar/ --message Commit message',
       'run bar --link http://foo.bar/ --message Commit message',
       'has-report no-report',
       'run no-report --link http://foo.bar/ --message Commit message',
@@ -136,12 +136,12 @@ describe('when there is no report for PREVIOUS_SHA', () => {
     expect(getGitLog()).toEqual([
       'rev-parse no-report',
       'rev-parse bar',
+      'show -s --format=%s',
+      'show -s --format=%ae',
       'checkout --force --quiet bar',
       'show -s --format=%s',
       'checkout --force --quiet no-report',
       'show -s --format=%s',
-      'show -s --format=%s',
-      'show -s --format=%ae',
       'checkout --force --quiet bar',
     ]);
   });
@@ -155,7 +155,7 @@ describe('when the compare call fails', () => {
   it('fails the script', () => {
     expect(subject).toThrow();
     expect(getCliLog()).toEqual([
-      'start-job fail bar',
+      'start-job fail bar --link http://foo.bar/ --message Commit message',
       'run bar --link http://foo.bar/ --message Commit message',
       'has-report fail',
       'compare fail bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
@@ -163,10 +163,10 @@ describe('when the compare call fails', () => {
     expect(getGitLog()).toEqual([
       'rev-parse fail',
       'rev-parse bar',
-      'checkout --force --quiet bar',
-      'show -s --format=%s',
       'show -s --format=%s',
       'show -s --format=%ae',
+      'checkout --force --quiet bar',
+      'show -s --format=%s',
       'checkout --force --quiet bar',
     ]);
   });
@@ -180,7 +180,7 @@ describe('when happo.io is not installed for the PREVIOUS_SHA', () => {
   it('runs the right happo commands', () => {
     subject();
     expect(getCliLog()).toEqual([
-      'start-job no-happo bar',
+      'start-job no-happo bar --link http://foo.bar/ --message Commit message',
       'run bar --link http://foo.bar/ --message Commit message',
       'has-report no-happo',
       'empty no-happo',
@@ -189,12 +189,12 @@ describe('when happo.io is not installed for the PREVIOUS_SHA', () => {
     expect(getGitLog()).toEqual([
       'rev-parse no-happo',
       'rev-parse bar',
+      'show -s --format=%s',
+      'show -s --format=%ae',
       'checkout --force --quiet bar',
       'show -s --format=%s',
       'checkout --force --quiet no-happo',
       'show -s --format=%s',
-      'show -s --format=%s',
-      'show -s --format=%ae',
       'checkout --force --quiet bar',
     ]);
   });
