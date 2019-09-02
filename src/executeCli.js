@@ -122,6 +122,10 @@ commander
     const result = await startJobCommand(
       sha1,
       sha2,
+      {
+        link: commander.link,
+        message: commander.message,
+      },
       await loadUserConfig(commander.config),
     );
     new Logger().info(result.id);

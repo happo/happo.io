@@ -76,7 +76,12 @@ if [ "$CURRENT_SHA" = "$PREVIOUS_SHA" ] || [ -z "$PREVIOUS_SHA" ]; then
   exit 0;
 fi
 
-"$HAPPO_COMMAND" start-job "$PREVIOUS_SHA" "$CURRENT_SHA"
+COMMIT_SUBJECT="$(${HAPPO_GIT_COMMAND} show -s --format=%s)"
+COMMIT_AUTHOR="$(${HAPPO_GIT_COMMAND} show -s --format=%ae)"
+
+"$HAPPO_COMMAND" start-job "$PREVIOUS_SHA" "$CURRENT_SHA" \
+  --link "${CHANGE_URL}" \
+  --message "${COMMIT_SUBJECT}"
 
 run-happo "$CURRENT_SHA" true
 
@@ -95,9 +100,6 @@ if [ "$FIRST_RUN" = "true" ]; then
 fi
 
 # Compare reports from the two SHAs.
-COMMIT_SUBJECT="$(${HAPPO_GIT_COMMAND} show -s --format=%s)"
-COMMIT_AUTHOR="$(${HAPPO_GIT_COMMAND} show -s --format=%ae)"
-
 # `happo compare` exits with an exit code of 113 if there is a diff. To work with
 # the exit status, we need to temporarily turn off the fail-on-error behavior.
 set +e
