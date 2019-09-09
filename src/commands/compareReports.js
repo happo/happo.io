@@ -1,23 +1,83 @@
+import compareSnapshots from '../compareSnapshots';
 import makeRequest from '../makeRequest';
 
-export default function compareReports(
-  sha1,
-  sha2,
-  { apiKey, apiSecret, endpoint, project },
-  { link, message, author },
-) {
+function ignore({ before, after, apiKey, apiSecret, endpoint }) {
   return makeRequest(
     {
-      url: `${endpoint}/api/reports/${sha1}/compare/${sha2}`,
+      url: `${endpoint}/api/ignored-diffs`,
       method: 'POST',
       json: true,
       body: {
-        link,
-        message,
-        author,
-        project,
+        snapshot1Id: before.id,
+        snapshot2Id: after.id,
       },
     },
-    { apiKey, apiSecret, maxTries: 2 },
+    { apiKey, apiSecret },
   );
+}
+
+export default async function compareReports(
+  sha1,
+  sha2,
+  { apiKey, apiSecret, endpoint, project, compareThreshold },
+  { link, message, author },
+  log = console.log,
+) {
+  const makeCompareCall = (skipStatusPost) =>
+    makeRequest(
+      {
+        url: `${endpoint}/api/reports/${sha1}/compare/${sha2}`,
+        method: 'POST',
+        json: true,
+        body: {
+          link,
+          message,
+          author,
+          project,
+          skipStatusPost,
+        },
+      },
+      { apiKey, apiSecret, maxTries: 2 },
+    );
+  const firstCompareResult = await makeCompareCall(
+    typeof compareThreshold === 'number',
+  );
+  if (typeof compareThreshold !== 'number') {
+    // We're not using a threshold -- return results right away
+    return firstCompareResult;
+  }
+
+  const resolved = [];
+  log(
+    `Found ${
+      firstCompareResult.diffs.length
+    } diffs to deep-compare using threshold ${compareThreshold}`,
+  );
+  await Promise.all(
+    firstCompareResult.diffs.map(async ([before, after]) => {
+      const diff = await compareSnapshots({ before, after, endpoint });
+      if (diff < compareThreshold) {
+        log(
+          `✓ ${after.component} - ${after.variant} - ${
+            after.target
+          } diff (${diff}) is within threshold`,
+        );
+        await ignore({ before, after, apiKey, apiSecret, endpoint });
+        resolved.push([before, after]);
+      } else {
+        log(
+          `✗ ${after.component} - ${after.variant} - ${
+            after.target
+          } diff (${diff}) is larger than threshold`,
+        );
+      }
+    }),
+  );
+
+  // Make second compare call to finalize the deep compare. The second call will
+  // cause a status to be posted to the PR (if applicable). Any ignored diffs
+  // from the first call will be excluded from the result.
+  const secondCompareResult = await makeCompareCall(false);
+  log(secondCompareResult.summary);
+  return { resolved, ...secondCompareResult };
 }

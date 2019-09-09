@@ -46,6 +46,7 @@ to ensure consistent cross-browser and responsive styling of your application.
       * [rootElementSelector](#rootelementselector)
       * [tmpdir](#tmpdir)
       * [jsdomOptions](#jsdomoptions)
+      * [compareThreshold](#comparethreshold)
       * [asyncTimeout](#asynctimeout)
       * [githubApiUrl](#githubapiurl)
    * [Command-Line-Interface (CLI)](#command-line-interface-cli)
@@ -59,7 +60,7 @@ to ensure consistent cross-browser and responsive styling of your application.
       * [Cut-off snapshots, or snapshots with missing content](#cut-off-snapshots-or-snapshots-with-missing-content)
       * [Spurious diffs](#spurious-diffs)
 
-<!-- Added by: henrictrotzig, at: Mon Aug  5 21:53:53 CEST 2019 -->
+<!-- Added by: henrictrotzig, at: Mon Sep  9 15:29:20 CEST 2019 -->
 
 <!--te-->
 
@@ -364,8 +365,8 @@ you need to set a few environment variables:
 
 ## Posting statuses back to PRs/commits
 
-_The instructions in this section only work if you are using github.com or the 
-on-premise version of happo.io. If you're using a local GitHub Enterprise setup, 
+_The instructions in this section only work if you are using github.com or the
+on-premise version of happo.io. If you're using a local GitHub Enterprise setup,
 there is an alternative solution described in the [next
 section](#posting-statuses-without-installing-the-happo-github-app)_
 
@@ -1081,6 +1082,21 @@ module.exports = {
   jsdomOptions: {
     referrer: 'http://google.com',
   },
+};
+```
+
+## `compareThreshold`
+
+By default, a shallow comparison when `happo compare` is called. If two images
+are different on one pixels or more, it will be reported as a diff. If you set
+a `compareThreshold`, a deep comparison will be performed instead, where
+individual pixels are diffed to compute a total euclidean distance between the
+two images. The diff value will be between 0 and 1. A value close to 1 means
+most pixels are different. A value close to 0 means images are very similar.
+
+```js
+module.exports = {
+  compareThreshold: 0.005,
 };
 ```
 
