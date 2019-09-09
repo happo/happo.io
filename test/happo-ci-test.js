@@ -114,7 +114,6 @@ describe('when there is a report for PREVIOUS_SHA', () => {
       'show -s --format=%ae',
       'checkout --force --quiet bar',
       'show -s --format=%s',
-      'checkout --force --quiet bar',
     ]);
   });
 });
@@ -167,7 +166,6 @@ describe('when the compare call fails', () => {
       'show -s --format=%ae',
       'checkout --force --quiet bar',
       'show -s --format=%s',
-      'checkout --force --quiet bar',
     ]);
   });
 });
