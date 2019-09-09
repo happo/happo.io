@@ -20,7 +20,7 @@ export default async function compareReports(
   sha1,
   sha2,
   { apiKey, apiSecret, endpoint, project, compareThreshold },
-  { link, message, author },
+  { link, message, author, dryRun },
   log = console.log,
 ) {
   const makeCompareCall = (skipStatusPost) =>
@@ -40,7 +40,7 @@ export default async function compareReports(
       { apiKey, apiSecret, maxTries: 2 },
     );
   const firstCompareResult = await makeCompareCall(
-    typeof compareThreshold === 'number',
+    typeof compareThreshold === 'number' || dryRun,
   );
   if (typeof compareThreshold !== 'number') {
     // We're not using a threshold -- return results right away
@@ -53,6 +53,9 @@ export default async function compareReports(
       firstCompareResult.diffs.length
     } diffs to deep-compare using threshold ${compareThreshold}`,
   );
+  if (dryRun) {
+    log('Running in --dry-run mode -- no destructive commands will be issued');
+  }
   await Promise.all(
     firstCompareResult.diffs.map(async ([before, after]) => {
       const diff = await compareSnapshots({ before, after, endpoint });
@@ -62,7 +65,9 @@ export default async function compareReports(
             after.target
           } diff (${diff}) is within threshold`,
         );
-        await ignore({ before, after, apiKey, apiSecret, endpoint });
+        if (!dryRun) {
+          await ignore({ before, after, apiKey, apiSecret, endpoint });
+        }
         resolved.push([before, after]);
       } else {
         log(

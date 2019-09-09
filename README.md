@@ -1100,6 +1100,12 @@ module.exports = {
 };
 ```
 
+Finding the right threshold isn't always trivial. One thing to help in the
+process is to make a few dry-run comparison. Find one or a few comparisons (via
+https://happo.io/dashboard) and run `happo compare <sha1> <sha2> --dry-run` on
+the shas and look at what's being logged to figure out what threshold value you
+want to use.
+
 ## `asyncTimeout`
 
 If an example renders nothing to the DOM, Happo will wait a short while for content to appear. Specified in milliseconds, the default is `200`.
@@ -1139,7 +1145,9 @@ desire.
   PRs/commits](#posting-statuses-back-to-prscommits) for more details)
   being installed). If an `--author <email>` is provided, any comment made on a diff
   will notify the author. Also supports `--message <message>`, which is used
-  together with `--link <url>` to further contextualize the comparison.
+  together with `--link <url>` to further contextualize the comparison. If
+  you're using [`compareThreshold`](#comparethreshold), you can use the
+  `--dry-run` flag here to help figure out what threshold to use.
 
 # Preventing spurious diffs
 
