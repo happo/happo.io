@@ -42,6 +42,9 @@ function imageDiff(bitmap1, bitmap2) {
 }
 
 export default async function compareSnapshots({ before, after, endpoint }) {
+  if (before.height !== after.height || before.width !== after.width) {
+    return 1;
+  }
   const [image1, image2] = await Promise.all([
     Jimp.read(makeAbsolute(before.url, endpoint)),
     Jimp.read(makeAbsolute(after.url, endpoint)),

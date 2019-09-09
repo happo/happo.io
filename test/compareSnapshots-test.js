@@ -46,6 +46,38 @@ describe('when images are completely different', () => {
   });
 });
 
+describe('when images are of different height', () => {
+  beforeEach(() => {
+    before.url = 'https://dummyimage.com/20/000/000000.png';
+    before.width = 20;
+    before.height = 20;
+
+    after.url = 'https://dummyimage.com/20x40/fff/ffffff.png';
+    after.width = 20;
+    after.height = 40;
+  });
+
+  it('returns 1', async () => {
+    expect(await subject()).toEqual(1);
+  });
+});
+
+describe('when images are of different width', () => {
+  beforeEach(() => {
+    before.url = 'https://dummyimage.com/20/000/000000.png';
+    before.width = 20;
+    before.height = 20;
+
+    after.url = 'https://dummyimage.com/40x20/fff/ffffff.png';
+    after.width = 40;
+    after.height = 20;
+  });
+
+  it('returns 1', async () => {
+    expect(await subject()).toEqual(1);
+  });
+});
+
 describe('when images are almost identical', () => {
   beforeEach(() => {
     before.url = 'https://dummyimage.com/200/000/ffffff.png&text=aa';
