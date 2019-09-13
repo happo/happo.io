@@ -18,13 +18,13 @@ beforeEach(() => {
     diffs: [
       [
         {
-          url: 'https://happo.io/img/happo-io/93eb2d9e57d43b0b5ca5527587484f18',
+          url: 'https://dummyimage.com/200/000/ffffff.png&text=aa',
           component: 'Foo',
           variant: 'bar',
           target: 'chrome',
         },
         {
-          url: 'https://happo.io/img/happo-io/4a340716fa580b80d9f87330d79903dc',
+          url: 'https://dummyimage.com/200/000/f7f7f7.png&text=aa',
           component: 'Foo',
           variant: 'bar',
           target: 'chrome',
@@ -45,7 +45,7 @@ it('succeeds', async () => {
   expect(result.resolved).toEqual([]);
   expect(log.mock.calls).toEqual([
     ['Found 1 diffs to deep-compare using threshold 0.00005'],
-    ['✗ Foo - bar - chrome diff (0.0016979421882410417) is larger than threshold'],
+    ['✗ Foo - bar - chrome - found diff pixel with euclidean distance 0.003396178054056622 which is larger than threshold'],
     ['Mocked summary'],
   ]);
 });
@@ -74,7 +74,7 @@ describe('when threshold is larger than the diff', () => {
 
     expect(log.mock.calls).toEqual([
       ['Found 1 diffs to deep-compare using threshold 0.1'],
-      ['✓ Foo - bar - chrome diff (0.0016979421882410417) is within threshold'],
+      ['✓ Foo - bar - chrome - diff is within threshold'],
       ['Mocked summary'],
     ]);
 
@@ -94,7 +94,7 @@ describe('when threshold is larger than the diff', () => {
       expect(log.mock.calls).toEqual([
         ['Found 1 diffs to deep-compare using threshold 0.1'],
         ['Running in --dry-run mode -- no destructive commands will be issued'],
-        ['✓ Foo - bar - chrome diff (0.0016979421882410417) is within threshold'],
+        ['✓ Foo - bar - chrome - diff is within threshold'],
         ['Mocked summary'],
       ]);
 

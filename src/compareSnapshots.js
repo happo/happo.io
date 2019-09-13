@@ -18,11 +18,10 @@ function euclideanDistance(rgba1, rgba2) {
   );
 }
 
-function imageDiff(bitmap1, bitmap2) {
-  let total = 0;
+function imageDiff({ bitmap1, bitmap2, compareThreshold }) {
   const len = bitmap1.width * bitmap1.height * 4;
   for (let i = 0; i < len; i += 4) {
-    total +=
+    const distance =
       euclideanDistance(
         [
           bitmap1.data[i],
@@ -37,11 +36,18 @@ function imageDiff(bitmap1, bitmap2) {
           bitmap2.data[i + 3],
         ],
       ) / MAX_EUCLIDEAN_DISTANCE;
+    if (distance > compareThreshold) {
+      return distance;
+    }
   }
-  return total / (len / 4);
 }
 
-export default async function compareSnapshots({ before, after, endpoint }) {
+export default async function compareSnapshots({
+  before,
+  after,
+  endpoint,
+  compareThreshold,
+}) {
   if (before.height !== after.height || before.width !== after.width) {
     return 1;
   }
@@ -50,5 +56,9 @@ export default async function compareSnapshots({ before, after, endpoint }) {
     Jimp.read(makeAbsolute(after.url, endpoint)),
   ]);
 
-  return imageDiff(image1.bitmap, image2.bitmap);
+  return imageDiff({
+    bitmap1: image1.bitmap,
+    bitmap2: image2.bitmap,
+    compareThreshold,
+  });
 }

@@ -58,12 +58,17 @@ export default async function compareReports(
   }
   await Promise.all(
     firstCompareResult.diffs.map(async ([before, after]) => {
-      const diff = await compareSnapshots({ before, after, endpoint });
-      if (diff < compareThreshold) {
+      const firstDiffDistance = await compareSnapshots({
+        before,
+        after,
+        endpoint,
+        compareThreshold,
+      });
+      if (!firstDiffDistance) {
         log(
           `✓ ${after.component} - ${after.variant} - ${
             after.target
-          } diff (${diff}) is within threshold`,
+          } - diff is within threshold`,
         );
         if (!dryRun) {
           await ignore({ before, after, apiKey, apiSecret, endpoint });
@@ -73,7 +78,7 @@ export default async function compareReports(
         log(
           `✗ ${after.component} - ${after.variant} - ${
             after.target
-          } diff (${diff}) is larger than threshold`,
+          } - found diff pixel with euclidean distance ${firstDiffDistance} which is larger than threshold`,
         );
       }
     }),

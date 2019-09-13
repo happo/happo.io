@@ -1087,24 +1087,26 @@ module.exports = {
 
 ## `compareThreshold`
 
-By default, a shallow comparison when `happo compare` is called. If two images
-are different on one pixels or more, it will be reported as a diff. If you set
-a `compareThreshold`, a deep comparison will be performed instead, where
-individual pixels are diffed to compute a total euclidean distance between the
-two images. The diff value will be between 0 and 1. A value close to 1 means
-most pixels are different. A value close to 0 means images are very similar.
+By default, a shallow comparison is made when `happo compare` is called. If two
+images are different on one pixels or more, it will be reported as a diff --
+even if the diff is very small. If you set a `compareThreshold`, a deep
+comparison will be performed instead, where individual pixels are inspected. A
+[euclidean
+distance](https://en.m.wikipedia.org/wiki/Color_difference#Euclidean) is
+computed for every diffing pixel. If all diffing pixels have a euclidean
+distance smaller than the `compareThreshold`, the diff is considered okay and
+the two images will be considered visually equal.
 
 ```js
 module.exports = {
-  compareThreshold: 0.005,
+  compareThreshold: 0.05,
 };
 ```
 
-Finding the right threshold isn't always trivial. One thing to help in the
-process is to make a few dry-run comparison. Find one or a few comparisons (via
-https://happo.io/dashboard) and run `happo compare <sha1> <sha2> --dry-run` on
-the shas and look at what's being logged to figure out what threshold value you
-want to use.
+To help find the right euclidean distance value to use, you can make dry-run
+comparisons. Find one or a few comparisons (via https://happo.io/dashboard) and
+run `happo compare <sha1> <sha2> --dry-run` on the shas and look at what's
+being logged to figure out what threshold value you want to use.
 
 ## `asyncTimeout`
 
