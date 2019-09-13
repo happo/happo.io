@@ -1097,6 +1097,10 @@ computed for every diffing pixel. If all diffing pixels have a euclidean
 distance smaller than the `compareThreshold`, the diff is considered okay and
 the two images will be considered visually equal.
 
+A **word of warning** here. If the threshold is too high, you risk hiding diffs
+that you wouldn't want to be hidden. Be careful when you start using this
+option.
+
 ```js
 module.exports = {
   compareThreshold: 0.05,
