@@ -26,6 +26,10 @@ commander
   .option('-a, --author <email>', 'the author of the commit')
   .option('--debug-port <port>', 'the port where the debug server listens')
   .option('--debug-port <port>', 'the port where the debug server listens')
+  .option(
+    '--dry-run',
+    'makes the `happo compare` call non-destructive when running with a `compareThreshold` config option',
+  )
   .usage('[options]');
 
 commander
@@ -98,6 +102,7 @@ commander
       link: commander.link,
       message: commander.message,
       author: commander.author,
+      dryRun: commander.dryRun,
     });
     if (commander.link && process.env.HAPPO_GITHUB_USER_CREDENTIALS) {
       await postGithubComment({

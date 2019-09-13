@@ -46,6 +46,7 @@ to ensure consistent cross-browser and responsive styling of your application.
       * [rootElementSelector](#rootelementselector)
       * [tmpdir](#tmpdir)
       * [jsdomOptions](#jsdomoptions)
+      * [compareThreshold](#comparethreshold)
       * [asyncTimeout](#asynctimeout)
       * [githubApiUrl](#githubapiurl)
    * [Command-Line-Interface (CLI)](#command-line-interface-cli)
@@ -59,7 +60,7 @@ to ensure consistent cross-browser and responsive styling of your application.
       * [Cut-off snapshots, or snapshots with missing content](#cut-off-snapshots-or-snapshots-with-missing-content)
       * [Spurious diffs](#spurious-diffs)
 
-<!-- Added by: henrictrotzig, at: Mon Aug  5 21:53:53 CEST 2019 -->
+<!-- Added by: henrictrotzig, at: Mon Sep  9 15:29:20 CEST 2019 -->
 
 <!--te-->
 
@@ -364,8 +365,8 @@ you need to set a few environment variables:
 
 ## Posting statuses back to PRs/commits
 
-_The instructions in this section only work if you are using github.com or the 
-on-premise version of happo.io. If you're using a local GitHub Enterprise setup, 
+_The instructions in this section only work if you are using github.com or the
+on-premise version of happo.io. If you're using a local GitHub Enterprise setup,
 there is an alternative solution described in the [next
 section](#posting-statuses-without-installing-the-happo-github-app)_
 
@@ -1084,6 +1085,33 @@ module.exports = {
 };
 ```
 
+## `compareThreshold`
+
+By default, a shallow comparison is made when `happo compare` is called. If two
+images are different on one pixels or more, it will be reported as a diff --
+even if the diff is very small. If you set a `compareThreshold`, a deep
+comparison will be performed instead, where individual pixels are inspected. A
+[euclidean
+distance](https://en.m.wikipedia.org/wiki/Color_difference#Euclidean) is
+computed for every diffing pixel. If all diffing pixels have a euclidean
+distance smaller than the `compareThreshold`, the diff is considered okay and
+the two images will be considered visually equal.
+
+A **word of warning** here. If the threshold is too high, you risk hiding diffs
+that you wouldn't want to be hidden. Be careful when you start using this
+option.
+
+```js
+module.exports = {
+  compareThreshold: 0.05,
+};
+```
+
+To help find the right euclidean distance value to use, you can make dry-run
+comparisons. Find one or a few comparisons (via https://happo.io/dashboard) and
+run `happo compare <sha1> <sha2> --dry-run` on the shas and look at what's
+being logged to figure out what threshold value you want to use.
+
 ## `asyncTimeout`
 
 If an example renders nothing to the DOM, Happo will wait a short while for content to appear. Specified in milliseconds, the default is `200`.
@@ -1123,7 +1151,9 @@ desire.
   PRs/commits](#posting-statuses-back-to-prscommits) for more details)
   being installed). If an `--author <email>` is provided, any comment made on a diff
   will notify the author. Also supports `--message <message>`, which is used
-  together with `--link <url>` to further contextualize the comparison.
+  together with `--link <url>` to further contextualize the comparison. If
+  you're using [`compareThreshold`](#comparethreshold), you can use the
+  `--dry-run` flag here to help figure out what threshold to use.
 
 # Preventing spurious diffs
 
