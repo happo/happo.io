@@ -1088,7 +1088,7 @@ module.exports = {
 ## `compareThreshold`
 
 By default, a shallow comparison is made when `happo compare` is called. If two
-images are different on one pixels or more, it will be reported as a diff --
+images have one or more different pixels, it will be reported as a diff --
 even if the diff is very small. If you set a `compareThreshold`, a deep
 comparison will be performed instead, where individual pixels are inspected. A
 [euclidean
