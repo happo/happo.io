@@ -1,6 +1,10 @@
 import jwt from 'jsonwebtoken';
 import request from 'request-promise-native';
 
+function randomIntInRange(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 export default async function makeRequest(
   requestAttributes,
   { apiKey, apiSecret, maxTries = 0 },
@@ -26,9 +30,13 @@ export default async function makeRequest(
     }
 
     const { method, url } = requestAttributes;
-    console.warn(`Failed ${method} ${url}. Retrying after 2s...`);
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // Exponential backoff with full jitter.
+    // https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
+    const nextRetryIn = randomIntInRange(1000, 1000 * 2 ** tryNumber);
+    console.warn(`Failed ${method} ${url}. Retrying after ${(nextRetryIn / 1000).toFixed(1)}s...`);
+
+    await new Promise((resolve) => setTimeout(resolve, nextRetryIn));
     return makeRequest(
       requestAttributes,
       {
