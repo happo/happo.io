@@ -10,7 +10,7 @@ async function waitFor({ requestId, endpoint, apiKey, apiSecret }) {
       method: 'GET',
       json: true,
     },
-    { apiKey, apiSecret, maxTries: 3 },
+    { apiKey, apiSecret, maxTries: 6 },
   );
   if (status === 'done') {
     return result.map((i) => Object.assign({}, i, { snapRequestId: requestId }));
