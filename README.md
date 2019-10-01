@@ -1183,7 +1183,8 @@ spuriousness. Here are some tips & tricks that you might find useful when
 dealing with spurious diffs:
 
 - If you have dates/timestamps, either injecting a fixed `new Date('2019-05-23T08:28:02.446Z')` into your component or freezing time via
-  something like [Sinon.js](https://sinonjs.org/) can help.
+  something like [mockdate](https://www.npmjs.com/package/mockdate) or 
+  [Sinon.js](https://sinonjs.org/) can help.
 - If a component depends on external data (via some API), consider splitting
   out the data-fetching from the component and test the component without data
   fetching, injecting the data needed to render it.
