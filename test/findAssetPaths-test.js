@@ -26,6 +26,16 @@ it('finds path-relative urls', () => {
   expect(subject()).toEqual(['circle.svg']);
 });
 
+it('strips query strings', () => {
+  html = '<img src="circle.svg?pizza=yum">';
+  expect(subject()).toEqual(['circle.svg']);
+});
+
+it('strips hashes', () => {
+  html = '<img src="circle.svg#pizza">';
+  expect(subject()).toEqual(['circle.svg']);
+});
+
 it('does not find empty images', () => {
   html = '<img src=""><img src=" ">';
   expect(subject()).toEqual([]);
@@ -56,9 +66,49 @@ it('finds assets in inline styles', () => {
   expect(subject()).toEqual(['1.jpg', './2.jpg', '/3.jpg', '/4.jpg']);
 });
 
+it('strips query strings in inline styles', () => {
+  html = `
+    <div>
+      <div style="background-image: url(1.jpg?pizza=yum);" />
+      <div style="background-image: url(./2.jpg?pizza=yum);" />
+      <div style="background-image: url(/3.jpg?pizza=yum);" />
+      <div style="background-image: url('/4.jpg?pizza=yum');" />
+      <div style="background-image: url(http://dls/5.jpg?pizza=yum);" />
+    </div>
+  `;
+  expect(subject()).toEqual(['1.jpg', './2.jpg', '/3.jpg', '/4.jpg']);
+});
+
+it('strips hashes in inline styles', () => {
+  html = `
+    <div>
+      <div style="background-image: url(1.jpg#pizza);" />
+      <div style="background-image: url(./2.jpg#pizza);" />
+      <div style="background-image: url(/3.jpg#pizza);" />
+      <div style="background-image: url('/4.jpg#pizza);" />
+      <div style="background-image: url(http://dls/5.jpg#pizza);" />
+    </div>
+  `;
+  expect(subject()).toEqual(['1.jpg', './2.jpg', '/3.jpg', '/4.jpg']);
+});
+
 it('finds assets in srcset attributes', () => {
   html = `
     <img src="/1x1.jpg" srcset="/1x1.jpg 197w, /1x1.png 393w, http://dns/1.png 600w">
+  `;
+  expect(subject()).toEqual(['/1x1.jpg', '/1x1.jpg', '/1x1.png']);
+});
+
+it('strips query strings in srcset attributes', () => {
+  html = `
+    <img src="/1x1.jpg" srcset="/1x1.jpg?pizza=yum 197w, /1x1.png?pizza=yum 393w, http://dns/1.png?pizza=yum 600w">
+  `;
+  expect(subject()).toEqual(['/1x1.jpg', '/1x1.jpg', '/1x1.png']);
+});
+
+it('strips hashes in srcset attributes', () => {
+  html = `
+    <img src="/1x1.jpg" srcset="/1x1.jpg#pizza 197w, /1x1.png#pizza 393w, http://dns/1.png#pizza 600w">
   `;
   expect(subject()).toEqual(['/1x1.jpg', '/1x1.jpg', '/1x1.png']);
 });
