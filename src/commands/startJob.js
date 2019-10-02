@@ -13,6 +13,6 @@ export default function startJob(
       json: true,
       body: { project, link, message },
     },
-    { apiKey, apiSecret, maxTries: 3 },
+    { apiKey, apiSecret, maxTries: 5 },
   );
 }

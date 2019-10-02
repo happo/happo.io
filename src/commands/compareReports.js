@@ -37,7 +37,7 @@ export default async function compareReports(
           skipStatusPost,
         },
       },
-      { apiKey, apiSecret, maxTries: 2 },
+      { apiKey, apiSecret, maxTries: 5 },
     );
   const firstCompareResult = await makeCompareCall(
     typeof compareThreshold === 'number' || dryRun,
