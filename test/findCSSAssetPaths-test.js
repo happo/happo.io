@@ -17,6 +17,11 @@ it('finds images', () => {
   expect(subject()).toEqual([{ assetPath: '/1x1.png', resolvePath: '/1x1.png' }]);
 });
 
+it('strips query strings', () => {
+  css = '.body { background-image: url("/1x1.png?pizza=yum");';
+  expect(subject()).toEqual([{ assetPath: '/1x1.png', resolvePath: '/1x1.png' }]);
+});
+
 it('finds svg', () => {
   css = '.body { background-image: url(circle.svg);';
   expect(subject()).toEqual([{ assetPath: 'circle.svg', resolvePath: 'circle.svg' }]);
