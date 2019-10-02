@@ -22,6 +22,11 @@ it('strips query strings', () => {
   expect(subject()).toEqual([{ assetPath: '/1x1.png', resolvePath: '/1x1.png' }]);
 });
 
+it('strips hashes', () => {
+  css = '.body { background-image: url("/1x1.png#pizza");';
+  expect(subject()).toEqual([{ assetPath: '/1x1.png', resolvePath: '/1x1.png' }]);
+});
+
 it('finds svg', () => {
   css = '.body { background-image: url(circle.svg);';
   expect(subject()).toEqual([{ assetPath: 'circle.svg', resolvePath: 'circle.svg' }]);

@@ -2,7 +2,7 @@ import path from 'path';
 
 import matchAll from 'string.prototype.matchall';
 
-import stripQueryString from './stripQueryString';
+import stripQueryStringAndHash from './stripQueryStringAndHash';
 
 const URL_PATTERN = /url\(['"]?(\/?[^)"']+)['"]?\)/g;
 
@@ -19,7 +19,7 @@ export default function findCSSAssetPaths({ css, source }) {
   const paths = Array.from(matchAll(css, URL_PATTERN))
     .map((match) => match[1])
     .filter((url) => !/^http|\/\//.test(url))
-    .map(stripQueryString);
+    .map(stripQueryStringAndHash);
 
   if (!source) {
     return paths.map((p) => ({ assetPath: p, resolvePath: p }));

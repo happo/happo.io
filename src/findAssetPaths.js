@@ -1,6 +1,6 @@
 import parseSrcset from 'parse-srcset';
 
-import stripQueryString from './stripQueryString';
+import stripQueryStringAndHash from './stripQueryStringAndHash';
 import findCSSAssetPaths from './findCSSAssetPaths';
 
 function isAbsoluteUrl(src) {
@@ -26,5 +26,5 @@ export default function findAssetPaths(doc = document) {
 
   return imgPaths
     .filter((url) => !isAbsoluteUrl(url) && url.trim().length)
-    .map(stripQueryString);
+    .map(stripQueryStringAndHash);
 }

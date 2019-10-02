@@ -1,3 +1,3 @@
 export default function stripQueryString(url) {
-  return url.replace(/\?.*$/, '');
+  return url.replace(/[?#].*$/, '');
 }
