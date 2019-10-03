@@ -916,12 +916,16 @@ get up and running with a project using
 [create-react-app](https://github.com/facebook/create-react-app):
 
 ```js
+const craWebpackConfig = require('react-scripts/config/webpack.config')
+
 module.exports = {
-  customizeWebpackConfig: (config) => {
-    config.module = require('react-scripts/config/webpack.config.dev').module;
+  customizeWebpackConfig: config => {
+    // Use the built-in webpack config provided by create-react-app
+    config.module = craWebpackConfig('development').module;
     return config;
   },
 };
+
 ```
 
 If you need to perform asynchronous actions to generate a webpack
@@ -1183,7 +1187,7 @@ spuriousness. Here are some tips & tricks that you might find useful when
 dealing with spurious diffs:
 
 - If you have dates/timestamps, either injecting a fixed `new Date('2019-05-23T08:28:02.446Z')` into your component or freezing time via
-  something like [mockdate](https://www.npmjs.com/package/mockdate) or 
+  something like [mockdate](https://www.npmjs.com/package/mockdate) or
   [Sinon.js](https://sinonjs.org/) can help.
 - If a component depends on external data (via some API), consider splitting
   out the data-fetching from the component and test the component without data
