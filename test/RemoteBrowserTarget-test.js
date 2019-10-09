@@ -7,15 +7,15 @@ let viewport;
 let subject;
 let browserName;
 let chunks;
-let renderingOptions;
+let otherOptions;
 
 beforeEach(() => {
   browserName = 'firefox';
   viewport = '400x300';
   chunks = 1;
-  renderingOptions = undefined;
+  otherOptions = {};
   subject = () =>
-    new RemoteBrowserTarget(browserName, { viewport, chunks, renderingOptions });
+    new RemoteBrowserTarget(browserName, { viewport, chunks, ...otherOptions });
 });
 
 it('does not fail', () => {
@@ -51,12 +51,12 @@ describe('#execute', () => {
     );
   });
 
-  describe('with renderingOptions', () => {
+  describe('with other options', () => {
     beforeEach(() => {
-      renderingOptions = { foobar: true };
+      otherOptions = { foobar: true };
     });
 
-    it('passes along the renderingOptions', async () => {
+    it('passes along the other options', async () => {
       const target = subject();
       await target.execute({
         globalCSS: '* { color: red }',
@@ -65,9 +65,7 @@ describe('#execute', () => {
         apiSecret: 'p@assword',
         endpoint: 'http://localhost',
       });
-      expect(makeRequest.mock.calls[0][0].body.payload.renderingOptions).toEqual({
-        foobar: true,
-      });
+      expect(makeRequest.mock.calls[0][0].body.payload.foobar).toBe(true);
     });
   });
 
