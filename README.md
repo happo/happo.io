@@ -363,6 +363,16 @@ you need to set a few environment variables:
 }
 ```
 
+If you are using [GitHub Actions](https://github.com/features/actions) you can
+use the following variables in your workflow config:
+
+```yaml
+  env:
+      PREVIOUS_SHA: ${{ github.event.pull_request.base.sha }}
+      CURRENT_SHA: ${{ github.event.pull_request.head.sha }}
+      CHANGE_URL: ${{ github.event.pull_request.html_url }}
+```
+
 ## Posting statuses back to PRs/commits
 
 _The instructions in this section only work if you are using github.com or the
