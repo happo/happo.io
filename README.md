@@ -36,6 +36,8 @@ to ensure consistent cross-browser and responsive styling of your application.
       * [stylesheets](#stylesheets)
       * [type](#type)
       * [targets](#targets)
+        * [Target `chunks`](#target-chunks)
+        * [Target `maxHeight`](#target-maxheight)
       * [customizeWebpackConfig](#customizewebpackconfig)
       * [plugins](#plugins-1)
       * [publicFolders](#publicfolders)
@@ -867,6 +869,8 @@ This is a list of all supported browsers:
 - `safari`
 - `ios-safari` (runs on iPhone 7)
 
+### Target `chunks`
+
 Targets are executed in parallel by default. If you want to split up a specific
 target into multiple chunks (running in parallel), the experimental `chunks`
 option for `RemoteBrowserTarget` can help out:
@@ -882,6 +886,12 @@ module.exports = {
 };
 ```
 
+Happo.io will do its best to run chunks in parallel, but there's no guarantee.
+The `chunks` option also has some overhead. If your test suite isn't large,
+using more than one chunk might actually slow things down.
+
+### Target `maxHeight`
+
 You can also use `maxHeight` to override the default max height used by Happo
 workers (5000 pixels). This is useful if you're taking screenshots of long
 components/pages in your test suite. An example:
@@ -896,10 +906,6 @@ module.exports = {
   },
 };
 ```
-
-Happo.io will do its best to run chunks in parallel, but there's no guarantee.
-The `chunks` option also has some overhead. If your test suite isn't large,
-using more than one chunk might actually slow things down.
 
 ## `customizeWebpackConfig`
 
