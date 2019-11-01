@@ -1,3 +1,4 @@
+import createHash from './createHash';
 import makeRequest from './makeRequest';
 
 const POLL_INTERVAL = 5000; // 5 secs
@@ -55,29 +56,41 @@ export default class RemoteBrowserTarget {
     endpoint,
     pages,
   }) {
-    const boundMakeRequest = async ({ slice, chunk, pageSlice }) =>
-      makeRequest(
+    const boundMakeRequest = async ({ slice, chunk, pageSlice }) => {
+      const payloadString = JSON.stringify({
+        viewport: this.viewport,
+        maxHeight: this.maxHeight,
+        ...this.otherOptions,
+        globalCSS,
+        snapPayloads: slice,
+        chunk,
+        staticPackage,
+        assetsPackage,
+        pages: pageSlice,
+      });
+      const payloadHash = createHash(
+        payloadString + (pageSlice ? Math.random() : ''),
+      );
+      return makeRequest(
         {
           url: `${endpoint}/api/snap-requests`,
           method: 'POST',
           json: true,
-          body: {
+          formData: {
             type: `browser-${this.browserName}`,
+            payloadHash,
             payload: {
-              viewport: this.viewport,
-              maxHeight: this.maxHeight,
-              ...this.otherOptions,
-              globalCSS,
-              snapPayloads: slice,
-              chunk,
-              staticPackage,
-              assetsPackage,
-              pages: pageSlice,
+              options: {
+                filename: 'payload.json',
+                contentType: 'application/json',
+              },
+              value: payloadString,
             },
           },
         },
         { apiKey, apiSecret, maxTries: 5 },
       );
+    };
     const promises = [];
     if (staticPackage) {
       for (let i = 0; i < this.chunks; i += 1) {
