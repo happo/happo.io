@@ -65,7 +65,9 @@ describe('#execute', () => {
         apiSecret: 'p@assword',
         endpoint: 'http://localhost',
       });
-      expect(makeRequest.mock.calls[0][0].body.payload.foobar).toBe(true);
+      expect(
+        JSON.parse(makeRequest.mock.calls[0][0].formData.payload.value).foobar,
+      ).toBe(true);
     });
   });
 
@@ -92,13 +94,17 @@ describe('#execute', () => {
       // two POSTs and two GETs
       expect(makeRequest.mock.calls.length).toBe(4);
 
-      expect(makeRequest.mock.calls[0][0].body.payload.snapPayloads).toEqual([
+      const payload = JSON.parse(
+        makeRequest.mock.calls[0][0].formData.payload.value,
+      );
+      expect(payload.snapPayloads).toEqual([
         { html: '<div/>' },
         { html: '<button/>' },
       ]);
-      expect(makeRequest.mock.calls[2][0].body.payload.snapPayloads).toEqual([
-        { html: '<li/>' },
-      ]);
+      const payload2 = JSON.parse(
+        makeRequest.mock.calls[2][0].formData.payload.value,
+      );
+      expect(payload2.snapPayloads).toEqual([{ html: '<li/>' }]);
     });
 
     describe('with a staticPackage', () => {
@@ -120,14 +126,18 @@ describe('#execute', () => {
         // two POSTs and two GETs
         expect(makeRequest.mock.calls.length).toBe(4);
 
-        expect(makeRequest.mock.calls[0][0].body.payload.staticPackage).toEqual(
-          'foobar',
+        const payload = JSON.parse(
+          makeRequest.mock.calls[0][0].formData.payload.value,
         );
-        expect(makeRequest.mock.calls[0][0].body.payload.chunk).toEqual({
+        expect(payload.staticPackage).toEqual('foobar');
+        expect(payload.chunk).toEqual({
           index: 0,
           total: 2,
         });
-        expect(makeRequest.mock.calls[2][0].body.payload.chunk).toEqual({
+        const payload2 = JSON.parse(
+          makeRequest.mock.calls[2][0].formData.payload.value,
+        );
+        expect(payload2.chunk).toEqual({
           index: 1,
           total: 2,
         });
@@ -155,7 +165,10 @@ describe('#execute', () => {
       // one POST and one GET
       expect(makeRequest.mock.calls.length).toBe(2);
 
-      expect(makeRequest.mock.calls[0][0].body.payload.snapPayloads).toEqual([
+      const payload = JSON.parse(
+        makeRequest.mock.calls[0][0].formData.payload.value,
+      );
+      expect(payload.snapPayloads).toEqual([
         { html: '<div/>' },
         { html: '<button/>' },
         { html: '<li/>' },
@@ -178,9 +191,10 @@ describe('#execute', () => {
         // one POST and one GET
         expect(makeRequest.mock.calls.length).toBe(2);
 
-        expect(makeRequest.mock.calls[0][0].body.payload.staticPackage).toEqual(
-          'foobar',
+        const payload = JSON.parse(
+          makeRequest.mock.calls[0][0].formData.payload.value,
         );
+        expect(payload.staticPackage).toEqual('foobar');
       });
     });
   });
@@ -193,9 +207,9 @@ describe('#execute', () => {
         seenSnapshots = new Set();
         chunks = 16;
 
-        makeRequest.mockImplementation(({ body }) => {
-          if (body) {
-            const snaps = body.payload.snapPayloads;
+        makeRequest.mockImplementation(({ formData }) => {
+          if (formData) {
+            const snaps = JSON.parse(formData.payload.value).snapPayloads;
             snaps.forEach(({ html }) => {
               seenSnapshots.add(html);
             });
