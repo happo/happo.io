@@ -92,7 +92,6 @@ describe('when CURRENT_SHA and PREVIOUS_SHA is the same', () => {
     expect(getGitLog()).toEqual([
       'rev-parse bar',
       'rev-parse bar',
-      'checkout --force --quiet bar',
       'show -s --format=%s',
     ]);
   });
@@ -112,7 +111,6 @@ describe('when there is a report for PREVIOUS_SHA', () => {
       'rev-parse bar',
       'show -s --format=%s',
       'show -s --format=%ae',
-      'checkout --force --quiet bar',
       'show -s --format=%s',
     ]);
   });
@@ -137,7 +135,6 @@ describe('when there is no report for PREVIOUS_SHA', () => {
       'rev-parse bar',
       'show -s --format=%s',
       'show -s --format=%ae',
-      'checkout --force --quiet bar',
       'show -s --format=%s',
       'checkout --force --quiet no-report',
       'show -s --format=%s',
@@ -164,7 +161,6 @@ describe('when the compare call fails', () => {
       'rev-parse bar',
       'show -s --format=%s',
       'show -s --format=%ae',
-      'checkout --force --quiet bar',
       'show -s --format=%s',
     ]);
   });
@@ -189,7 +185,6 @@ describe('when happo.io is not installed for the PREVIOUS_SHA', () => {
       'rev-parse bar',
       'show -s --format=%s',
       'show -s --format=%ae',
-      'checkout --force --quiet bar',
       'show -s --format=%s',
       'checkout --force --quiet no-happo',
       'show -s --format=%s',

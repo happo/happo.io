@@ -50,7 +50,10 @@ run-happo() {
   SHA=$1
   QUICK=$2
 
-  ${HAPPO_GIT_COMMAND} checkout --force --quiet "$SHA"
+  if [ "$QUICK" = "false" ]; then
+    ${HAPPO_GIT_COMMAND} checkout --force --quiet "$SHA"
+  fi
+
   COMMIT_SUBJECT="$(${HAPPO_GIT_COMMAND} show -s --format=%s)"
 
   if [ "$QUICK" = "false" ]; then
