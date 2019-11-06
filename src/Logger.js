@@ -1,3 +1,5 @@
+import { performance } from 'perf_hooks';
+
 import supportsColor from 'supports-color';
 
 // https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
@@ -19,6 +21,7 @@ export default class Logger {
   } = {}) {
     this.print = print;
     this.stderrPrint = stderrPrint;
+    this.startTime = undefined;
   }
 
   mute() {
@@ -36,7 +39,14 @@ export default class Logger {
   }
 
   start(msg) {
+    this.startTime = performance.now();
     this.print(`${msg} `);
+  }
+
+  printDuration() {
+    if (this.startTime) {
+      this.print(` (${(performance.now() - this.startTime).toFixed(1)}ms)`);
+    }
   }
 
   success(msg) {
@@ -44,6 +54,7 @@ export default class Logger {
     if (msg) {
       this.print(green(` ${msg}`));
     }
+    this.printDuration();
     this.print('\n');
   }
 
@@ -52,6 +63,7 @@ export default class Logger {
     if (msg) {
       this.print(red(` ${msg}`));
     }
+    this.printDuration();
     this.print('\n');
   }
 
@@ -63,6 +75,7 @@ export default class Logger {
     this.stderrPrint(red(stack || e.message || e));
     this.stderrPrint('\n');
   }
+
   warn(message) {
     this.stderrPrint(red(message));
     this.stderrPrint('\n');

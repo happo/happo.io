@@ -41,3 +41,31 @@ it('logs errors without stacks', () => {
   // instruction characters
   expect(stderrPrint.mock.calls[0][0]).toMatch(/damn/);
 });
+
+it('logs durations with start() and success()', () => {
+  const logger = subject();
+
+  logger.start('Pizza');
+  let printed = print.mock.calls.map(([str]) => str).join('');
+  expect(printed).toMatch(/Pizza/);
+
+  logger.success('Yum');
+  printed = print.mock.calls.map(([str]) => str).join('');
+  expect(printed).toMatch(/Pizza/);
+  expect(printed).toMatch(/Yum/);
+  expect(printed).toMatch(/\(\d+\.\d+ms\)/);
+});
+
+it('logs durations with start() and fail()', () => {
+  const logger = subject();
+
+  logger.start('Pizza');
+  let printed = print.mock.calls.map(([str]) => str).join('');
+  expect(printed).toMatch(/Pizza/);
+
+  logger.fail('Yuck');
+  printed = print.mock.calls.map(([str]) => str).join('');
+  expect(printed).toMatch(/Pizza/);
+  expect(printed).toMatch(/Yuck/);
+  expect(printed).toMatch(/\(\d+\.\d+ms\)/);
+});
