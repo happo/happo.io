@@ -10,8 +10,13 @@ const tmpFile = path.join(os.tmpdir(), 'git-mock-log.txt');
 fs.writeFileSync(tmpFile, `${process.argv.slice(2).join(' ')}\n`, { flag: 'a' });
 
 if (cmd === 'rev-parse') {
-  // simply echo the sha/identifier
-  console.log(process.argv[3]);
+  const rev = process.argv[3];
+  if (rev === 'HEAD') {
+    console.log('bar');
+  } else {
+    // simply echo the sha/identifier
+    console.log(rev);
+  }
 } else if (cmd === 'checkout') {
   // no-op the checkout command
   process.exit(0);

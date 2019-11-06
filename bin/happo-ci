@@ -48,21 +48,20 @@ run-install() {
 
 run-happo() {
   SHA=$1
-  QUICK=$2
+  HEAD_SHA=$(${HAPPO_GIT_COMMAND} rev-parse HEAD)
+  RUN_HAPPO_CHECK="false"
 
-  if [ "$QUICK" = "false" ]; then
+  if [ "$HEAD_SHA" != "$SHA" ]; then
+    RUN_HAPPO_CHECK="true"
     ${HAPPO_GIT_COMMAND} checkout --force --quiet "$SHA"
+    # Install dependencies (again, since we're in a different place in git
+    # history)
+    run-install
   fi
 
   COMMIT_SUBJECT="$(${HAPPO_GIT_COMMAND} show -s --format=%s)"
 
-  if [ "$QUICK" = "false" ]; then
-    # Install dependencies (again, since we're potentially in a different place in
-    # git history)
-    run-install
-  fi
-
-  if [ "$QUICK" = "true" ] || eval "$CHECK_FOR_HAPPO"; then
+  if [ "$RUN_HAPPO_CHECK" = "false" ] || eval "$CHECK_FOR_HAPPO"; then
     "$HAPPO_COMMAND" run "$SHA" \
     --link "${CHANGE_URL}" \
     --message "${COMMIT_SUBJECT}"
@@ -75,7 +74,7 @@ run-happo() {
 if [ "$CURRENT_SHA" = "$PREVIOUS_SHA" ] || [ -z "$PREVIOUS_SHA" ]; then
   echo "We're not on a branch, so there's nothing to compare against."
   echo "Running a single happo run on ${CURRENT_SHA}"
-  run-happo "$CURRENT_SHA" true
+  run-happo "$CURRENT_SHA"
   exit 0;
 fi
 
@@ -86,14 +85,14 @@ COMMIT_AUTHOR="$(${HAPPO_GIT_COMMAND} show -s --format=%ae)"
   --link "${CHANGE_URL}" \
   --message "${COMMIT_SUBJECT}"
 
-run-happo "$CURRENT_SHA" true
+run-happo "$CURRENT_SHA"
 
 # Check if we need to generate a baseline. In some cases, the baseline is
 # already there (some other PR uploaded it), and we can just use the existing
 # one.
 if ! "$HAPPO_COMMAND" has-report "$PREVIOUS_SHA"; then
   echo "No previous report found for ${PREVIOUS_SHA}. Generating one..."
-  run-happo "$PREVIOUS_SHA" false
+  run-happo "$PREVIOUS_SHA"
 
   # Restore git and node_modules to their original state so that we can run
   # `happo compare` on CURRENT_SHA instead of PREVIOUS_SHA.
