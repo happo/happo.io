@@ -2,6 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import readline from 'readline';
+import { performance } from 'perf_hooks';
 
 import JSDOMDomProvider from './JSDOMDomProvider';
 import Logger from './Logger';
@@ -155,6 +156,8 @@ async function generateScreenshots(
     const results = await Promise.all(
       targetNames.map(async (name) => {
         let result;
+
+        const startTime = performance.now();
         if (prerender) {
           result = await executeTargetWithPrerender({
             name,
@@ -178,7 +181,7 @@ async function generateScreenshots(
             endpoint,
           });
         }
-        logger.start(`  - ${name}`);
+        logger.start(`  - ${name}`, { startTime });
         logger.success();
         return { name, result };
       }),
