@@ -33,6 +33,29 @@ it('throws on errors', async () => {
   expect(false).toBe(true);
 });
 
+describe('with a syntax error', () => {
+  beforeEach(() => {
+    config.include = 'test/integrations/examples/*-error-syntax-happo.js*';
+    config.type = 'react';
+  });
+
+  it('throws an error', async () => {
+    try {
+      await subject();
+    } catch (e) {
+      expect(e.message).toMatch(
+        /Module build failed/,
+      );
+      return;
+    }
+
+    console.log(config.targets.firefox.snapPayloads);
+
+    // If we end up here, something is wrong
+    expect(false).toBe(true);
+  });
+});
+
 describe('with a misconfigured file', () => {
   beforeEach(() => {
     config.include = 'test/integrations/examples/*-error-misconfigured-happo.js*';

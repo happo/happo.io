@@ -1,1 +1,2 @@
 build
+test/integrations/examples/*-error-*
