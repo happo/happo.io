@@ -12,6 +12,7 @@ function withColorSupport(wrappedFunc) {
 }
 const red = withColorSupport((str) => `\x1b[31m${str}\x1b[0m`);
 const green = withColorSupport((str) => `\x1b[32m${str}\x1b[0m`);
+const dim = withColorSupport((str) => `\x1b[90m${str}\x1b[0m`);
 const underline = withColorSupport((str) => `\x1b[36m\x1b[4m${str}\x1b[0m`);
 
 export default class Logger {
@@ -38,14 +39,16 @@ export default class Logger {
     this.print('\n');
   }
 
-  start(msg) {
-    this.startTime = performance.now();
-    this.print(`${msg} `);
+  start(msg, { startTime } = {}) {
+    this.startTime = startTime || performance.now();
+    if (msg) {
+      this.print(`${msg} `);
+    }
   }
 
   printDuration() {
     if (this.startTime) {
-      this.print(` (${(performance.now() - this.startTime).toFixed(1)}ms)`);
+      this.print(dim(` (${(performance.now() - this.startTime).toFixed(1)}ms)`));
     }
   }
 
