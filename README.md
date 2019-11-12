@@ -36,8 +36,9 @@ to ensure consistent cross-browser and responsive styling of your application.
       * [stylesheets](#stylesheets)
       * [type](#type)
       * [targets](#targets)
-        * [Target `chunks`](#target-chunks)
-        * [Target `maxHeight`](#target-maxheight)
+         * [Target chunks](#target-chunks)
+         * [Target maxHeight](#target-maxheight)
+         * [Target scrollStitch](#target-scrollstitch)
       * [customizeWebpackConfig](#customizewebpackconfig)
       * [plugins](#plugins-1)
       * [publicFolders](#publicfolders)
@@ -62,7 +63,7 @@ to ensure consistent cross-browser and responsive styling of your application.
       * [Cut-off snapshots, or snapshots with missing content](#cut-off-snapshots-or-snapshots-with-missing-content)
       * [Spurious diffs](#spurious-diffs)
 
-<!-- Added by: henrictrotzig, at: Mon Sep  9 15:29:20 CEST 2019 -->
+<!-- Added by: henrictrotzig, at: Tue Nov 12 13:46:57 CET 2019 -->
 
 <!--te-->
 
@@ -902,6 +903,30 @@ module.exports = {
     chrome: new RemoteBrowserTarget('chrome', {
       viewport: '1024x768',
       maxHeight: 10000,
+    }),
+  },
+};
+```
+
+### Target `scrollStitch`
+
+This option is available in the `safari` and `internet explorer` targets (it
+has no effect in other targets). By default, these browsers cut off their
+screenshots at window height. If you need to include content "below the fold",
+you can use the `scrollStitch` option.  When enabled, the full screenshot will
+be constructed by scrolling the page section by section, then stitching
+together a full screenshot when all sections are available.
+
+```js
+module.exports = {
+  targets: {
+    safari: new RemoteBrowserTarget('safari', {
+      viewport: '1024x768',
+      scrollStitch: true,
+    }),
+    ie: new RemoteBrowserTarget('internet explorer', {
+      viewport: '1024x768',
+      scrollStitch: true,
     }),
   },
 };
