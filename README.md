@@ -1130,17 +1130,22 @@ module.exports = {
 };
 ```
 
-## `compareThreshold`
+## `compareThreshold` (experimental)
 
 By default, a shallow comparison is made when `happo compare` is called. If two
 images have one or more different pixels, it will be reported as a diff --
 even if the diff is very small. If you set a `compareThreshold`, a deep
-comparison will be performed instead, where individual pixels are inspected. A
-[euclidean
-distance](https://en.m.wikipedia.org/wiki/Color_difference#Euclidean) is
-computed for every diffing pixel. If all diffing pixels have a euclidean
-distance smaller than the `compareThreshold`, the diff is considered okay and
-the two images will be considered visually equal.
+comparison will be performed instead, where individual pixels are inspected.
+
+
+A color distance is computed for every diffing pixel. If all diffing pixels have
+a color distance smaller than the `compareThreshold`, the diff is considered
+okay and the two images will be considered visually equal.
+
+The difference is calculated according to the paper ["Measuring perceived color
+difference using YIQ NTSC transmission color space in mobile applications" by
+Y. Kotsarenko and F.
+Ramos](http://www.progmat.uaem.mx:8080/artVol2Num2/Articulo3Vol2Num2.pdf).
 
 A **word of warning** here. If the threshold is too high, you risk hiding diffs
 that you wouldn't want to be hidden. Be careful when you start using this
@@ -1148,14 +1153,14 @@ option.
 
 ```js
 module.exports = {
-  compareThreshold: 0.05,
+  compareThreshold: 0.005,
 };
 ```
 
-To help find the right euclidean distance value to use, you can make dry-run
-comparisons. Find one or a few comparisons (via https://happo.io/dashboard) and
-run `happo compare <sha1> <sha2> --dry-run` on the shas and look at what's
-being logged to figure out what threshold value you want to use.
+To help find the right value to use, you can make dry-run comparisons. Find one
+or a few comparisons (via https://happo.io/dashboard) and run `happo compare
+<sha1> <sha2> --dry-run` on the SHAs and look at what's being logged to figure
+out what threshold value you want to use.
 
 ## `asyncTimeout`
 

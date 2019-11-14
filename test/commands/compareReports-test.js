@@ -45,7 +45,7 @@ it('succeeds', async () => {
   expect(result.resolved).toEqual([]);
   expect(log.mock.calls).toEqual([
     ['Found 1 diffs to deep-compare using threshold 0.00005'],
-    ['✗ Foo - bar - chrome - found diff pixel with euclidean distance 0.003396178054056622 which is larger than threshold'],
+    ['✗ Foo - bar - chrome - found diff pixel with a color delta of 0.00005739599717234143 which is larger than threshold'],
     ['Mocked summary'],
   ]);
 });

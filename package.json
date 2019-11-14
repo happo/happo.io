@@ -59,6 +59,7 @@
     "jimp": "^0.8.0",
     "jsdom": "^15.2.1",
     "jsonwebtoken": "^8.2.1",
+    "lcs-image-diff": "^2.0.0",
     "mkdirp": "^0.5.1",
     "parse-srcset": "^1.0.2",
     "request": "^2.85.0",
