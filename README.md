@@ -49,7 +49,7 @@ to ensure consistent cross-browser and responsive styling of your application.
       * [rootElementSelector](#rootelementselector)
       * [tmpdir](#tmpdir)
       * [jsdomOptions](#jsdomoptions)
-      * [compareThreshold](#comparethreshold)
+      * [compareThreshold](#comparethreshold-experimental)
       * [asyncTimeout](#asynctimeout)
       * [githubApiUrl](#githubapiurl)
    * [Command-Line-Interface (CLI)](#command-line-interface-cli)
