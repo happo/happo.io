@@ -33,7 +33,7 @@ beforeEach(() => {
 });
 
 it('returns the diff value when diff is above threshold between images', async () => {
-  expect(await subject()).toEqual(0.20605968086932788);
+  expect(await subject()).toEqual(0.20549884392955664);
 });
 
 describe('when images are completely different', () => {
@@ -48,7 +48,7 @@ describe('when images are completely different', () => {
   });
 
   it('returns the diff value', async () => {
-    expect(await subject()).toEqual(0.8660254037844387);
+    expect(await subject()).toEqual(0.9330436790328738);
   });
 });
 
@@ -101,11 +101,11 @@ describe('with a minor diff', () => {
 
   describe('when the threshold changes', () => {
     beforeEach(() => {
-      compareThreshold = 0.02;
+      compareThreshold = 0.0002;
     });
 
     it('returns the diff value', async () => {
-      expect(await subject()).toEqual(0.020377068324339734);
+      expect(await subject()).toEqual(0.00022958398868936736);
     });
   });
 });

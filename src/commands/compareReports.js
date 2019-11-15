@@ -78,7 +78,7 @@ export default async function compareReports(
         log(
           `✗ ${after.component} - ${after.variant} - ${
             after.target
-          } - found diff pixel with euclidean distance ${firstDiffDistance} which is larger than threshold`,
+          } - found diff pixel with a color delta of ${firstDiffDistance} which is larger than threshold`,
         );
       }
     }),

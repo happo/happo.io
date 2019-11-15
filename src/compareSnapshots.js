@@ -1,6 +1,5 @@
 import Jimp from 'jimp';
-
-const MAX_EUCLIDEAN_DISTANCE = Math.sqrt(255 ** 2 * 4);
+import colorDelta from 'lcs-image-diff/src/colorDelta';
 
 function makeAbsolute(url, endpoint) {
   if (url.startsWith('http')) {
@@ -9,20 +8,11 @@ function makeAbsolute(url, endpoint) {
   return `${endpoint}${url}`;
 }
 
-function euclideanDistance(rgba1, rgba2) {
-  return Math.sqrt(
-    (rgba1[0] - rgba2[0]) ** 2 +
-      (rgba1[1] - rgba2[1]) ** 2 +
-      (rgba1[2] - rgba2[2]) ** 2 +
-      (rgba1[3] - rgba2[3]) ** 2,
-  );
-}
-
 function imageDiff({ bitmap1, bitmap2, compareThreshold }) {
   const len = bitmap1.width * bitmap1.height * 4;
   for (let i = 0; i < len; i += 4) {
     const distance =
-      euclideanDistance(
+      colorDelta(
         [
           bitmap1.data[i],
           bitmap1.data[i + 1],
@@ -35,7 +25,7 @@ function imageDiff({ bitmap1, bitmap2, compareThreshold }) {
           bitmap2.data[i + 2],
           bitmap2.data[i + 3],
         ],
-      ) / MAX_EUCLIDEAN_DISTANCE;
+      );
     if (distance > compareThreshold) {
       return distance;
     }
