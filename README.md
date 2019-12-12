@@ -301,6 +301,18 @@ language: node_js
 script:
   - npm run happo-ci-travis
 ```
+The `happo-ci-travis` script assumes that your PRs are based off of the master
+branch. If you're using a different default branch, you can set the
+`BASE_BRANCH` environment variable.
+
+```json
+{
+  "scripts": {
+    "happo": "happo",
+    "happo-ci-travis": "BASE_BRANCH=\"dev\" happo-ci-travis"
+  }
+}
+```
 
 ## `happo-ci-circleci`
 
