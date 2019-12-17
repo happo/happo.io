@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 
 import Button from './Button.ffs';
 import ThemeContext from '../theme';
+import imageSrc from './static/1x1.png';
 
 const dynamicImportPromise = import('./dynamically-imported');
 
@@ -37,9 +38,7 @@ export const portalExample = () => (
 export const innerPortal = () => (
   <React.Fragment>
     <div>Outside portal</div>
-    <PortalComponent>
-      Inside portal
-    </PortalComponent>
+    <PortalComponent>Inside portal</PortalComponent>
   </React.Fragment>
 );
 
@@ -154,3 +153,5 @@ class RAFUnmountExample extends React.Component {
 }
 
 export const rafUnmountExample = () => <RAFUnmountExample />;
+
+export const imageExample = () => <img alt="empty" src={imageSrc} />;

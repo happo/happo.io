@@ -19,7 +19,7 @@ const IFRAME_CONTENT = `
 </html>
 `;
 
-export default function createStaticPackage({ bundleFile, publicFolders }) {
+export default function createStaticPackage({ tmpdir, bundleFile, publicFolders }) {
   return new Promise((resolve, reject) => {
     const archive = new Archiver('zip');
 
@@ -37,6 +37,14 @@ export default function createStaticPackage({ bundleFile, publicFolders }) {
     });
     archive.pipe(stream);
 
+    publicFolders.forEach((folder) => {
+      if (folder.startsWith(tmpdir)) {
+        archive.directory(tmpdir, false);
+      } else if (folder.startsWith(process.cwd())) {
+        archive.directory(folder.slice(process.cwd().length + 1));
+      }
+    });
+
     archive.append(fs.createReadStream(bundleFile), {
       name: 'happo-bundle.js',
       date: FILE_CREATION_DATE,
@@ -47,11 +55,6 @@ export default function createStaticPackage({ bundleFile, publicFolders }) {
       date: FILE_CREATION_DATE,
     });
 
-    publicFolders.forEach((folder) => {
-      if (folder.startsWith(process.cwd())) {
-        archive.directory(folder.slice(process.cwd().length + 1));
-      }
-    });
 
     archive.on('error', reject);
     archive.finalize();

@@ -119,6 +119,7 @@ async function generateScreenshots(
     jsdomOptions,
     plugins,
     prerender,
+    tmpdir,
   },
   bundleFile,
   logger,
@@ -150,6 +151,7 @@ async function generateScreenshots(
     const staticPackage = prerender
       ? undefined
       : await createStaticPackage({
+          tmpdir,
           bundleFile,
           publicFolders,
         });
@@ -226,6 +228,7 @@ export default async function domRunner(
     only,
     jsdomOptions,
     plugins,
+    tmpdir,
   });
   const logger = new Logger();
   logger.start('Searching for happo test files...');
