@@ -3,6 +3,7 @@ import rimraf from 'rimraf';
 
 import Logger from '../Logger';
 import domRunner from '../domRunner';
+import stringRunner from '../stringRunner';
 import pageRunner from '../pageRunner';
 import remoteRunner from '../remoteRunner';
 import uploadReport from '../uploadReport';
@@ -20,6 +21,8 @@ export default async function runCommand(sha, config, { only, link, message }) {
     snaps = await pageRunner(config);
   } else if (staticPlugin) {
     snaps = await remoteRunner(config, staticPlugin);
+  } else if (config.type === 'string') {
+    snaps = await stringRunner(config, { only });
   } else {
     snaps = await domRunner(config, { only });
   }
