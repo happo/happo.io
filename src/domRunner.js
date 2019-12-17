@@ -152,7 +152,6 @@ async function generateScreenshots(
       ? undefined
       : await createStaticPackage({
           tmpdir,
-          bundleFile,
           publicFolders,
         });
     const results = await Promise.all(

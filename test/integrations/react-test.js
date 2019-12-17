@@ -154,6 +154,13 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
+      html: '<img alt="empty" src="static/media/1x1.3eaf1786.png">',
+      variant: 'imageExample',
+    },
+
+    {
+      component: 'Foo-react',
+      css: '',
       html: '<button>Click me</button>',
       variant: 'default',
     },
@@ -203,7 +210,7 @@ describe('with the puppeteer plugin', () => {
 
   it('produces the right number of snaps', async () => {
     await subject();
-    expect(config.targets.chrome.snapPayloads.length).toBe(19);
+    expect(config.targets.chrome.snapPayloads.length).toBe(20);
   });
 });
 
@@ -281,17 +288,21 @@ it('works with prerender=false', async () => {
   ]);
 
   const zip = new AdmZip(config.targets.chrome.staticPackage);
-  expect(zip.getEntries().map(({ entryName }) => entryName)).toEqual([
-    'happo-bundle.js',
-    'iframe.html',
-    'test/integrations/assets/one.jpg',
+  expect(
+    zip
+      .getEntries()
+      .map(({ entryName }) => entryName)
+      .sort(),
+  ).toEqual([
     'happo-bundle.js',
     'happo-bundle.js.map',
     'happo-entry.js',
+    'iframe.html',
     'index.html',
     'static/',
     'static/media/',
     'static/media/1x1.3eaf1786.png',
+    'test/integrations/assets/one.jpg',
   ]);
   // require('fs').writeFileSync('staticPackage.zip',
   //   Buffer.from(config.targets.chrome.staticPackage, 'base64'));

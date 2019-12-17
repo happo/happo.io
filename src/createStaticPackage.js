@@ -1,5 +1,4 @@
 import { Writable } from 'stream';
-import fs from 'fs';
 
 import Archiver from 'archiver';
 
@@ -19,7 +18,7 @@ const IFRAME_CONTENT = `
 </html>
 `;
 
-export default function createStaticPackage({ tmpdir, bundleFile, publicFolders }) {
+export default function createStaticPackage({ tmpdir, publicFolders }) {
   return new Promise((resolve, reject) => {
     const archive = new Archiver('zip');
 
@@ -37,17 +36,14 @@ export default function createStaticPackage({ tmpdir, bundleFile, publicFolders 
     });
     archive.pipe(stream);
 
+    archive.directory(tmpdir, false);
+
     publicFolders.forEach((folder) => {
-      if (folder.startsWith(tmpdir)) {
-        archive.directory(tmpdir, false);
+      if (folder === tmpdir) {
+        // ignore, since this is handled separately
       } else if (folder.startsWith(process.cwd())) {
         archive.directory(folder.slice(process.cwd().length + 1));
       }
-    });
-
-    archive.append(fs.createReadStream(bundleFile), {
-      name: 'happo-bundle.js',
-      date: FILE_CREATION_DATE,
     });
 
     archive.append(IFRAME_CONTENT, {
