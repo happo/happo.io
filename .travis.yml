@@ -8,4 +8,5 @@ node_js:
 env:
   - WEBPACK_VERSION=4
   - WEBPACK_VERSION=3
-script: yarn lint && yarn add --dev webpack@$WEBPACK_VERSION && yarn test
+install: yarn install --ignore-engines
+script: yarn lint && yarn add --dev webpack@$WEBPACK_VERSION --ignore-engines && yarn test

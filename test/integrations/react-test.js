@@ -1,3 +1,4 @@
+import os from 'os';
 import path from 'path';
 
 import AdmZip from 'adm-zip';
@@ -47,10 +48,18 @@ beforeEach(() => {
               },
             ],
           });
+          cfg.module.rules.push({
+            loader: require.resolve('file-loader'),
+            include: /\.(png|svg|jpg|gif)$/,
+            options: {
+              name: 'static/media/[name].[hash:8].[ext]',
+            },
+          });
           return new Promise((resolve) => setTimeout(() => resolve(cfg), 50));
         },
       },
     ],
+    tmpdir: path.join(os.tmpdir(), 'happo-test-tmpdir'),
   });
   subject = () => runCommand(sha, config, {});
 });
@@ -91,7 +100,7 @@ it('produces the right html', async () => {
       component: 'Foo-react',
       css: '',
       html:
-      '<div id="happo-root"><div>Outside portal</div></div><div>Inside portal</div>',
+        '<div id="happo-root"><div>Outside portal</div></div><div>Inside portal</div>',
       variant: 'innerPortal',
     },
     {
@@ -145,6 +154,13 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
+      html: '<img alt="empty" src="static/media/1x1.3eaf1786.png">',
+      variant: 'imageExample',
+    },
+
+    {
+      component: 'Foo-react',
+      css: '',
       html: '<button>Click me</button>',
       variant: 'default',
     },
@@ -194,7 +210,7 @@ describe('with the puppeteer plugin', () => {
 
   it('produces the right number of snaps', async () => {
     await subject();
-    expect(config.targets.chrome.snapPayloads.length).toBe(19);
+    expect(config.targets.chrome.snapPayloads.length).toBe(20);
   });
 });
 
@@ -242,7 +258,7 @@ button { color: red }`,
 
 it('works with prerender=false', async () => {
   config.prerender = false;
-  config.publicFolders = [path.resolve(__dirname, 'assets')];
+  config.publicFolders = [path.resolve(__dirname, 'assets'), config.tmpdir];
   await subject();
   expect(config.targets.chrome.globalCSS).toEqual([
     {
@@ -272,9 +288,20 @@ it('works with prerender=false', async () => {
   ]);
 
   const zip = new AdmZip(config.targets.chrome.staticPackage);
-  expect(zip.getEntries().map(({ entryName }) => entryName)).toEqual([
+  expect(
+    zip
+      .getEntries()
+      .map(({ entryName }) => entryName)
+      .sort(),
+  ).toEqual([
     'happo-bundle.js',
+    'happo-bundle.js.map',
+    'happo-entry.js',
     'iframe.html',
+    'index.html',
+    'static/',
+    'static/media/',
+    'static/media/1x1.3eaf1786.png',
     'test/integrations/assets/one.jpg',
   ]);
   // require('fs').writeFileSync('staticPackage.zip',
