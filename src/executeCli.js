@@ -136,9 +136,9 @@ commander
     new Logger().info(result.id);
   });
 
-commander.on('command:*', () => {
-  console.error('Invalid command: %s\nSee --help for a list of available commands.', commander.args.join(' '));
-  process.exit(1);
+commander.on('command:*', (cmd) => {
+  console.log(`Invalid command ${cmd}\n`);
+  commander.outputHelp();
 });
 
 export default function executeCli(argv) {
