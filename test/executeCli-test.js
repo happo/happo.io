@@ -1,12 +1,8 @@
-import commander from 'commander';
+import { execSync } from 'child_process';
 
-import executeCli from '../src/executeCli';
-
-beforeEach(() => {
-  commander.help = jest.fn();
-});
+const happoCommand = require.resolve('../build/cli');
 
 it('displays help when no command is given', () => {
-  executeCli(['node', 'happo']);
-  expect(commander.help.mock.calls.length).toBe(1);
+  const result = execSync(happoCommand, { encoding: 'utf-8' });
+  expect(result).toMatch(/^Usage: /);
 });
