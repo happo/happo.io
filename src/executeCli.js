@@ -136,9 +136,16 @@ commander
     new Logger().info(result.id);
   });
 
+commander.on('command:*', (cmd) => {
+  console.log(`Invalid command: "${cmd}"\n`);
+  commander.outputHelp();
+  process.exit(1);
+});
+
 export default function executeCli(argv) {
   if (!argv.slice(2).length) {
-    commander.help();
+    commander.outputHelp();
+    process.exit(1);
     return;
   }
   return commander.parse(argv);
