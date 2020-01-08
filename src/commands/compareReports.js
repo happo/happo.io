@@ -84,7 +84,7 @@ export default async function compareReports(
           log(
             `✗ ${after.component} - ${after.variant} - ${
               after.target
-            } - found diff pixel with a color delta of ${firstDiffDistance} which is larger than threshold`,
+            } - diff of ${firstDiffDistance} is larger than threshold ${compareThreshold}, not auto-ignoring`,
           );
         }
       }),
