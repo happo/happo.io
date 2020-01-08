@@ -52,7 +52,7 @@ it('succeeds', async () => {
   expect(log.mock.calls).toEqual([
     ['Found 1 diffs to deep-compare using threshold 0.00005'],
     [
-      '✗ Foo - bar - chrome - found diff pixel with a color delta of 0.00005739599717234143 which is larger than threshold',
+      '✗ Foo - bar - chrome - diff of 0.00005739599717234143 is larger than threshold 0.00005, not auto-ignoring',
     ],
     ['Mocked summary'],
   ]);
@@ -82,7 +82,7 @@ describe('when threshold is larger than the diff', () => {
 
     expect(log.mock.calls).toEqual([
       ['Found 1 diffs to deep-compare using threshold 0.1'],
-      ['✓ Foo - bar - chrome - diff is within threshold'],
+      ['✓ Foo - bar - chrome - diff is below threshold, auto-ignoring'],
       ['Mocked summary'],
     ]);
 
@@ -102,7 +102,7 @@ describe('when threshold is larger than the diff', () => {
       expect(log.mock.calls).toEqual([
         ['Found 1 diffs to deep-compare using threshold 0.1'],
         ['Running in --dry-run mode -- no destructive commands will be issued'],
-        ['✓ Foo - bar - chrome - diff is within threshold'],
+        ['✓ Foo - bar - chrome - diff is below threshold, auto-ignoring'],
         ['Mocked summary'],
       ]);
 
