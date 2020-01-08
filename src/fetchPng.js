@@ -6,12 +6,12 @@ export default async function fetchPng(url) {
     request({
       url,
     })
+      .on('error', (e) => {
+        reject(e);
+      })
       .pipe(new PNG())
       .on('parsed', function handleParsed() {
         resolve(this);
-      })
-      .on('error', (e) => {
-        reject(e);
       });
   });
 }

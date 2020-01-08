@@ -56,33 +56,40 @@ export default async function compareReports(
   if (dryRun) {
     log('Running in --dry-run mode -- no destructive commands will be issued');
   }
-  await Promise.all(
-    firstCompareResult.diffs.map(async ([before, after]) => {
-      const firstDiffDistance = await compareSnapshots({
-        before,
-        after,
-        endpoint,
-        compareThreshold,
-      });
-      if (!firstDiffDistance) {
-        log(
-          `✓ ${after.component} - ${after.variant} - ${
-            after.target
-          } - diff is within threshold`,
-        );
-        if (!dryRun) {
-          await ignore({ before, after, apiKey, apiSecret, endpoint });
+
+  const diffsClone = firstCompareResult.diffs.slice(0);
+  let batch;
+  // eslint-disable-next-line no-cond-assign
+  while ((batch = diffsClone.splice(0, 10)).length > 0) {
+    // eslint-disable-next-line no-await-in-loop
+    await Promise.all(
+      batch.map(async ([before, after]) => {
+        const firstDiffDistance = await compareSnapshots({
+          before,
+          after,
+          endpoint,
+          compareThreshold,
+        });
+        if (!firstDiffDistance) {
+          log(
+            `✓ ${after.component} - ${after.variant} - ${
+              after.target
+            } - diff is within threshold`,
+          );
+          if (!dryRun) {
+            await ignore({ before, after, apiKey, apiSecret, endpoint });
+          }
+          resolved.push([before, after]);
+        } else {
+          log(
+            `✗ ${after.component} - ${after.variant} - ${
+              after.target
+            } - found diff pixel with a color delta of ${firstDiffDistance} which is larger than threshold`,
+          );
         }
-        resolved.push([before, after]);
-      } else {
-        log(
-          `✗ ${after.component} - ${after.variant} - ${
-            after.target
-          } - found diff pixel with a color delta of ${firstDiffDistance} which is larger than threshold`,
-        );
-      }
-    }),
-  );
+      }),
+    );
+  }
 
   // Make second compare call to finalize the deep compare. The second call will
   // cause a status to be posted to the PR (if applicable). Any ignored diffs
