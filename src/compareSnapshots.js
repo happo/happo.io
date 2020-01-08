@@ -1,3 +1,4 @@
+import asyncRetry from 'async-retry';
 import colorDelta from 'lcs-image-diff/src/colorDelta';
 
 import fetchPng from './fetchPng';
@@ -32,6 +33,16 @@ function imageDiff({ bitmap1, bitmap2, compareThreshold }) {
   }
 }
 
+async function fetchPngWithRetry(url) {
+  const bitmap = await asyncRetry(() => fetchPng(url), {
+    retries: 3,
+    onRetry: (e) => {
+      console.warn(`Retrying fetch for ${url}. Error was: ${e.message}`);
+    },
+  });
+  return bitmap;
+}
+
 export default async function compareSnapshots({
   before,
   after,
@@ -42,8 +53,8 @@ export default async function compareSnapshots({
     return 1;
   }
   const [bitmap1, bitmap2] = await Promise.all([
-    fetchPng(makeAbsolute(before.url, endpoint)),
-    fetchPng(makeAbsolute(after.url, endpoint)),
+    fetchPngWithRetry(makeAbsolute(before.url, endpoint)),
+    fetchPngWithRetry(makeAbsolute(after.url, endpoint)),
   ]);
 
   return imageDiff({
