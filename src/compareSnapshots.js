@@ -35,7 +35,7 @@ function imageDiff({ bitmap1, bitmap2, compareThreshold }) {
 
 async function fetchPngWithRetry(url) {
   const bitmap = await asyncRetry(() => fetchPng(url), {
-    retries: 3,
+    retries: 5,
     onRetry: (e) => {
       console.warn(`Retrying fetch for ${url}. Error was: ${e.message}`);
     },
