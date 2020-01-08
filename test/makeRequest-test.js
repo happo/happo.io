@@ -3,6 +3,7 @@ import request from 'request-promise-native';
 import makeRequest from '../src/makeRequest';
 
 jest.mock('request-promise-native');
+jest.setTimeout(30000);
 
 let subject;
 let props;

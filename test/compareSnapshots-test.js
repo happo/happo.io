@@ -1,4 +1,9 @@
 import compareSnapshots from '../src/compareSnapshots';
+import fetchPng from '../src/fetchPng';
+
+const realFetchPng = jest.requireActual('../src/fetchPng').default;
+
+jest.mock('../src/fetchPng');
 
 let subject;
 let before;
@@ -6,6 +11,7 @@ let after;
 let compareThreshold;
 
 beforeEach(() => {
+  fetchPng.mockImplementation(realFetchPng);
   before = {
     url: 'https://happo.io/img/happo-io/93eb2d9e57d43b0b5ca5527587484f18',
     component: 'Foo',
@@ -133,5 +139,22 @@ describe('when images are equal', () => {
     it('returns undefined', async () => {
       expect(await subject()).toBe(undefined);
     });
+  });
+});
+
+describe('when fetchPng fails', () => {
+  beforeEach(() => {
+    let tries = 0;
+    fetchPng.mockImplementation((url) => {
+      if (tries > 1) {
+        return realFetchPng(url);
+      }
+      tries += 1;
+      return Promise.reject(new Error('What happened?'));
+    });
+  });
+
+  it('retries until it passes', async () => {
+    expect(await subject()).toEqual(0.20549884392955664);
   });
 });
