@@ -74,7 +74,7 @@ export default async function compareReports(
           log(
             `✓ ${after.component} - ${after.variant} - ${
               after.target
-            } - diff is within threshold`,
+            } - diff is below threshold, auto-ignoring`,
           );
           if (!dryRun) {
             await ignore({ before, after, apiKey, apiSecret, endpoint });
