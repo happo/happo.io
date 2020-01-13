@@ -31,7 +31,7 @@ function printErrorIter(error, logger) {
 
 process.on('unhandledRejection', (error) => {
   printErrorIter(error, new Logger());
-  process.exit(1);
+  throw error;
 });
 
 executeCli(process.argv);
