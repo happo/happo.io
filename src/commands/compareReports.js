@@ -74,22 +74,23 @@ export default async function compareReports(
           log(
             `✓ ${after.component} - ${after.variant} - ${
               after.target
-            } - diff is below threshold, auto-ignoring`,
+            } - diff below threshold, auto-ignoring`,
           );
           if (!dryRun) {
             await ignore({ before, after, apiKey, apiSecret, endpoint });
           }
           resolved.push([before, after]);
-        } else {
-          log(
-            `✗ ${after.component} - ${after.variant} - ${
-              after.target
-            } - diff of ${firstDiffDistance} is larger than threshold ${compareThreshold}, not auto-ignoring`,
-          );
         }
       }),
     );
   }
+
+  const totalDiffsCount = firstCompareResult.diffs.length;
+  const autoIgnoredDiffsCount = resolved.length;
+
+  log(
+    `${autoIgnoredDiffsCount} out of ${totalDiffsCount} were below threshold and auto-ignored`,
+  );
 
   // Make second compare call to finalize the deep compare. The second call will
   // cause a status to be posted to the PR (if applicable). Any ignored diffs
