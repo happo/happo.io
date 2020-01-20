@@ -61,6 +61,9 @@ export default async function compareReports(
   let batch;
   // eslint-disable-next-line no-cond-assign
   while ((batch = diffsClone.splice(0, 10)).length > 0) {
+    // Batch logs to help avoid running out of file descriptors
+    const linesToLog = [];
+
     // eslint-disable-next-line no-await-in-loop
     await Promise.all(
       batch.map(async ([before, after]) => {
@@ -71,18 +74,24 @@ export default async function compareReports(
           compareThreshold,
         });
         if (!firstDiffDistance) {
-          log(
+          linesToLog.push(
             `✓ ${after.component} - ${after.variant} - ${
               after.target
             } - diff below threshold, auto-ignoring`,
           );
+
           if (!dryRun) {
             await ignore({ before, after, apiKey, apiSecret, endpoint });
           }
+
           resolved.push([before, after]);
         }
       }),
     );
+
+    if (linesToLog.length) {
+      log(linesToLog.join('\n'));
+    }
   }
 
   const totalDiffsCount = firstCompareResult.diffs.length;
