@@ -1,5 +1,6 @@
 import asyncRetry from 'async-retry';
 import colorDelta from 'lcs-image-diff/src/colorDelta';
+import request from 'request';
 
 import fetchPng from './fetchPng';
 
@@ -33,14 +34,38 @@ function imageDiff({ bitmap1, bitmap2, compareThreshold }) {
   }
 }
 
-async function fetchPngWithRetry(url) {
-  const bitmap = await asyncRetry(() => fetchPng(url), {
-    retries: 5,
-    onRetry: (e) => {
-      console.warn(`Retrying fetch for ${url}. Error was: ${e.message}`);
-    },
-  });
-  return bitmap;
+async function fetchPngWithRetry(url, { retries }) {
+  try {
+    const bitmap = await asyncRetry(() => fetchPng(url), {
+      retries,
+      onRetry: (e) => {
+        console.warn(`Retrying fetch for ${url}. Error was: ${e.message}`);
+      },
+    });
+    return bitmap;
+  } catch (e) {
+    await new Promise((resolve, reject) => {
+      request(url, (error, response, body) => {
+        const isPlainText =
+          response && /^text\//.test(response.headers['content-type']);
+        reject(
+          new Error(
+            `
+Failed to fetch PNG at ${url} - here are some details for that URL:
+  status code: ${response && response.statusCode}
+  headers: ${response && JSON.stringify(response.headers, null, '  ')}
+  error: ${error}
+  body:
+${isPlainText ? body : '(binary content hidden)'}
+
+The original error was:
+${e.stack}
+          `.trim(),
+          ),
+        );
+      });
+    });
+  }
 }
 
 export default async function compareSnapshots({
@@ -48,13 +73,14 @@ export default async function compareSnapshots({
   after,
   endpoint,
   compareThreshold,
+  retries = 5,
 }) {
   if (before.height !== after.height || before.width !== after.width) {
     return 1;
   }
   const [bitmap1, bitmap2] = await Promise.all([
-    fetchPngWithRetry(makeAbsolute(before.url, endpoint)),
-    fetchPngWithRetry(makeAbsolute(after.url, endpoint)),
+    fetchPngWithRetry(makeAbsolute(before.url, endpoint), { retries }),
+    fetchPngWithRetry(makeAbsolute(after.url, endpoint), { retries }),
   ]);
 
   return imageDiff({

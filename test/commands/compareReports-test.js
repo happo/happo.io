@@ -43,7 +43,7 @@ beforeEach(() => {
   makeRequest.mockReset();
   makeRequest.mockImplementation(() => Promise.resolve(compareResult));
   config = { ...defaultConfig, compareThreshold: 0.00005 };
-  subject = () => compareReports('abc', 'xyz', config, cliArgs, log);
+  subject = () => compareReports('abc', 'xyz', config, cliArgs, log, 2);
 });
 
 it('succeeds', async () => {
@@ -112,29 +112,12 @@ describe('when threshold is larger than the diff', () => {
   });
 });
 
-describe('with giant diffs', () => {
+describe('with a local test server', () => {
   let httpServer;
-
   beforeEach(async () => {
     httpServer = createServer({
       root: path.join(__dirname, '../assets'),
     });
-    config.compareThreshold = 0.1;
-    compareResult.diffs = Array(1000);
-    compareResult.diffs.fill([
-      {
-        url: 'http://localhost:8990/000-fff.png',
-        component: 'Foo',
-        variant: 'bar',
-        target: 'chrome',
-      },
-      {
-        url: 'http://localhost:8990/000-f7f7f7.png',
-        component: 'Foo',
-        variant: 'bar',
-        target: 'chrome',
-      },
-    ]);
     await new Promise((resolve) => httpServer.listen(8990, resolve));
   });
 
@@ -142,8 +125,134 @@ describe('with giant diffs', () => {
     httpServer.close();
   });
 
-  it('processes all diffs', async () => {
-    const result = await subject();
-    expect(result.resolved.length).toEqual(1000);
+  describe('with giant diffs', () => {
+    beforeEach(() => {
+      config.compareThreshold = 0.1;
+      compareResult.diffs = Array(1000);
+      compareResult.diffs.fill([
+        {
+          url: 'http://localhost:8990/000-fff.png',
+          component: 'Foo',
+          variant: 'bar',
+          target: 'chrome',
+        },
+        {
+          url: 'http://localhost:8990/000-f7f7f7.png',
+          component: 'Foo',
+          variant: 'bar',
+          target: 'chrome',
+        },
+      ]);
+    });
+
+    it('processes all diffs', async () => {
+      const result = await subject();
+      expect(result.resolved.length).toEqual(1000);
+    });
+  });
+
+  describe('when requests fail with 404', () => {
+    beforeEach(() => {
+      config.compareThreshold = 0.1;
+      compareResult.diffs = [
+        [
+          {
+            url: 'http://localhost:8990/missing-image.png',
+            component: 'Foo',
+            variant: 'bar',
+            target: 'chrome',
+          },
+          {
+            url: 'http://localhost:8990/000-f7f7f7.png',
+            component: 'Foo',
+            variant: 'bar',
+            target: 'chrome',
+          },
+        ],
+      ];
+    });
+
+    it('throws a useful error', async () => {
+      try {
+        await subject();
+        expect(true).toBe(false);
+      } catch (e) {
+        expect(e.message).toMatch('Failed to fetch PNG at http://localhost:8990/missing-image.png');
+        expect(e.message).toMatch('status code: 404');
+        expect(e.message).toMatch('The original error was');
+        expect(e.message).toMatch('Unexpected end of input');
+      }
+    });
+  });
+
+  describe('when requests fail with wrong binary type', () => {
+    beforeEach(() => {
+      config.compareThreshold = 0.1;
+      compareResult.diffs = [
+        [
+          {
+            url: 'http://localhost:8990/sample.jpg',
+            component: 'Foo',
+            variant: 'bar',
+            target: 'chrome',
+          },
+          {
+            url: 'http://localhost:8990/000-f7f7f7.png',
+            component: 'Foo',
+            variant: 'bar',
+            target: 'chrome',
+          },
+        ],
+      ];
+    });
+
+    it('throws a useful error', async () => {
+      try {
+        await subject();
+        expect(true).toBe(false);
+      } catch (e) {
+        expect(e.message).toMatch('Failed to fetch PNG at http://localhost:8990/sample.jpg');
+        expect(e.message).toMatch('status code: 200');
+        expect(e.message).toMatch(/content-length.*51085/);
+        expect(e.message).toMatch('(binary content hidden)');
+        expect(e.message).toMatch('The original error was');
+        expect(e.message).toMatch('Invalid file signature');
+      }
+    });
+  });
+
+  describe('when requests fail with a text response', () => {
+    beforeEach(() => {
+      config.compareThreshold = 0.1;
+      compareResult.diffs = [
+        [
+          {
+            url: 'http://localhost:8990/sample.txt',
+            component: 'Foo',
+            variant: 'bar',
+            target: 'chrome',
+          },
+          {
+            url: 'http://localhost:8990/000-f7f7f7.png',
+            component: 'Foo',
+            variant: 'bar',
+            target: 'chrome',
+          },
+        ],
+      ];
+    });
+
+    it('throws a useful error', async () => {
+      try {
+        await subject();
+        expect(true).toBe(false);
+      } catch (e) {
+        expect(e.message).toMatch('Failed to fetch PNG at http://localhost:8990/sample.txt');
+        expect(e.message).toMatch('status code: 200');
+        expect(e.message).toMatch('Sample content');
+        expect(e.message).toMatch('The original error was');
+        expect(e.message).toMatch('Invalid file signature');
+      }
+    });
   });
 });

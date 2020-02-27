@@ -22,6 +22,7 @@ export default async function compareReports(
   { apiKey, apiSecret, endpoint, project, compareThreshold },
   { link, message, author, dryRun },
   log = console.log,
+  maxTries = 5,
 ) {
   const makeCompareCall = (skipStatusPost) =>
     makeRequest(
@@ -37,7 +38,7 @@ export default async function compareReports(
           skipStatusPost,
         },
       },
-      { apiKey, apiSecret, maxTries: 5 },
+      { apiKey, apiSecret, maxTries },
     );
   const firstCompareResult = await makeCompareCall(
     typeof compareThreshold === 'number' || dryRun,
@@ -72,6 +73,7 @@ export default async function compareReports(
           after,
           endpoint,
           compareThreshold,
+          retries: maxTries,
         });
         if (!firstDiffDistance) {
           linesToLog.push(
