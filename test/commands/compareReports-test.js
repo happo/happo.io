@@ -4,11 +4,15 @@ import { createServer } from 'http-server';
 
 import compareReports from '../../src/commands/compareReports';
 import * as defaultConfig from '../../src/DEFAULTS';
+import fetchPng from '../../src/fetchPng';
 import makeRequest from '../../src/makeRequest';
+
+const realFetchPng = jest.requireActual('../../src/fetchPng').default;
 
 jest.setTimeout(60000);
 
 jest.mock('../../src/makeRequest');
+jest.mock('../../src/fetchPng');
 
 let subject;
 let config;
@@ -18,6 +22,7 @@ let cliArgs;
 
 beforeEach(() => {
   log = jest.fn();
+  fetchPng.mockImplementation((url) => realFetchPng(url));
   compareResult = {
     summary: 'Mocked summary',
     equal: false,
@@ -54,6 +59,22 @@ it('succeeds', async () => {
     ['0 out of 1 were below threshold and auto-ignored'],
     ['Mocked summary'],
   ]);
+});
+
+describe('when fetchPng fails', () => {
+  beforeEach(() => {
+    fetchPng.mockImplementation(() => Promise.reject(new Error('mocked')));
+  });
+
+  it('succeeds', async () => {
+    const result = await subject();
+    expect(result.resolved).toEqual([]);
+    expect(log.mock.calls).toEqual([
+      ['Found 1 diffs to deep-compare using threshold 0.00005'],
+      ['0 out of 1 were below threshold and auto-ignored'],
+      ['Mocked summary'],
+    ]);
+  });
 });
 
 describe('when compareThreshold is missing', () => {
