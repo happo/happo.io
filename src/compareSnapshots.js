@@ -3,6 +3,7 @@ import colorDelta from 'lcs-image-diff/src/colorDelta';
 import request from 'request';
 
 import fetchPng from './fetchPng';
+import fetchPngInMemory from './fetchPngInMemory';
 
 function makeAbsolute(url, endpoint) {
   if (url.startsWith('http')) {
@@ -34,9 +35,29 @@ function imageDiff({ bitmap1, bitmap2, compareThreshold }) {
   }
 }
 
+async function fetchPngWithInMemoryFallback(url) {
+  try {
+    const res = await fetchPng(url);
+    return res;
+  } catch (e1) {
+    console.warn(
+      'Failed to stream response directly to PNG. Printing stack trace, then falling back to in-memory read.',
+    );
+    console.warn(e1);
+    try {
+      const fallback = await fetchPngInMemory(url);
+      return fallback;
+    } catch (e2) {
+      throw new Error(
+        `Failed to fetch PNG from ${url}. First error was "${e1.message}". Second error was "${e2.message}"`,
+      );
+    }
+  }
+}
+
 async function fetchPngWithRetry(url, { retries }) {
   try {
-    const bitmap = await asyncRetry(() => fetchPng(url), {
+    const bitmap = await asyncRetry(() => fetchPngWithInMemoryFallback(url), {
       retries,
       onRetry: (e) => {
         console.warn(`Retrying fetch for ${url}. Error was: ${e.message}`);

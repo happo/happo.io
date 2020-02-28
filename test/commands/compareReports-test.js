@@ -4,11 +4,15 @@ import { createServer } from 'http-server';
 
 import compareReports from '../../src/commands/compareReports';
 import * as defaultConfig from '../../src/DEFAULTS';
+import fetchPng from '../../src/fetchPng';
 import makeRequest from '../../src/makeRequest';
+
+const realFetchPng = jest.requireActual('../../src/fetchPng').default;
 
 jest.setTimeout(60000);
 
 jest.mock('../../src/makeRequest');
+jest.mock('../../src/fetchPng');
 
 let subject;
 let config;
@@ -18,6 +22,7 @@ let cliArgs;
 
 beforeEach(() => {
   log = jest.fn();
+  fetchPng.mockImplementation((url) => realFetchPng(url));
   compareResult = {
     summary: 'Mocked summary',
     equal: false,
@@ -54,6 +59,22 @@ it('succeeds', async () => {
     ['0 out of 1 were below threshold and auto-ignored'],
     ['Mocked summary'],
   ]);
+});
+
+describe('when fetchPng fails', () => {
+  beforeEach(() => {
+    fetchPng.mockImplementation(() => Promise.reject(new Error('mocked')));
+  });
+
+  it('succeeds', async () => {
+    const result = await subject();
+    expect(result.resolved).toEqual([]);
+    expect(log.mock.calls).toEqual([
+      ['Found 1 diffs to deep-compare using threshold 0.00005'],
+      ['0 out of 1 were below threshold and auto-ignored'],
+      ['Mocked summary'],
+    ]);
+  });
 });
 
 describe('when compareThreshold is missing', () => {
@@ -151,6 +172,33 @@ describe('with a local test server', () => {
     });
   });
 
+  describe('with the problematic airbnb image', () => {
+    beforeEach(() => {
+      config.compareThreshold = 1.0;
+      compareResult.diffs = [
+        [
+          {
+            url: 'http://localhost:8990/airbnb.png',
+            component: 'Foo',
+            variant: 'bar',
+            target: 'chrome',
+          },
+          {
+            url: 'http://localhost:8990/000-f7f7f7.png',
+            component: 'Foo',
+            variant: 'bar',
+            target: 'chrome',
+          },
+        ],
+      ];
+    });
+
+    it('processes all diffs', async () => {
+      const result = await subject();
+      expect(result.resolved.length).toEqual(1);
+    });
+  });
+
   describe('when requests fail with 404', () => {
     beforeEach(() => {
       config.compareThreshold = 0.1;
@@ -177,7 +225,9 @@ describe('with a local test server', () => {
         await subject();
         expect(true).toBe(false);
       } catch (e) {
-        expect(e.message).toMatch('Failed to fetch PNG at http://localhost:8990/missing-image.png');
+        expect(e.message).toMatch(
+          'Failed to fetch PNG at http://localhost:8990/missing-image.png',
+        );
         expect(e.message).toMatch('status code: 404');
         expect(e.message).toMatch('The original error was');
         expect(e.message).toMatch('Unexpected end of input');
@@ -211,7 +261,9 @@ describe('with a local test server', () => {
         await subject();
         expect(true).toBe(false);
       } catch (e) {
-        expect(e.message).toMatch('Failed to fetch PNG at http://localhost:8990/sample.jpg');
+        expect(e.message).toMatch(
+          'Failed to fetch PNG at http://localhost:8990/sample.jpg',
+        );
         expect(e.message).toMatch('status code: 200');
         expect(e.message).toMatch(/content-length.*51085/);
         expect(e.message).toMatch('(binary content hidden)');
@@ -247,7 +299,9 @@ describe('with a local test server', () => {
         await subject();
         expect(true).toBe(false);
       } catch (e) {
-        expect(e.message).toMatch('Failed to fetch PNG at http://localhost:8990/sample.txt');
+        expect(e.message).toMatch(
+          'Failed to fetch PNG at http://localhost:8990/sample.txt',
+        );
         expect(e.message).toMatch('status code: 200');
         expect(e.message).toMatch('Sample content');
         expect(e.message).toMatch('The original error was');
