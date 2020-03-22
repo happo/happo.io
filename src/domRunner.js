@@ -98,6 +98,7 @@ async function executeTargetWithPrerender({
   });
 
   const result = await targets[name].execute({
+    targetName: name,
     assetsPackage,
     globalCSS,
     snapPayloads,
@@ -175,6 +176,7 @@ async function generateScreenshots(
           });
         } else {
           result = await targets[name].execute({
+            targetName: name,
             staticPackage,
             globalCSS: cssBlocks,
             apiKey,

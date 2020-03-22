@@ -22,6 +22,7 @@ export default async function remoteRunner(
       targetNames.map(async (name) => {
         const startTime = performance.now();
         const result = await targets[name].execute({
+          targetName: name,
           staticPackage,
           apiKey,
           apiSecret,

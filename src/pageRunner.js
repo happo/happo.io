@@ -21,6 +21,7 @@ export default async function pagesRunner({
       targetNames.map(async (name) => {
         const startTime = performance.now();
         const result = await targets[name].execute({
+          targetName: name,
           pages,
           apiKey,
           apiSecret,
