@@ -6,7 +6,7 @@ import loadCSSFile from './loadCSSFile';
 
 export default async function remoteRunner(
   { apiKey, apiSecret, endpoint, targets, plugins, stylesheets },
-  { generateStaticPackage },
+  { generateStaticPackage, isAsync },
 ) {
   const logger = new Logger();
   try {
@@ -23,6 +23,7 @@ export default async function remoteRunner(
         const startTime = performance.now();
         const result = await targets[name].execute({
           targetName: name,
+          asyncResults: isAsync,
           staticPackage,
           apiKey,
           apiSecret,
@@ -36,6 +37,9 @@ export default async function remoteRunner(
     );
     logger.start(undefined, { startTime: outerStartTime });
     logger.success();
+    if (isAsync) {
+      return results;
+    }
     return constructReport(results);
   } catch (e) {
     logger.fail();

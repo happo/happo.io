@@ -19,6 +19,7 @@ commander
   .option('-c, --config <path>', 'set config path', configFile)
   .option('-o, --only <component>', 'limit to one component')
   .option('-l, --link <url>', 'provide a link back to the commit')
+  .option('-a, --async', 'process reports/comparisons asynchronously')
   .option(
     '-m, --message <message>',
     'associate the run with a message (e.g. commit subject)',
@@ -48,6 +49,7 @@ commander
     await runCommand(usedSha, await loadUserConfig(commander.config), {
       only: commander.only,
       link: commander.link,
+      isAsync: commander['async'], // eslint-disable-line
       message: commander.message,
     });
     process.exit(0);
