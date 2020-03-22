@@ -105,6 +105,7 @@ commander
       message: commander.message,
       author: commander.author,
       dryRun: commander.dryRun,
+      isAsync: commander.async,
     });
     if (commander.link && process.env.HAPPO_GITHUB_USER_CREDENTIALS) {
       await postGithubComment({

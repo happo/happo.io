@@ -20,7 +20,7 @@ export default async function compareReports(
   sha1,
   sha2,
   { apiKey, apiSecret, endpoint, project, compareThreshold },
-  { link, message, author, dryRun },
+  { link, message, author, dryRun, isAsync },
   log = console.log,
   maxTries = 5,
 ) {
@@ -36,6 +36,7 @@ export default async function compareReports(
           author,
           project,
           skipStatusPost,
+          isAsync,
         },
       },
       { apiKey, apiSecret, maxTries },
@@ -43,7 +44,7 @@ export default async function compareReports(
   const firstCompareResult = await makeCompareCall(
     typeof compareThreshold === 'number' || dryRun,
   );
-  if (typeof compareThreshold !== 'number') {
+  if (typeof compareThreshold !== 'number' || isAsync) {
     // We're not using a threshold -- return results right away
     return firstCompareResult;
   }
