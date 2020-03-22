@@ -107,6 +107,10 @@ commander
       dryRun: commander.dryRun,
       isAsync: commander.async,
     });
+    if (commander.async) {
+      new Logger().info(`Async comparison created with ID=${result.id}`);
+      process.exit(0);
+    }
     if (commander.link && process.env.HAPPO_GITHUB_USER_CREDENTIALS) {
       await postGithubComment({
         link: commander.link,
