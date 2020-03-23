@@ -14,11 +14,15 @@ import startJobCommand from './commands/startJob';
 import postGithubComment from './postGithubComment';
 import uploadReport from './uploadReport';
 
+const { HAPPO_IS_ASYNC: RAW_HAPPO_IS_ASYNC } = process.env;
+const HAPPO_IS_ASYNC = RAW_HAPPO_IS_ASYNC === 'true';
+
 commander
   .version(packageJson.version)
   .option('-c, --config <path>', 'set config path', configFile)
   .option('-o, --only <component>', 'limit to one component')
   .option('-l, --link <url>', 'provide a link back to the commit')
+  .option('-a, --async', 'process reports/comparisons asynchronously')
   .option(
     '-m, --message <message>',
     'associate the run with a message (e.g. commit subject)',
@@ -45,9 +49,11 @@ commander
     if (commander.only) {
       usedSha = `${usedSha}-${commander.only}`;
     }
+    const isAsync = commander.async || HAPPO_IS_ASYNC;
     await runCommand(usedSha, await loadUserConfig(commander.config), {
       only: commander.only,
       link: commander.link,
+      isAsync,
       message: commander.message,
     });
     process.exit(0);
@@ -98,12 +104,18 @@ commander
   .description('compare reports for two different shas')
   .action(async (sha1, sha2) => {
     const config = await loadUserConfig(commander.config);
+    const isAsync = commander.async || HAPPO_IS_ASYNC;
     const result = await compareReportsCommand(sha1, sha2, config, {
       link: commander.link,
       message: commander.message,
       author: commander.author,
       dryRun: commander.dryRun,
+      isAsync,
     });
+    if (isAsync) {
+      new Logger().info(`Async comparison created with ID=${result.id}`);
+      process.exit(0);
+    }
     if (commander.link && process.env.HAPPO_GITHUB_USER_CREDENTIALS) {
       await postGithubComment({
         link: commander.link,

@@ -55,6 +55,8 @@ export default class RemoteBrowserTarget {
     apiSecret,
     endpoint,
     pages,
+    asyncResults = false,
+    targetName,
   }) {
     const boundMakeRequest = async ({ slice, chunk, pageSlice }) => {
       const payloadString = JSON.stringify({
@@ -78,6 +80,7 @@ export default class RemoteBrowserTarget {
           json: true,
           formData: {
             type: `browser-${this.browserName}`,
+            targetName,
             payloadHash,
             payload: {
               options: {
@@ -92,6 +95,7 @@ export default class RemoteBrowserTarget {
       );
     };
     const promises = [];
+    const requestIds = [];
     if (staticPackage) {
       for (let i = 0; i < this.chunks; i += 1) {
         // We allow one `await` inside the loop here to avoid POSTing all payloads
@@ -100,7 +104,11 @@ export default class RemoteBrowserTarget {
         const { requestId } = await boundMakeRequest({
           chunk: { index: i, total: this.chunks },
         });
-        promises.push(waitFor({ requestId, endpoint, apiKey, apiSecret }));
+        if (asyncResults) {
+          requestIds.push(requestId);
+        } else {
+          promises.push(waitFor({ requestId, endpoint, apiKey, apiSecret }));
+        }
       }
     } else if (pages) {
       const pagesPerChunk = Math.ceil(pages.length / this.chunks);
@@ -113,7 +121,11 @@ export default class RemoteBrowserTarget {
         // to the server at the same time (thus reducing load a little).
         // eslint-disable-next-line no-await-in-loop
         const { requestId } = await boundMakeRequest({ pageSlice });
-        promises.push(waitFor({ requestId, endpoint, apiKey, apiSecret }));
+        if (asyncResults) {
+          requestIds.push(requestId);
+        } else {
+          promises.push(waitFor({ requestId, endpoint, apiKey, apiSecret }));
+        }
       }
     } else {
       const snapsPerChunk = Math.ceil(snapPayloads.length / this.chunks);
@@ -126,8 +138,16 @@ export default class RemoteBrowserTarget {
         // to the server at the same time (thus reducing load a little).
         // eslint-disable-next-line no-await-in-loop
         const { requestId } = await boundMakeRequest({ slice });
-        promises.push(waitFor({ requestId, endpoint, apiKey, apiSecret }));
+        if (asyncResults) {
+          requestIds.push(requestId);
+        } else {
+          promises.push(waitFor({ requestId, endpoint, apiKey, apiSecret }));
+        }
       }
+    }
+
+    if (asyncResults) {
+      return requestIds;
     }
 
     const result = [];

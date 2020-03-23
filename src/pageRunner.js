@@ -3,13 +3,10 @@ import { performance } from 'perf_hooks';
 import Logger from './Logger';
 import constructReport from './constructReport';
 
-export default async function pagesRunner({
-  apiKey,
-  apiSecret,
-  endpoint,
-  targets,
-  pages,
-}) {
+export default async function pagesRunner(
+  { apiKey, apiSecret, endpoint, targets, pages },
+  { isAsync } = {},
+) {
   const logger = new Logger();
   try {
     logger.info('Preparing job for remote execution...');
@@ -21,6 +18,8 @@ export default async function pagesRunner({
       targetNames.map(async (name) => {
         const startTime = performance.now();
         const result = await targets[name].execute({
+          targetName: name,
+          asyncResults: isAsync,
           pages,
           apiKey,
           apiSecret,
@@ -33,6 +32,9 @@ export default async function pagesRunner({
     );
     logger.start(undefined, { startTime: outerStartTime });
     logger.success();
+    if (isAsync) {
+      return results;
+    }
     return constructReport(results);
   } catch (e) {
     logger.fail();

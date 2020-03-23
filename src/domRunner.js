@@ -64,6 +64,7 @@ async function executeTargetWithPrerender({
   apiKey,
   apiSecret,
   endpoint,
+  isAsync,
 }) {
   const { css, snapPayloads } = await processSnapsInBundle(bundleFile, {
     targetName: name,
@@ -98,6 +99,8 @@ async function executeTargetWithPrerender({
   });
 
   const result = await targets[name].execute({
+    asyncResults: isAsync,
+    targetName: name,
     assetsPackage,
     globalCSS,
     snapPayloads,
@@ -120,6 +123,7 @@ async function generateScreenshots(
     plugins,
     prerender,
     tmpdir,
+    isAsync,
   },
   bundleFile,
   logger,
@@ -172,9 +176,12 @@ async function generateScreenshots(
             apiSecret,
             endpoint,
             logger,
+            isAsync,
           });
         } else {
           result = await targets[name].execute({
+            asyncResults: isAsync,
+            targetName: name,
             staticPackage,
             globalCSS: cssBlocks,
             apiKey,
@@ -187,6 +194,9 @@ async function generateScreenshots(
         return { name, result };
       }),
     );
+    if (isAsync) {
+      return results;
+    }
     return constructReport(results);
   } catch (e) {
     logger.fail();
@@ -214,7 +224,7 @@ export default async function domRunner(
     jsdomOptions,
     asyncTimeout,
   },
-  { only, onReady },
+  { only, isAsync, onReady },
 ) {
   const boundGenerateScreenshots = generateScreenshots.bind(null, {
     apiKey,
@@ -225,6 +235,7 @@ export default async function domRunner(
     publicFolders,
     prerender,
     only,
+    isAsync,
     jsdomOptions,
     plugins,
     tmpdir,

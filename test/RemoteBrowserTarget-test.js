@@ -71,6 +71,23 @@ describe('#execute', () => {
     });
   });
 
+  describe('with a targetName', () => {
+    it('passes it along', async () => {
+      const target = subject();
+      await target.execute({
+        targetName: 'chrome-large',
+        globalCSS: '* { color: red }',
+        snapPayloads: [{ html: '<div/>' }, { html: '<button/>' }, { html: '<li/>' }],
+        apiKey: 'foobar',
+        apiSecret: 'p@assword',
+        endpoint: 'http://localhost',
+      });
+      expect(makeRequest.mock.calls[0][0].formData.targetName).toEqual(
+        'chrome-large',
+      );
+    });
+  });
+
   describe('when chunks is equal to two', () => {
     beforeEach(() => {
       chunks = 2;
