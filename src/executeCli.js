@@ -14,6 +14,9 @@ import startJobCommand from './commands/startJob';
 import postGithubComment from './postGithubComment';
 import uploadReport from './uploadReport';
 
+const { HAPPO_IS_ASYNC: RAW_HAPPO_IS_ASYNC } = process.env;
+const HAPPO_IS_ASYNC = RAW_HAPPO_IS_ASYNC === 'true';
+
 commander
   .version(packageJson.version)
   .option('-c, --config <path>', 'set config path', configFile)
@@ -46,10 +49,11 @@ commander
     if (commander.only) {
       usedSha = `${usedSha}-${commander.only}`;
     }
+    const isAsync = commander.async || HAPPO_IS_ASYNC;
     await runCommand(usedSha, await loadUserConfig(commander.config), {
       only: commander.only,
       link: commander.link,
-      isAsync: commander['async'], // eslint-disable-line
+      isAsync,
       message: commander.message,
     });
     process.exit(0);
@@ -100,14 +104,15 @@ commander
   .description('compare reports for two different shas')
   .action(async (sha1, sha2) => {
     const config = await loadUserConfig(commander.config);
+    const isAsync = commander.async || HAPPO_IS_ASYNC;
     const result = await compareReportsCommand(sha1, sha2, config, {
       link: commander.link,
       message: commander.message,
       author: commander.author,
       dryRun: commander.dryRun,
-      isAsync: commander.async,
+      isAsync,
     });
-    if (commander.async) {
+    if (isAsync) {
       new Logger().info(`Async comparison created with ID=${result.id}`);
       process.exit(0);
     }
