@@ -280,6 +280,17 @@ INSTALL_CMD="lerna bootstrap" npm run happo-ci-travis
 In this example, the `lerna bootstrap` command will be invoked before running
 `happo run` on each commit, instead of `yarn install`/`npm install`.
 
+By default, all `happo-ci` commands will wait for screenshots to be done before
+finishing. If you have [authorized your Happo account to post statuses back to
+PRs/commits](#posting-statuses-back-to-prscommits), you can set a
+`HAPPO_IS_ASYNC=true` environment variable to instruct Happo to finish the CI
+task as soon as possible and then instead wait for the status to come back via
+happo.io.
+
+```bash
+HAPPO_IS_ASYNC=true npm run happo-ci-circleci
+```
+
 ## `happo-ci-travis`
 
 This script knows about the Travis build environment, assuming a PR based
