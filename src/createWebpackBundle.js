@@ -1,10 +1,12 @@
 import path from 'path';
 
-import webpack from 'webpack';
-
 import Logger from './Logger';
 
 const { VERBOSE = 'false' } = process.env;
+
+function getWebpack() {
+  return require('webpack');
+}
 
 function generateBaseConfig({ entry, type, tmpdir }) {
   const babelLoader = require.resolve('babel-loader');
@@ -35,7 +37,7 @@ function generateBaseConfig({ entry, type, tmpdir }) {
     },
     plugins: [],
   };
-  if (/^[4567]\./.test(webpack.version)) {
+  if (/^[4567]\./.test(getWebpack().version)) {
     if (VERBOSE === 'true') {
       console.log('Detected webpack version >=4. Using `mode: "development"`.');
     }
@@ -76,7 +78,7 @@ export default async function createWebpackBundle(
     console.log('Using this webpack config:');
     console.log(config);
   }
-  const compiler = webpack(config);
+  const compiler = getWebpack()(config);
   const bundleFilePath = path.join(config.output.path, config.output.filename);
 
   if (onBuildReady) {
