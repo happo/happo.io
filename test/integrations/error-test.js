@@ -7,11 +7,14 @@ import runCommand from '../../src/commands/run';
 
 jest.mock('../../src/makeRequest');
 
+const originalConsoleWarn = console.warn;
+
 let subject;
 let config;
 let sha;
 
 beforeEach(() => {
+  console.warn = jest.fn(originalConsoleWarn);
   makeRequest.mockImplementation(() => Promise.resolve({}));
   sha = 'foobar';
   config = Object.assign({}, defaultConfig, {
@@ -20,6 +23,10 @@ beforeEach(() => {
     type: 'plain',
   });
   subject = () => runCommand(sha, config, {});
+});
+
+afterEach(() => {
+  console.warn = originalConsoleWarn;
 });
 
 it('throws on errors', async () => {
@@ -43,9 +50,7 @@ describe('with a syntax error', () => {
     try {
       await subject();
     } catch (e) {
-      expect(e.message).toMatch(
-        /Module build failed/,
-      );
+      expect(e.message).toMatch(/Module build failed/);
       return;
     }
 
@@ -53,6 +58,20 @@ describe('with a syntax error', () => {
 
     // If we end up here, something is wrong
     expect(false).toBe(true);
+  });
+});
+
+describe('with an empty list of examples', () => {
+  beforeEach(() => {
+    config.include = 'test/integrations/examples/*-error-empty-happo.js*';
+    config.type = 'react';
+  });
+
+  it('logs a warning', async () => {
+    await subject();
+    expect(console.warn.mock.calls).toEqual([
+      ['No examples found for target firefox, skipping'],
+    ]);
   });
 });
 
