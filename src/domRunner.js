@@ -73,7 +73,8 @@ async function executeTargetWithPrerender({
     DomProvider,
   });
   if (!snapPayloads.length) {
-    throw new Error('No examples found');
+    console.warn(`No examples found for target ${name}, skipping`);
+    return [];
   }
   const errors = snapPayloads.filter((p) => p.isError);
   if (errors.length === 1) {
