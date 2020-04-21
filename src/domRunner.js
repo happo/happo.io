@@ -156,48 +156,56 @@ async function generateScreenshots(
     const staticPackage = prerender
       ? undefined
       : await createStaticPackage({
-          tmpdir,
-          publicFolders,
-        });
-    const results = await Promise.all(
-      targetNames.map(async (name) => {
-        let result;
+        tmpdir,
+        publicFolders,
+      });
 
-        const startTime = performance.now();
-        if (prerender) {
-          result = await executeTargetWithPrerender({
-            name,
-            targets,
-            bundleFile,
-            publicFolders,
-            viewport: targets[name].viewport,
-            DomProvider,
-            cssBlocks,
-            apiKey,
-            apiSecret,
-            endpoint,
-            logger,
-            isAsync,
-          });
-        } else {
-          result = await targets[name].execute({
-            asyncResults: isAsync,
-            targetName: name,
-            staticPackage,
-            globalCSS: cssBlocks,
-            apiKey,
-            apiSecret,
-            endpoint,
-          });
-        }
-        logger.start(`  - ${name}`, { startTime });
-        logger.success();
-        return { name, result };
-      }),
-    );
+    const results = [];
+    for (const name of targetNames) {
+      let result;
+
+      const startTime = performance.now();
+      if (prerender) {
+        // These tasks are CPU-bound, and we need to be careful about how much
+        // memory we are using at one time, so we want to run them serially.
+        // eslint-disable-next-line no-await-in-loop
+        result = await executeTargetWithPrerender({
+          name,
+          targets,
+          bundleFile,
+          publicFolders,
+          viewport: targets[name].viewport,
+          DomProvider,
+          cssBlocks,
+          apiKey,
+          apiSecret,
+          endpoint,
+          logger,
+          isAsync,
+        });
+      } else {
+        // These tasks are CPU-bound, and we need to be careful about how much
+        // memory we are using at one time, so we want to run them serially.
+        // eslint-disable-next-line no-await-in-loop
+        result = await targets[name].execute({
+          asyncResults: isAsync,
+          targetName: name,
+          staticPackage,
+          globalCSS: cssBlocks,
+          apiKey,
+          apiSecret,
+          endpoint,
+        });
+      }
+      logger.start(`  - ${name}`, { startTime });
+      logger.success();
+      results.push({ name, result });
+    }
+
     if (isAsync) {
       return results;
     }
+
     return constructReport(results);
   } catch (e) {
     logger.fail();
