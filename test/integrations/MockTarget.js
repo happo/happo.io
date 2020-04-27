@@ -1,6 +1,6 @@
 export default class MockTarget {
-  constructor() {
-    this.viewport = '800x600';
+  constructor({ viewport } = {}) {
+    this.viewport = viewport || '800x600';
   }
 
   execute({ globalCSS, snapPayloads, staticPackage, assetsPackage }) {

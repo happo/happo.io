@@ -199,7 +199,7 @@ it('produces the right html', async () => {
   ]);
 });
 
-describe('with the puppeteer plugin', () => {
+xdescribe('with the puppeteer plugin', () => {
   beforeEach(() => {
     config.plugins.push(
       happoPluginPuppeteer({
@@ -211,6 +211,18 @@ describe('with the puppeteer plugin', () => {
   it('produces the right number of snaps', async () => {
     await subject();
     expect(config.targets.chrome.snapPayloads.length).toBe(20);
+  });
+});
+
+describe('with multiple targets', () => {
+  beforeEach(() => {
+    config.targets.chromeSmall = new MockTarget({ viewport: '320x768' });
+  });
+
+  it('produces the right number of snaps in each target', async () => {
+    await subject();
+    expect(config.targets.chrome.snapPayloads.length).toBe(20);
+    expect(config.targets.chromeSmall.snapPayloads.length).toBe(20);
   });
 });
 

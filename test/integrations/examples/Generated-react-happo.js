@@ -7,7 +7,7 @@ export default [
       one: {
         render: () => <button>One</button>,
         stylesheets: ['one'],
-        targets: ['chrome'],
+        targets: ['chrome', 'chromeSmall'],
       },
       two: {
         render: () => <button>Two</button>,
