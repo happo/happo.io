@@ -156,7 +156,7 @@ async function generateScreenshots(
 
     let results;
     if (prerender) {
-      const processedSnaps = {};
+      const prerenderPromises = [];
       for (const name of targetNames) {
         // These tasks are CPU-bound, and we need to be careful about how much
         // memory we are using at one time, so we want to run them serially.
@@ -167,13 +167,8 @@ async function generateScreenshots(
           viewport: targets[name].viewport,
           DomProvider,
         });
-        processedSnaps[name] = { css, snapPayloads };
-      }
-
-      results = await Promise.all(
-        targetNames.map(async (name) => {
+        prerenderPromises.push((async () => {
           const startTime = performance.now();
-          const { css, snapPayloads } = processedSnaps[name];
           const result = await executeTargetWithPrerender({
             name,
             css,
@@ -191,8 +186,10 @@ async function generateScreenshots(
           logger.start(`  - ${name}`, { startTime });
           logger.success();
           return { name, result };
-        }),
-      );
+        })());
+      }
+
+      results = await Promise.all(prerenderPromises);
     } else {
       results = await Promise.all(
         targetNames.map(async (name) => {
