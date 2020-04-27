@@ -57,21 +57,15 @@ function resolveDomProvider({ plugins, jsdomOptions }) {
 async function executeTargetWithPrerender({
   name,
   targets,
-  bundleFile,
+  css,
+  snapPayloads,
   publicFolders,
-  DomProvider,
   cssBlocks,
   apiKey,
   apiSecret,
   endpoint,
   isAsync,
 }) {
-  const { css, snapPayloads } = await processSnapsInBundle(bundleFile, {
-    targetName: name,
-    publicFolders,
-    viewport: targets[name].viewport,
-    DomProvider,
-  });
   if (!snapPayloads.length) {
     console.warn(`No examples found for target ${name}, skipping`);
     return [];
@@ -156,22 +150,32 @@ async function generateScreenshots(
     const staticPackage = prerender
       ? undefined
       : await createStaticPackage({
-          tmpdir,
-          publicFolders,
-        });
-    const results = await Promise.all(
-      targetNames.map(async (name) => {
-        let result;
+        tmpdir,
+        publicFolders,
+      });
 
-        const startTime = performance.now();
-        if (prerender) {
-          result = await executeTargetWithPrerender({
+    let results;
+    if (prerender) {
+      const prerenderPromises = [];
+      for (const name of targetNames) {
+        // These tasks are CPU-bound, and we need to be careful about how much
+        // memory we are using at one time, so we want to run them serially.
+        // eslint-disable-next-line no-await-in-loop
+        const { css, snapPayloads } = await processSnapsInBundle(bundleFile, {
+          targetName: name,
+          publicFolders,
+          viewport: targets[name].viewport,
+          DomProvider,
+        });
+        prerenderPromises.push((async () => {
+          const startTime = performance.now();
+          const result = await executeTargetWithPrerender({
             name,
+            css,
+            snapPayloads,
             targets,
-            bundleFile,
             publicFolders,
             viewport: targets[name].viewport,
-            DomProvider,
             cssBlocks,
             apiKey,
             apiSecret,
@@ -179,8 +183,18 @@ async function generateScreenshots(
             logger,
             isAsync,
           });
-        } else {
-          result = await targets[name].execute({
+          logger.start(`  - ${name}`, { startTime });
+          logger.success();
+          return { name, result };
+        })());
+      }
+
+      results = await Promise.all(prerenderPromises);
+    } else {
+      results = await Promise.all(
+        targetNames.map(async (name) => {
+          const startTime = performance.now();
+          const result = await targets[name].execute({
             asyncResults: isAsync,
             targetName: name,
             staticPackage,
@@ -189,12 +203,12 @@ async function generateScreenshots(
             apiSecret,
             endpoint,
           });
-        }
-        logger.start(`  - ${name}`, { startTime });
-        logger.success();
-        return { name, result };
-      }),
-    );
+          logger.start(`  - ${name}`, { startTime });
+          logger.success();
+          return { name, result };
+        }),
+      );
+    }
     if (isAsync) {
       return results;
     }
