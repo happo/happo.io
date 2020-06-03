@@ -75,6 +75,8 @@ export default async function compareReports(
           endpoint,
           compareThreshold,
           retries: maxTries,
+          apiKey,
+          apiSecret,
         });
         if (!firstDiffDistance) {
           linesToLog.push(

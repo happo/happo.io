@@ -22,7 +22,7 @@ let cliArgs;
 
 beforeEach(() => {
   log = jest.fn();
-  fetchPng.mockImplementation((url) => realFetchPng(url));
+  fetchPng.mockImplementation((url, opts) => realFetchPng(url, opts));
   compareResult = {
     summary: 'Mocked summary',
     equal: false,

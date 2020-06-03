@@ -34,6 +34,8 @@ beforeEach(() => {
       before,
       after,
       endpoint: 'https://dummyimage.com',
+      apiKey: 'foo',
+      apiSecret: 'bar',
       compareThreshold,
     });
 });
@@ -145,9 +147,9 @@ describe('when images are equal', () => {
 describe('when fetchPng fails', () => {
   beforeEach(() => {
     let tries = 0;
-    fetchPng.mockImplementation((url) => {
+    fetchPng.mockImplementation((...args) => {
       if (tries > 1) {
-        return realFetchPng(url);
+        return realFetchPng(...args);
       }
       tries += 1;
       return Promise.reject(new Error('What happened?'));

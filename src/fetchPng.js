@@ -1,10 +1,13 @@
 import { PNG } from 'pngjs';
 import request from 'request';
 
-export default async function fetchPng(url) {
+import authForFetch from './authForFetch';
+
+export default async function fetchPng(url, { apiKey, apiSecret, endpoint }) {
   return new Promise((resolve, reject) => {
     request({
       url,
+      auth: authForFetch({ url, apiKey, apiSecret, endpoint }),
     })
       .on('error', reject)
       .pipe(new PNG())
