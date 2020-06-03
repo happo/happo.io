@@ -1,4 +1,4 @@
-const SUFFIX_PATTERN = /([\w-_]+)[-_]\w+\.[a-z]+$/;
+const SUFFIX_PATTERN = /([\w-_]+)[-_.]\w+\.[a-z]+$/;
 const DIRECTORY_PATTERN = /([\w-_]+)\/\w+\.[a-z]+$/;
 
 export default function getComponentNameFromFileName(fileName) {

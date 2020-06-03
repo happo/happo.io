@@ -16,6 +16,14 @@ it('handles tsx files', () => {
   expect(getComponentNameFromFileName('/foo/bar/Car/happo.tsx')).toEqual('Car');
 });
 
+it('handles file names with period before "happo"', () => {
+  expect(
+    getComponentNameFromFileName(
+      '/home//visly-ui/tokens/__snapshots__/ColorPicker.happo.tsx',
+    ),
+  ).toEqual('ColorPicker');
+});
+
 it('handles directory structures with unconventional names', () => {
   expect(getComponentNameFromFileName('./src/foo_bar/happo.jsx')).toEqual('foo_bar');
 });
@@ -25,7 +33,9 @@ it('handles custom naming structures', () => {
 });
 
 it('handles underscores', () => {
-  expect(getComponentNameFromFileName('./src/nav_bar_examples.js')).toEqual('nav_bar');
+  expect(getComponentNameFromFileName('./src/nav_bar_examples.js')).toEqual(
+    'nav_bar',
+  );
 });
 
 it('handles files that are named index', () => {
@@ -37,7 +47,9 @@ it('handles files that have numbers', () => {
 });
 
 it('handles files that have dashes', () => {
-  expect(getComponentNameFromFileName('./src/motel-six-happo.js')).toEqual('motel-six');
+  expect(getComponentNameFromFileName('./src/motel-six-happo.js')).toEqual(
+    'motel-six',
+  );
 });
 
 it('handles files that are in the root folder', () => {
