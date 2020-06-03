@@ -35,9 +35,9 @@ function imageDiff({ bitmap1, bitmap2, compareThreshold }) {
   }
 }
 
-async function fetchPngWithInMemoryFallback(url) {
+async function fetchPngWithInMemoryFallback(url, { apiKey, apiSecret, endpoint }) {
   try {
-    const res = await fetchPng(url);
+    const res = await fetchPng(url, { apiKey, apiSecret, endpoint });
     return res;
   } catch (e1) {
     console.warn(
@@ -45,7 +45,7 @@ async function fetchPngWithInMemoryFallback(url) {
     );
     console.warn(e1);
     try {
-      const fallback = await fetchPngInMemory(url);
+      const fallback = await fetchPngInMemory(url, { apiKey, apiSecret, endpoint });
       return fallback;
     } catch (e2) {
       throw new Error(
@@ -55,14 +55,17 @@ async function fetchPngWithInMemoryFallback(url) {
   }
 }
 
-async function fetchPngWithRetry(url, { retries }) {
+async function fetchPngWithRetry(url, { retries, apiKey, apiSecret, endpoint }) {
   try {
-    const bitmap = await asyncRetry(() => fetchPngWithInMemoryFallback(url), {
-      retries,
-      onRetry: (e) => {
-        console.warn(`Retrying fetch for ${url}. Error was: ${e.message}`);
+    const bitmap = await asyncRetry(
+      () => fetchPngWithInMemoryFallback(url, { apiKey, apiSecret, endpoint }),
+      {
+        retries,
+        onRetry: (e) => {
+          console.warn(`Retrying fetch for ${url}. Error was: ${e.message}`);
+        },
       },
-    });
+    );
     return bitmap;
   } catch (e) {
     await new Promise((resolve, reject) => {
@@ -95,13 +98,25 @@ export default async function compareSnapshots({
   endpoint,
   compareThreshold,
   retries = 5,
+  apiKey,
+  apiSecret,
 }) {
   if (before.height !== after.height || before.width !== after.width) {
     return 1;
   }
   const [bitmap1, bitmap2] = await Promise.all([
-    fetchPngWithRetry(makeAbsolute(before.url, endpoint), { retries }),
-    fetchPngWithRetry(makeAbsolute(after.url, endpoint), { retries }),
+    fetchPngWithRetry(makeAbsolute(before.url, endpoint), {
+      retries,
+      apiKey,
+      apiSecret,
+      endpoint,
+    }),
+    fetchPngWithRetry(makeAbsolute(after.url, endpoint), {
+      retries,
+      apiKey,
+      apiSecret,
+      endpoint,
+    }),
   ]);
 
   return imageDiff({
