@@ -6,7 +6,8 @@ import loadCSSFile from './loadCSSFile';
 
 export default async function remoteRunner(
   { apiKey, apiSecret, endpoint, targets, plugins, stylesheets },
-  { generateStaticPackage, isAsync },
+  { generateStaticPackage },
+  { isAsync },
 ) {
   const logger = new Logger();
   try {
