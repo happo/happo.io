@@ -7,6 +7,7 @@
     "happo": "./build/cli.js",
     "happo-ci-travis": "./bin/happo-ci-travis",
     "happo-ci-circleci": "./bin/happo-ci-circleci",
+    "happo-ci-github-actions": "./bin/happo-ci-github-actions",
     "happo-ci": "./bin/happo-ci"
   },
   "scripts": {
