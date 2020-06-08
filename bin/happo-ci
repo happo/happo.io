@@ -8,6 +8,7 @@ set -eou pipefail
 
 # Initialize optional env variables
 INSTALL_CMD=${INSTALL_CMD:-}
+HAPPO_IS_ASYNC=${HAPPO_IS_ASYNC:-}
 HAPPO_GIT_COMMAND=${HAPPO_GIT_COMMAND:-git}
 HAPPO_COMMAND=${HAPPO_COMMAND:-"node_modules/happo.io/build/cli.js"}
 
@@ -22,6 +23,9 @@ echo "PREVIOUS_SHA: ${PREVIOUS_SHA}"
 echo "CURRENT_SHA: ${CURRENT_SHA}"
 echo "CHANGE_URL: ${CHANGE_URL}"
 echo "INSTALL_CMD: ${INSTALL_CMD}"
+echo "HAPPO_IS_ASYNC: ${HAPPO_IS_ASYNC}"
+echo "HAPPO_GIT_COMMAND: ${HAPPO_GIT_COMMAND}"
+echo "HAPPO_COMMAND: ${HAPPO_COMMAND}"
 
 NPM_CLIENT="npm"
 NPM_CLIENT_FLAGS="--no-save"
@@ -48,15 +52,17 @@ run-install() {
 
 run-happo() {
   SHA=$1
-  HEAD_SHA=$(${HAPPO_GIT_COMMAND} rev-parse HEAD)
   RUN_HAPPO_CHECK="false"
 
-  if [ "$HEAD_SHA" != "$SHA" ]; then
-    RUN_HAPPO_CHECK="true"
-    ${HAPPO_GIT_COMMAND} checkout --force --quiet "$SHA"
-    # Install dependencies (again, since we're in a different place in git
-    # history)
-    run-install
+  if [ -z "$HAPPO_IS_ASYNC" ]; then
+    HEAD_SHA=$(${HAPPO_GIT_COMMAND} rev-parse HEAD)
+    if [ "$HEAD_SHA" != "$SHA" ]; then
+      RUN_HAPPO_CHECK="true"
+      ${HAPPO_GIT_COMMAND} checkout --force --quiet "$SHA"
+      # Install dependencies (again, since we're in a different place in git
+      # history)
+      run-install
+    fi
   fi
 
   COMMIT_SUBJECT="$(${HAPPO_GIT_COMMAND} show -s --format=%s)"
@@ -87,23 +93,25 @@ COMMIT_AUTHOR="$(${HAPPO_GIT_COMMAND} show -s --format=%ae)"
 
 run-happo "$CURRENT_SHA"
 
-# Check if we need to generate a baseline. In some cases, the baseline is
-# already there (some other PR uploaded it), and we can just use the existing
-# one.
-if ! "$HAPPO_COMMAND" has-report "$PREVIOUS_SHA"; then
-  echo "No previous report found for ${PREVIOUS_SHA}. Generating one..."
-  run-happo "$PREVIOUS_SHA"
+if [ -z "$HAPPO_IS_ASYNC" ]; then
+  # Check if we need to generate a baseline. In some cases, the baseline is
+  # already there (some other PR uploaded it), and we can just use the existing
+  # one.
+  if ! "$HAPPO_COMMAND" has-report "$PREVIOUS_SHA"; then
+    echo "No previous report found for ${PREVIOUS_SHA}. Generating one..."
+    run-happo "$PREVIOUS_SHA"
 
-  # Restore git and node_modules to their original state so that we can run
-  # `happo compare` on CURRENT_SHA instead of PREVIOUS_SHA.
-  "$HAPPO_GIT_COMMAND" checkout --force --quiet "$CURRENT_SHA"
-  run-install
-else
-  echo "Re-using existing report for ${PREVIOUS_SHA}."
-fi
+    # Restore git and node_modules to their original state so that we can run
+    # `happo compare` on CURRENT_SHA instead of PREVIOUS_SHA.
+    "$HAPPO_GIT_COMMAND" checkout --force --quiet "$CURRENT_SHA"
+    run-install
+  else
+    echo "Re-using existing report for ${PREVIOUS_SHA}."
+  fi
 
-if [ "$FIRST_RUN" = "true" ]; then
-  "$HAPPO_COMMAND" empty "$PREVIOUS_SHA"
+  if [ "$FIRST_RUN" = "true" ]; then
+    "$HAPPO_COMMAND" empty "$PREVIOUS_SHA"
+  fi
 fi
 
 # Compare reports from the two SHAs.

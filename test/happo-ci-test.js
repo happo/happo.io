@@ -11,10 +11,7 @@ let env;
 
 function getLog(file) {
   try {
-    return fs
-      .readFileSync(file, 'utf-8')
-      .split('\n')
-      .filter(Boolean);
+    return fs.readFileSync(file, 'utf-8').split('\n').filter(Boolean);
   } catch (e) {
     if (e.code === 'ENOENT') {
       return [];
@@ -144,6 +141,28 @@ describe('when there is no report for PREVIOUS_SHA', () => {
       'show -s --format=%s',
       'checkout --force --quiet bar',
     ]);
+  });
+
+  describe('when HAPPO_IS_ASYNC', () => {
+    beforeEach(() => {
+      env.HAPPO_IS_ASYNC = 'true';
+    });
+
+    it('does not checkout anything, runs a single report', () => {
+      subject();
+      expect(getCliLog()).toEqual([
+        'start-job no-report bar --link http://foo.bar/ --message Commit message',
+        'run bar --link http://foo.bar/ --message Commit message',
+        'compare no-report bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
+      ]);
+      expect(getGitLog()).toEqual([
+        'rev-parse no-report',
+        'rev-parse bar',
+        'show -s --format=%s',
+        'show -s --format=%ae',
+        'show -s --format=%s',
+      ]);
+    });
   });
 });
 
