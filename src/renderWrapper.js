@@ -41,7 +41,7 @@ class ErrorBoundary extends React.Component {
             fontSize: 'small',
           },
         },
-        `Error when rendering component=${component}, variant${variant}\n\n${error.stack}`,
+        `Error when rendering component "${component}", variant "${variant}"\n\n${error.stack}`,
       );
     }
 
