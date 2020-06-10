@@ -22,7 +22,9 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error) {
     const { component, variant } = this.props;
-    console.error(`Caught error while rendering component "${component}", variant "${variant}"`);
+    console.error(
+      `Caught error while rendering component "${component}", variant "${variant}"`,
+    );
     console.error(error);
   }
 
@@ -32,7 +34,13 @@ class ErrorBoundary extends React.Component {
     if (error) {
       return React.createElement(
         'pre',
-        null,
+        {
+          style: {
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-all',
+            fontSize: 'small',
+          },
+        },
         `Error when rendering component=${component}, variant${variant}\n\n${error.stack}`,
       );
     }
