@@ -32,14 +32,14 @@ function findRoot() {
   return layoutChildren[0];
 }
 
-async function renderExample(exampleRenderFunc) {
+async function renderExample(exampleRenderFunc, { component, variant }) {
   document.body.innerHTML = '';
   const rootElement = document.createElement('div');
   rootElement.setAttribute('id', ROOT_ELEMENT_ID);
   document.body.appendChild(rootElement);
 
   const renderInDom = (renderResult) =>
-    window.happoRender(renderResult, { rootElement });
+    window.happoRender(renderResult, { rootElement, component, variant });
 
   const result = exampleRenderFunc(renderInDom);
   if (result && typeof result.then === 'function') {
@@ -147,7 +147,7 @@ export default class Processor {
     window.happoCleanup();
     try {
       window.verbose(`Rendering component ${component}, variant ${variant}`);
-      await renderExample(exampleRenderFunc);
+      await renderExample(exampleRenderFunc, { component, variant });
     } catch (e) {
       return new WrappedError(
         `Failed to render component "${component}", variant "${variant}" in ${fileName}`,
