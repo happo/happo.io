@@ -8,6 +8,7 @@ import runCommand from '../../src/commands/run';
 jest.mock('../../src/makeRequest');
 
 const originalConsoleWarn = console.warn;
+const originalConsoleErr = console.error;
 
 let subject;
 let config;
@@ -15,6 +16,9 @@ let sha;
 
 beforeEach(() => {
   console.warn = jest.fn(originalConsoleWarn);
+  console.error = jest.fn(originalConsoleErr);
+  console.error.mockReset();
+  console.warn.mockReset();
   makeRequest.mockImplementation(() => Promise.resolve({}));
   sha = 'foobar';
   config = Object.assign({}, defaultConfig, {
@@ -27,9 +31,10 @@ beforeEach(() => {
 
 afterEach(() => {
   console.warn = originalConsoleWarn;
+  console.error = originalConsoleErr;
 });
 
-it('throws on errors', async () => {
+it('throws on errors in example functions', async () => {
   try {
     await subject();
   } catch (e) {
@@ -38,6 +43,22 @@ it('throws on errors', async () => {
   }
   // If we end up here, something is wrong
   expect(false).toBe(true);
+});
+
+describe('with a component that throws when rendered', () => {
+  beforeEach(() => {
+    config.include = 'test/integrations/examples/*-error-throws-on-render-happo.js*';
+    config.type = 'react';
+  });
+
+  it('logs the error and moves on', async () => {
+    await subject();
+    console.log(console.error.mock.calls);
+    expect(console.error.mock.calls.length).toBe(4);
+    expect(console.error.mock.calls[2][0]).toEqual(
+      'Caught error while rendering component "Foo-error-throws-on-render", variant "default"',
+    );
+  });
 });
 
 describe('with a syntax error', () => {

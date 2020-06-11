@@ -23,6 +23,7 @@ module.exports = {
     'class-methods-use-this': 0,
     'no-nested-ternary': 0,
     'no-mixed-operators': 0,
+    'react/prop-types': 0,
     indent: 0,
   },
 

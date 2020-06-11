@@ -42,8 +42,8 @@ export default async function createDynamicEntryPoint({
     strings.push(
       `
       const ReactDOM = require('${pathToReactDom}');
-      window.happoRender = (component, { rootElement }) =>
-        ReactDOM.render(renderWrapper(component), rootElement);
+      window.happoRender = (reactComponent, { rootElement, component, variant }) =>
+        ReactDOM.render(renderWrapper(reactComponent, { component, variant }), rootElement);
 
       window.happoCleanup = () => {
         for (const element of document.body.children) {
@@ -55,8 +55,8 @@ export default async function createDynamicEntryPoint({
   } else {
     strings.push(
       `
-      window.happoRender = (html, { rootElement }) => {
-        rootElement.innerHTML = renderWrapper(html);
+      window.happoRender = (html, { rootElement, component, variant }) => {
+        rootElement.innerHTML = renderWrapper(html, { component, variant });
         return rootElement;
       };
 
