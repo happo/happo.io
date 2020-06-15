@@ -34,11 +34,14 @@ export default async function createDynamicEntryPoint({
     `window.happoProcessor = new Processor(${JSON.stringify({ only, rootElementSelector, asyncTimeout })});`,
     `window.verbose = '${VERBOSE}' === 'true' ? console.log : () => null;`,
     'window.snaps = {};',
-    `let renderWrapper = require('${renderWrapperModule}');`,
-    'renderWrapper = renderWrapper.default || renderWrapper;',
   ];
   if (type === 'react') {
     const pathToReactDom = requireRelative.resolve('react-dom', process.cwd());
+    const pathToRW = renderWrapperModule || require.resolve('./renderWrapperReact');
+    strings.push(
+      `let renderWrapper = require('${pathToRW}');`,
+      'renderWrapper = renderWrapper.default || renderWrapper;',
+    );
     strings.push(
       `
       const ReactDOM = require('${pathToReactDom}');
@@ -53,6 +56,11 @@ export default async function createDynamicEntryPoint({
     `.trim(),
     );
   } else {
+    const pathToRW = renderWrapperModule || require.resolve('./renderWrapper');
+    strings.push(
+      `let renderWrapper = require('${pathToRW}');`,
+      'renderWrapper = renderWrapper.default || renderWrapper;',
+    );
     strings.push(
       `
       window.happoRender = (html, { rootElement, component, variant }) => {
