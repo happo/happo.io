@@ -8,6 +8,31 @@ import validateAndFilterExamples from './validateAndFilterExamples';
 
 const ROOT_ELEMENT_ID = 'happo-root';
 
+function inlineCanvases() {
+  const canvases = document.body.querySelectorAll('canvas');
+  for (const canvas of canvases) {
+    if (!canvas.toDataURL) {
+      // We're most likely in a JSDOM environment
+      continue;
+    }
+    const image = document.createElement('img');
+    try {
+      const canvasImageBase64 = canvas.toDataURL('image/png');
+      image.src = canvasImageBase64;
+      const style = window.getComputedStyle(canvas, '');
+      image.style.cssText = style.cssText;
+      canvas.replaceWith(image);
+    } catch (e) {
+      if (e.name === 'SecurityError') {
+        console.warn('Failed to convert tainted canvas to PNG image');
+        console.warn(e);
+      } else {
+        throw e;
+      }
+    }
+  }
+}
+
 function findRoot() {
   const { children } = document.body;
 
@@ -158,6 +183,7 @@ export default class Processor {
       (this.rootElementSelector &&
         document.body.querySelector(this.rootElementSelector)) ||
       findRoot();
+    inlineCanvases();
     const html = await this.waitForHTML(root);
     const item = {
       html,

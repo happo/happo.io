@@ -1,5 +1,5 @@
 /* global window */
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 
 import Button from './Button.ffs';
@@ -155,3 +155,31 @@ class RAFUnmountExample extends React.Component {
 export const rafUnmountExample = () => <RAFUnmountExample />;
 
 export const imageExample = () => <img alt="empty" src={imageSrc} />;
+
+function CanvasImage() {
+  const ref = useRef();
+  useEffect(() => {
+    const ctx = ref.current.getContext('2d');
+    if (!ctx) {
+      return;
+    }
+    ctx.moveTo(0, 0);
+    ctx.lineTo(200, 100);
+    ctx.stroke();
+    ctx.font = '30px Arial';
+    ctx.rotate(0.25);
+    ctx.fillText('Hello World', 20, 50);
+  });
+
+  return (
+    <canvas
+      data-test="untainted-canvas"
+      style={{ padding: 20 }}
+      ref={ref}
+      width="200"
+      height="100"
+    />
+  );
+}
+
+export const canvas = () => <CanvasImage />;

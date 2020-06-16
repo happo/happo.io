@@ -157,7 +157,12 @@ it('produces the right html', async () => {
       html: '<img alt="empty" src="static/media/1x1.3eaf1786.png">',
       variant: 'imageExample',
     },
-
+    {
+      component: 'Foo-react',
+      css: '',
+      html: '<canvas style="padding: 20px;" width="200" height="100"></canvas>',
+      variant: 'canvas',
+    },
     {
       component: 'Foo-react',
       css: '',
@@ -199,7 +204,7 @@ it('produces the right html', async () => {
   ]);
 });
 
-xdescribe('with the puppeteer plugin', () => {
+describe('with the puppeteer plugin', () => {
   beforeEach(() => {
     config.plugins.push(
       happoPluginPuppeteer({
@@ -210,7 +215,12 @@ xdescribe('with the puppeteer plugin', () => {
 
   it('produces the right number of snaps', async () => {
     await subject();
-    expect(config.targets.chrome.snapPayloads.length).toBe(20);
+    expect(config.targets.chrome.snapPayloads.length).toBe(21);
+  });
+
+  it('inlines canvases', async () => {
+    await subject();
+    expect(config.targets.chrome.snapPayloads[14].html).toEqual('asdf');
   });
 });
 
@@ -221,8 +231,8 @@ describe('with multiple targets', () => {
 
   it('produces the right number of snaps in each target', async () => {
     await subject();
-    expect(config.targets.chrome.snapPayloads.length).toBe(20);
-    expect(config.targets.chromeSmall.snapPayloads.length).toBe(20);
+    expect(config.targets.chrome.snapPayloads.length).toBe(21);
+    expect(config.targets.chromeSmall.snapPayloads.length).toBe(21);
   });
 });
 
