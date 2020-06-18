@@ -18,7 +18,11 @@ function getCachedDOM(jsdomOptions, webpackBundle) {
     const virtualConsole = new VirtualConsole();
     virtualConsole.on('jsdomError', (e) => {
       const { stack, detail = '' } = e;
-      if (VERBOSE || typeof detail !== 'string' || detail.length < MAX_ERROR_DETAIL_LENGTH) {
+      if (
+        VERBOSE ||
+        typeof detail !== 'string' ||
+        detail.length < MAX_ERROR_DETAIL_LENGTH
+      ) {
         console.error(stack, detail);
       } else {
         const newDetail = `${(detail || '').slice(0, MAX_ERROR_DETAIL_LENGTH)}...
@@ -71,9 +75,11 @@ export default class JSDOMDomProvider {
   }
 
   async init({ targetName }) {
-    await new Promise((resolve) => {
-      this.dom.window.onBundleReady = resolve;
-    });
+    if (!this.dom.window.happoProcessor) {
+      await new Promise((resolve) => {
+        this.dom.window.onBundleReady = resolve;
+      });
+    }
     return this.dom.window.happoProcessor.init({ targetName });
   }
 
@@ -86,6 +92,7 @@ export default class JSDOMDomProvider {
       height: { value: height, configurable: true },
       availHeight: { value: height, configurable: true },
     });
+    return this.dom.window.happoProcessor.reset();
   }
 
   next() {
@@ -101,6 +108,6 @@ export default class JSDOMDomProvider {
   }
 
   close() {
-    this.dom.window.close();
+    // no-op
   }
 }

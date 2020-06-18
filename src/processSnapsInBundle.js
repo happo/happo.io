@@ -14,13 +14,13 @@ export default async function processSnapsInBundle(
     snapPayloads: [],
   };
   try {
+    await domProvider.init({ targetName });
+
     // TODO remove resize guard in next breaking change and after puppeteer
     // plugin has been updated.
     if (typeof domProvider.resize !== 'undefined') {
-      domProvider.resize({ width, height });
+      await domProvider.resize({ width, height });
     }
-
-    await domProvider.init({ targetName });
 
     // Disabling eslint here because we actually want to run things serially.
     /* eslint-disable no-await-in-loop */

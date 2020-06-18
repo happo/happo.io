@@ -68,7 +68,6 @@ export default class Processor {
     //    { fileName: '/bar/car.js', ... etc }
     // ]
     this.flattenedUnfilteredExamples = [];
-    this.cursor = -1;
   }
 
   init({ targetName } = {}) {
@@ -79,6 +78,10 @@ export default class Processor {
         targetName,
       },
     );
+  }
+
+  reset() {
+    this.cursor = -1;
   }
 
   addExamples(examples) {
