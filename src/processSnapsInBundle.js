@@ -5,16 +5,21 @@ export default async function processSnapsInBundle(
   { viewport, DomProvider, targetName },
 ) {
   const [width, height] = viewport.split('x').map((s) => parseInt(s, 10));
-  const domProvider = new DomProvider({
-    webpackBundle,
-    width,
-    height,
-  });
+
+  // TODO Remove width and height in next breaking change after puppeteer plugin
+  // has been updated.
+  const domProvider = new DomProvider({ webpackBundle, width, height });
 
   const result = {
     snapPayloads: [],
   };
   try {
+    // TODO remove resize guard in next breaking change and after puppeteer
+    // plugin has been updated.
+    if (typeof domProvider.resize !== 'undefined') {
+      domProvider.resize({ width, height });
+    }
+
     await domProvider.init({ targetName });
 
     // Disabling eslint here because we actually want to run things serially.

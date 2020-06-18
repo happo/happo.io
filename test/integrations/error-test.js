@@ -4,6 +4,7 @@ import MockTarget from './MockTarget';
 import * as defaultConfig from '../../src/DEFAULTS';
 import makeRequest from '../../src/makeRequest';
 import runCommand from '../../src/commands/run';
+import { clearCachedDOM } from '../../src/JSDOMDomProvider';
 
 jest.mock('../../src/makeRequest');
 
@@ -15,6 +16,7 @@ let config;
 let sha;
 
 beforeEach(() => {
+  clearCachedDOM();
   console.warn = jest.fn(originalConsoleWarn);
   console.error = jest.fn(originalConsoleErr);
   console.error.mockReset();
