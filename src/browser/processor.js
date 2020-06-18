@@ -81,6 +81,10 @@ export default class Processor {
     );
   }
 
+  reset() {
+    this.cursor = -1;
+  }
+
   addExamples(examples) {
     examples.forEach(({ fileName, component, variants }) => {
       Object.keys(variants).forEach((variant) => {

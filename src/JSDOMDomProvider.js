@@ -1,15 +1,28 @@
 import { JSDOM, VirtualConsole } from 'jsdom';
 
+import Logger from './Logger';
+
 const { VERBOSE } = process.env;
 
 const MAX_ERROR_DETAIL_LENGTH = 200;
 
-export default class JSDOMDomProvider {
-  constructor(jsdomOptions, { width, height, webpackBundle }) {
+// Cache the JSDOM instance because re-loading the webpack bundle for every
+// target can be very expensive. This assumes that jsdomOptions and
+// webpackBundle do not change.
+let dom;
+function getCachedDOM(jsdomOptions, webpackBundle) {
+  if (!dom) {
+    const logger = new Logger();
+    logger.start('Initializing JSDOM with the bundle...');
+
     const virtualConsole = new VirtualConsole();
     virtualConsole.on('jsdomError', (e) => {
       const { stack, detail = '' } = e;
-      if (VERBOSE || typeof detail !== 'string' || detail.length < MAX_ERROR_DETAIL_LENGTH) {
+      if (
+        VERBOSE ||
+        typeof detail !== 'string' ||
+        detail.length < MAX_ERROR_DETAIL_LENGTH
+      ) {
         console.error(stack, detail);
       } else {
         const newDetail = `${(detail || '').slice(0, MAX_ERROR_DETAIL_LENGTH)}...
@@ -19,7 +32,7 @@ export default class JSDOMDomProvider {
     });
     virtualConsole.sendTo(console, { omitJSDOMErrors: true });
 
-    this.dom = new JSDOM(
+    dom = new JSDOM(
       `
         <!DOCTYPE html>
         <html>
@@ -37,14 +50,6 @@ export default class JSDOMDomProvider {
           url: 'http://localhost',
           virtualConsole,
           beforeParse(win) {
-            win.outerWidth = win.innerWidth = width;
-            win.outerHeight = win.innerHeight = height;
-            Object.defineProperties(win.screen, {
-              width: { value: width },
-              availWidth: { value: width },
-              height: { value: height },
-              availHeight: { value: height },
-            });
             win.requestAnimationFrame = (callback) => setTimeout(callback, 0);
             win.cancelAnimationFrame = clearTimeout;
           },
@@ -52,13 +57,42 @@ export default class JSDOMDomProvider {
         jsdomOptions,
       ),
     );
+
+    logger.success();
+  }
+
+  return dom;
+}
+
+// Useful for tests
+export function clearCachedDOM() {
+  dom = undefined;
+}
+
+export default class JSDOMDomProvider {
+  constructor(jsdomOptions, { webpackBundle }) {
+    this.dom = getCachedDOM(jsdomOptions, webpackBundle);
   }
 
   async init({ targetName }) {
-    await new Promise((resolve) => {
-      this.dom.window.onBundleReady = resolve;
-    });
+    if (!this.dom.window.happoProcessor) {
+      await new Promise((resolve) => {
+        this.dom.window.onBundleReady = resolve;
+      });
+    }
     return this.dom.window.happoProcessor.init({ targetName });
+  }
+
+  resize({ width, height }) {
+    this.dom.window.outerWidth = this.dom.window.innerWidth = width;
+    this.dom.window.outerHeight = this.dom.window.innerHeight = height;
+    Object.defineProperties(this.dom.window.screen, {
+      width: { value: width, configurable: true },
+      availWidth: { value: width, configurable: true },
+      height: { value: height, configurable: true },
+      availHeight: { value: height, configurable: true },
+    });
+    return this.dom.window.happoProcessor.reset();
   }
 
   next() {
@@ -74,6 +108,6 @@ export default class JSDOMDomProvider {
   }
 
   close() {
-    this.dom.window.close();
+    // no-op
   }
 }

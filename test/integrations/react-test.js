@@ -8,6 +8,7 @@ import MockTarget from './MockTarget';
 import * as defaultConfig from '../../src/DEFAULTS';
 import makeRequest from '../../src/makeRequest';
 import runCommand from '../../src/commands/run';
+import { clearCachedDOM } from '../../src/JSDOMDomProvider';
 
 jest.mock('../../src/makeRequest');
 
@@ -16,6 +17,8 @@ let config;
 let sha;
 
 beforeEach(() => {
+  clearCachedDOM();
+
   makeRequest.mockImplementation(() => Promise.resolve({}));
   sha = 'foobar';
   config = Object.assign({}, defaultConfig, {
