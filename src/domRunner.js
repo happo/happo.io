@@ -2,16 +2,18 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import readline from 'readline';
+
 import { performance } from 'perf_hooks';
 
 import JSDOMDomProvider from './JSDOMDomProvider';
 import Logger from './Logger';
 import MultipleErrors from './MultipleErrors';
 import constructReport from './constructReport';
-import createStaticPackage from './createStaticPackage';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
+import createStaticPackage from './createStaticPackage';
 import createWebpackBundle from './createWebpackBundle';
 import loadCSSFile from './loadCSSFile';
+import makeRequest from './makeRequest';
 import prepareAssetsPackage from './prepareAssetsPackage';
 import processSnapsInBundle from './processSnapsInBundle';
 
@@ -106,6 +108,37 @@ async function executeTargetWithPrerender({
   return result;
 }
 
+async function uploadStaticPackage({
+  tmpdir,
+  publicFolders,
+  endpoint,
+  apiKey,
+  apiSecret,
+}) {
+  const { buffer, hash } = await createStaticPackage({
+    tmpdir,
+    publicFolders,
+  });
+  const assetsRes = await makeRequest(
+    {
+      url: `${endpoint}/api/snap-requests/assets/${hash}`,
+      method: 'POST',
+      json: true,
+      formData: {
+        payload: {
+          options: {
+            filename: 'payload.zip',
+            contentType: 'application/zip',
+          },
+          value: buffer,
+        },
+      },
+    },
+    { apiKey, apiSecret, maxTries: 2 },
+  );
+  return assetsRes.path;
+}
+
 async function generateScreenshots(
   {
     apiKey,
@@ -149,10 +182,13 @@ async function generateScreenshots(
   try {
     const staticPackage = prerender
       ? undefined
-      : await createStaticPackage({
-        tmpdir,
-        publicFolders,
-      });
+      : await uploadStaticPackage({
+          tmpdir,
+          publicFolders,
+          apiKey,
+          apiSecret,
+          endpoint,
+        });
 
     let results;
     if (prerender) {
@@ -167,26 +203,28 @@ async function generateScreenshots(
           viewport: targets[name].viewport,
           DomProvider,
         });
-        prerenderPromises.push((async () => {
-          const startTime = performance.now();
-          const result = await executeTargetWithPrerender({
-            name,
-            css,
-            snapPayloads,
-            targets,
-            publicFolders,
-            viewport: targets[name].viewport,
-            cssBlocks,
-            apiKey,
-            apiSecret,
-            endpoint,
-            logger,
-            isAsync,
-          });
-          logger.start(`  - ${name}`, { startTime });
-          logger.success();
-          return { name, result };
-        })());
+        prerenderPromises.push(
+          (async () => {
+            const startTime = performance.now();
+            const result = await executeTargetWithPrerender({
+              name,
+              css,
+              snapPayloads,
+              targets,
+              publicFolders,
+              viewport: targets[name].viewport,
+              cssBlocks,
+              apiKey,
+              apiSecret,
+              endpoint,
+              logger,
+              isAsync,
+            });
+            logger.start(`  - ${name}`, { startTime });
+            logger.success();
+            return { name, result };
+          })(),
+        );
       }
 
       results = await Promise.all(prerenderPromises);
