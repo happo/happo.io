@@ -10,7 +10,7 @@ ENV_VARS=$(echo "
     if (json.pull_request) {
       console.log(\`export PREVIOUS_SHA=\${json.pull_request.base.sha}\`);
     } else {
-      console.log(\`export PREVIOUS_SHA=\${json.after}\`);
+      console.log(\`export PREVIOUS_SHA=\${json.before}\`);
     }
   }
   if (!process.env.CURRENT_SHA) {
