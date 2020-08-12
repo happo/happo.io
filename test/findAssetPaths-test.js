@@ -92,56 +92,56 @@ it('strips hashes in inline styles', () => {
   expect(subject()).toEqual(['1.jpg', './2.jpg', '/3.jpg', '/4.jpg']);
 });
 
-it('finds assets in srcset attributes', () => {
+it('finds assets in img srcset attributes', () => {
   html = `
     <img src="/1x1.jpg" srcset="/1x1.jpg 197w, /1x1.png 393w, http://dns/1.png 600w">
   `;
   expect(subject()).toEqual(['/1x1.jpg', '/1x1.jpg', '/1x1.png']);
 });
 
-it('strips query strings in srcset attributes', () => {
+it('strips query strings in img srcset attributes', () => {
   html = `
     <img src="/1x1.jpg" srcset="/1x1.jpg?pizza=yum 197w, /1x1.png?pizza=yum 393w, http://dns/1.png?pizza=yum 600w">
   `;
   expect(subject()).toEqual(['/1x1.jpg', '/1x1.jpg', '/1x1.png']);
 });
 
-it('strips hashes in srcset attributes', () => {
+it('strips hashes in img srcset attributes', () => {
   html = `
     <img src="/1x1.jpg" srcset="/1x1.jpg#pizza 197w, /1x1.png#pizza 393w, http://dns/1.png#pizza 600w">
   `;
   expect(subject()).toEqual(['/1x1.jpg', '/1x1.jpg', '/1x1.png']);
 });
 
-it('handles invalid srcset attributes', () => {
+it('handles invalid img srcset attributes', () => {
   html = `
     <img srcset="    ">
   `;
   expect(subject()).toEqual([]);
 });
 
-it('handles single-url srcsets', () => {
+it('handles single-url img srcsets', () => {
   html = `
     <img srcset="/1x1.png">
   `;
   expect(subject()).toEqual(['/1x1.png']);
 });
 
-it('handles single-url srcsets with external urls', () => {
+it('handles single-url img srcsets with external urls', () => {
   html = `
     <img srcset="http://foo/1.png">
   `;
   expect(subject()).toEqual([]);
 });
 
-it('handles srcset with commas', () => {
+it('handles img srcset with commas', () => {
   html = `
     <img srcset="/f1,2,3.png 100w, /f1,3.png 200w">
   `;
   expect(subject()).toEqual(['/f1,2,3.png', '/f1,3.png']);
 });
 
-it('handles srcset with plenty of whitespace', () => {
+it('handles img srcset with plenty of whitespace', () => {
   html = `
     <img srcset="
       /1x1.png    100w,
@@ -151,9 +151,43 @@ it('handles srcset with plenty of whitespace', () => {
   expect(subject()).toEqual(['/1x1.png', '/f1,3.png']);
 });
 
-it('handles srcset with multiple URLs with mixed descriptors', () => {
+it('handles img srcset with multiple URLs with mixed descriptors', () => {
   html = `
     <img srcset="/1x1.png, /f1,3.png 200w">
   `;
   expect(subject()).toEqual(['/1x1.png', '/f1,3.png']);
+});
+
+it('finds assets in picture source srcset attributes', () => {
+  html = `
+    <picture>
+      <source srcset="/wide.jpg" media="(min-width: 1000px)">
+      <source srcset="/medium.jpg" media="(min-width: 700px)">
+      <source srcset="/narrow.jpg">
+      <img src="/medium.jpg">
+    </picture>
+  `;
+  expect(subject()).toEqual(['/medium.jpg', '/wide.jpg', '/medium.jpg', '/narrow.jpg']);
+});
+
+it('does not find assets in audio source srcset attributes', () => {
+  html = `
+    <audio>
+      <source srcset="/wide.jpg" media="(min-width: 1000px)">
+      <source srcset="/medium.jpg" media="(min-width: 700px)">
+      <source srcset="/narrow.jpg">
+    </audio>
+  `;
+  expect(subject()).toEqual([]);
+});
+
+it('does not find assets in video source srcset attributes', () => {
+  html = `
+    <video>
+      <source srcset="/wide.jpg" media="(min-width: 1000px)">
+      <source srcset="/medium.jpg" media="(min-width: 700px)">
+      <source srcset="/narrow.jpg">
+    </video>
+  `;
+  expect(subject()).toEqual([]);
 });

@@ -12,8 +12,8 @@ export default function findAssetPaths(doc = document) {
     img.getAttribute('src'),
   );
 
-  doc.querySelectorAll('img[srcset]').forEach((img) => {
-    parseSrcset(img.getAttribute('srcset')).forEach((parsed) => {
+  doc.querySelectorAll('img[srcset], picture source[srcset]').forEach((el) => {
+    parseSrcset(el.getAttribute('srcset')).forEach((parsed) => {
       imgPaths.push(parsed.url);
     });
   });
