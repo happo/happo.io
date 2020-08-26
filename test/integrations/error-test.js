@@ -9,6 +9,7 @@ jest.mock('../../src/makeRequest');
 
 const originalConsoleWarn = console.warn;
 const originalConsoleErr = console.error;
+const originalConsoleLog = console.log;
 
 let subject;
 let config;
@@ -17,8 +18,10 @@ let sha;
 beforeEach(() => {
   console.warn = jest.fn(originalConsoleWarn);
   console.error = jest.fn(originalConsoleErr);
+  console.log = jest.fn(originalConsoleLog);
   console.error.mockReset();
   console.warn.mockReset();
+  console.log.mockReset();
   makeRequest.mockImplementation(() => Promise.resolve({}));
   sha = 'foobar';
   config = Object.assign({}, defaultConfig, {
@@ -32,6 +35,7 @@ beforeEach(() => {
 afterEach(() => {
   console.warn = originalConsoleWarn;
   console.error = originalConsoleErr;
+  console.log = originalConsoleLog;
 });
 
 it('throws on errors in example functions', async () => {
@@ -53,9 +57,8 @@ describe('with a component that throws when rendered', () => {
 
   it('logs the error and moves on', async () => {
     await subject();
-    console.log(console.error.mock.calls);
-    expect(console.error.mock.calls.length).toBe(4);
-    expect(console.error.mock.calls[2][0]).toEqual(
+    expect(console.error.mock.calls.length).toBe(5);
+    expect(console.error.mock.calls[3][0]).toEqual(
       'Caught error while rendering component "Foo-error-throws-on-render", variant "default"',
     );
   });
@@ -137,6 +140,27 @@ describe('with a misconfigured file', () => {
 
       // If we end up here, something is wrong
       expect(false).toBe(true);
+    });
+  });
+});
+
+describe('with generated examples that fail to initialize', () => {
+  beforeEach(() => {
+    config.include = 'test/integrations/examples/*-error-generated-happo.js*';
+    config.type = 'react';
+  });
+
+  describe('with the puppeteer plugin', () => {
+    beforeEach(() => {
+      config.plugins = [happoPluginPuppeteer()];
+    });
+
+    it('logs an error', async () => {
+      await subject();
+      expect(console.log.mock.calls.length).toBe(1);
+      expect(console.log.mock.calls[0][0]).toEqual(
+        'Uncaught ReferenceError: foo is not defined',
+      );
     });
   });
 });
