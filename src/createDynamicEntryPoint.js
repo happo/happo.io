@@ -26,12 +26,29 @@ export default async function createDynamicEntryPoint({
     .map((file) => path.join(process.cwd(), file))
     .concat(plugins.map(({ pathToExamplesFile }) => pathToExamplesFile))
     .filter(Boolean)
-    .map((file) => `window.happoProcessor.prepare(${JSON.stringify(file)}, require(${JSON.stringify(file)}));`);
+    .map(
+      (file) =>
+        `window.happoProcessor.prepare(${JSON.stringify(
+          file,
+        )}, require(${JSON.stringify(file)}));`,
+    );
 
   const pathToProcessor = require.resolve('./browser/processor');
   const strings = [
+    `
+      window.addEventListener("error", function (err) {
+        console.error(err.message);
+        if (err.stack) {
+          console.error(err.stack);
+        }
+      });
+    `,
     `const Processor = require(${JSON.stringify(pathToProcessor)}).default;`,
-    `window.happoProcessor = new Processor(${JSON.stringify({ only, rootElementSelector, asyncTimeout })});`,
+    `window.happoProcessor = new Processor(${JSON.stringify({
+      only,
+      rootElementSelector,
+      asyncTimeout,
+    })});`,
     `window.verbose = '${VERBOSE}' === 'true' ? console.log : () => null;`,
     'window.snaps = {};',
   ];
@@ -86,7 +103,9 @@ export default async function createDynamicEntryPoint({
 
   const content = strings.join('\n');
   if (VERBOSE === 'true') {
-    console.log(`Created webpack entry file with the following content:\n\n${content}\n\n`);
+    console.log(
+      `Created webpack entry file with the following content:\n\n${content}\n\n`,
+    );
   }
   fs.writeFileSync(entryFile, content);
   return { entryFile, numberOfFilesProcessed: fileStrings.length };
