@@ -2968,10 +2968,10 @@ handlebars@^4.0.3:
   optionalDependencies:
     uglify-js "^3.1.4"
 
-happo-plugin-puppeteer@^1.3.1:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/happo-plugin-puppeteer/-/happo-plugin-puppeteer-1.3.1.tgz#f976aade4bdbf56b44734de9cac56af859bfbde7"
-  integrity sha512-Vj+KOW2yrkVbjKF9SvaoAR1bSPzynFQVTLnnbwwYDRbrJy2wod0z9whYuTyWIrpqxxUL1fC5Zbmi1fl4bfcyIQ==
+happo-plugin-puppeteer@^1.3.2:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/happo-plugin-puppeteer/-/happo-plugin-puppeteer-1.3.2.tgz#db594dff6f0ae613939905cecd98c5f4acdf2d9c"
+  integrity sha512-fahvKns2w9lvSteWZTajL+N2+q5ug/n3w7+MASNFBT5YBSToOSRRJOgBesco1AGUbBdooErDlykWj986S7SyMQ==
   dependencies:
     puppeteer "^1.14.0"
 
