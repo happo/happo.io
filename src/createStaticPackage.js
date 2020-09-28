@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { Writable } from 'stream';
 
 import Archiver from 'archiver';
@@ -32,7 +33,8 @@ export default function createStaticPackage({ tmpdir, publicFolders }) {
     };
     stream.on('finish', () => {
       const buffer = Buffer.from(data);
-      resolve(buffer);
+      const hash = crypto.createHash('md5').update(buffer).digest('hex');
+      resolve({ buffer, hash });
     });
     archive.pipe(stream);
 
