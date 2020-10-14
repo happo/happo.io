@@ -17,7 +17,18 @@ sourceMaps.install({
       return;
     }
     const realPath = filePath.slice(prefix.length);
-    return fs.readFileSync(realPath, 'utf-8');
+
+    try {
+      return fs.readFileSync(realPath, 'utf-8');
+    } catch (e) {
+      // If the file does not exist (e.g. if `devtool: false` is used in
+      // webpack config), just let source-map-support do its normal thing
+      // without erroring out here. This should work because
+      // source-map-support will use the result of the first handler that does
+      // not return null:
+      // https://github.com/evanw/node-source-map-support/blob/50642d69/source-map-support.js#L62-L72
+      return null;
+    }
   },
 });
 
