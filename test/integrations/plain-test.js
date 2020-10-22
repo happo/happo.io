@@ -62,7 +62,7 @@ beforeEach(() => {
         {
           component: 'InlineCSSVariables-plain',
           css: '',
-          html: '<div style="--var:red;">I am red</div>',
+          html: `<div style="--var:${usePuppeteer ? '' : ' '}red;">I am red</div>`,
           variant: 'default',
         },
       ]);
