@@ -16,7 +16,13 @@ let config;
 let sha;
 
 beforeEach(() => {
-  makeRequest.mockImplementation(() => Promise.resolve({}));
+  makeRequest.mockImplementation((req) => {
+    if (/\/assets\//.test(req.url)) {
+      // uploading assets
+      return Promise.resolve({ path: req.formData.payload.value });
+    }
+    return Promise.resolve({});
+  });
   sha = 'foobar';
   config = Object.assign({}, defaultConfig, {
     project: 'the project',
