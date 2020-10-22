@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import 'babel-polyfill';
+import '@babel/polyfill';
 
 import fs from 'fs';
 
