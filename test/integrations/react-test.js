@@ -77,7 +77,14 @@ it('sends the project name in the request', async () => {
 
 it('produces the right html', async () => {
   await subject();
-  expect(config.targets.chrome.snapPayloads).toEqual([
+  expect(
+    config.targets.chrome.snapPayloads.sort((a, b) => {
+      if (a.component + a.variant < b.component + b.variant) {
+        return -1;
+      }
+      return 1;
+    }),
+  ).toEqual([
     {
       component: 'Bar',
       css: '',
@@ -99,19 +106,6 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
-      html: '<button>I am in a portal</button>',
-      variant: 'portalExample',
-    },
-    {
-      component: 'Foo-react',
-      css: '',
-      html:
-        '<div id="happo-root"><div>Outside portal</div></div><div>Inside portal</div>',
-      variant: 'innerPortal',
-    },
-    {
-      component: 'Foo-react',
-      css: '',
       html: '<button>Ready</button>',
       variant: 'asyncExample',
     },
@@ -124,8 +118,8 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
-      html: '',
-      variant: 'emptyForever',
+      html: '<button>Click me</button>',
+      variant: 'default',
     },
     {
       component: 'Foo-react',
@@ -136,14 +130,27 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
-      html: '<button>I am dark</button>',
-      variant: 'themedExample',
+      html: '',
+      variant: 'emptyForever',
     },
     {
       component: 'Foo-react',
       css: '',
-      html: '<button>I am dark</button>',
-      variant: 'themedExampleAsync',
+      html: '<img alt="empty" src="static/media/1x1.3eaf1786.png">',
+      variant: 'imageExample',
+    },
+    {
+      component: 'Foo-react',
+      css: '',
+      html:
+        '<div id="happo-root"><div>Outside portal</div></div><div>Inside portal</div>',
+      variant: 'innerPortal',
+    },
+    {
+      component: 'Foo-react',
+      css: '',
+      html: '<button>I am in a portal</button>',
+      variant: 'portalExample',
     },
     {
       component: 'Foo-react',
@@ -160,15 +167,20 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
-      html: '<img alt="empty" src="static/media/1x1.3eaf1786.png">',
-      variant: 'imageExample',
+      html: '<button>I am dark</button>',
+      variant: 'themedExample',
     },
-
     {
       component: 'Foo-react',
       css: '',
-      html: '<button>Click me</button>',
-      variant: 'default',
+      html: '<button>I am dark</button>',
+      variant: 'themedExampleAsync',
+    },
+    {
+      component: 'Generated',
+      css: '',
+      html: '<button>Four</button>',
+      variant: '_four',
     },
     {
       component: 'Generated',
@@ -180,21 +192,15 @@ it('produces the right html', async () => {
     {
       component: 'Generated',
       css: '',
-      html: '<button>Two</button>',
-      variant: 'two',
-      stylesheets: ['two'],
-    },
-    {
-      component: 'Generated',
-      css: '',
       html: '<button>Three</button>',
       variant: 'three',
     },
     {
       component: 'Generated',
       css: '',
-      html: '<button>Four</button>',
-      variant: '_four',
+      html: '<button>Two</button>',
+      variant: 'two',
+      stylesheets: ['two'],
     },
     {
       component: 'Plugin-Component',
@@ -242,11 +248,13 @@ it('resolves assets correctly', async () => {
 
 it('produces the right css', async () => {
   await subject();
-  expect(config.targets.chrome.globalCSS).toEqual([
+  expect(config.targets.chrome.globalCSS[0]).toEqual(
     {
       css: '.a { b: c }\n',
       source: path.resolve(__dirname, 'styles.css'),
     },
+  );
+  expect(config.targets.chrome.globalCSS[1]).toEqual(
     {
       id: 'one',
       conditional: true,
@@ -258,6 +266,8 @@ it('produces the right css', async () => {
 }
 `,
     },
+  );
+  expect(config.targets.chrome.globalCSS[2]).toEqual(
     {
       css: `button {
   background-color: green;
@@ -266,12 +276,12 @@ it('produces the right css', async () => {
 `,
       source: path.resolve(__dirname, 'two.css'),
     },
+  );
+  expect(config.targets.chrome.globalCSS[3]).toEqual(
     { css: '.plugin-injected { color: red }' },
-    {
-      css: `button {text-align: center;}
-button { color: red }`,
-    },
-  ]);
+  );
+  expect(config.targets.chrome.globalCSS[4].css).toMatch('button {text-align: center;}');
+  expect(config.targets.chrome.globalCSS[4].css).toMatch('button { color: red }');
 });
 
 it('works with prerender=false', async () => {
