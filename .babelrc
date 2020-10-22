@@ -1,10 +1,17 @@
 {
   "presets": [
-    ["env", {
-      "targets": {
-        "node": ["8"]
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "10"
+        }
       }
-    }]
+    ],
+    "@babel/preset-react"
   ],
-  "plugins": ["babel-plugin-syntax-dynamic-import", "babel-plugin-transform-object-rest-spread"]
+  "plugins": [
+    "@babel/plugin-syntax-dynamic-import",
+    "@babel/plugin-proposal-object-rest-spread"
+  ]
 }

@@ -2,6 +2,8 @@ import path from 'path';
 
 import Logger from './Logger';
 
+const babelPresetReact = require.resolve('@babel/preset-react');
+
 const { VERBOSE = 'false' } = process.env;
 
 function getWebpack() {
@@ -46,15 +48,6 @@ function generateBaseConfig({ entry, type, tmpdir }) {
     console.log('Detected webpack version <4. If you upgrade to >=4, stack traces from Happo will be a little better.');
   }
   if (type === 'react') {
-    let babelPresetReact;
-    try {
-      // try with the babel 7 package
-      babelPresetReact = require.resolve('@babel/preset-react');
-    } catch (e) {
-      // fall back to regular
-      babelPresetReact = require.resolve('babel-preset-react');
-    }
-
     const [babelRule] = baseConfig.module.rules;
     babelRule.test = /\.jsx?$/;
     babelRule.use.options.presets = [babelPresetReact];
