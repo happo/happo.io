@@ -5,6 +5,7 @@ node_js:
   - "10"
   - "12"
 env:
+  - WEBPACK_VERSION=5
   - WEBPACK_VERSION=4
   - WEBPACK_VERSION=3
 install: yarn install --ignore-engines

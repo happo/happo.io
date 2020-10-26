@@ -56,9 +56,10 @@ beforeEach(() => {
           });
           cfg.module.rules.push({
             loader: require.resolve('file-loader'),
-            include: /\.(png|svg|jpg|gif)$/,
+            test: /\.(png|svg|jpg|gif)$/,
             options: {
               name: 'static/media/[name].[hash:8].[ext]',
+              publicPath: '_/',
             },
           });
           return new Promise((resolve) => setTimeout(() => resolve(cfg), 50));
@@ -136,7 +137,7 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
-      html: '<img alt="empty" src="static/media/1x1.3eaf1786.png">',
+      html: '<img alt="empty" src="_/static/media/1x1.f9992a90.png">',
       variant: 'imageExample',
     },
     {
@@ -329,7 +330,7 @@ it('works with prerender=false', async () => {
     'index.html',
     'static/',
     'static/media/',
-    'static/media/1x1.3eaf1786.png',
+    'static/media/1x1.f9992a90.png',
     'test/integrations/assets/one.jpg',
   ]);
   // require('fs').writeFileSync('staticPackage.zip',

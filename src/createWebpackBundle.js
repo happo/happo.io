@@ -22,6 +22,7 @@ function generateBaseConfig({ entry, type, tmpdir }) {
     },
     resolve: {
       extensions: ['*', '.js', '.jsx', '.json', '.ts', '.tsx'],
+      fallback: { path: false },
     },
     module: {
       rules: [
@@ -45,7 +46,9 @@ function generateBaseConfig({ entry, type, tmpdir }) {
     }
     baseConfig.mode = 'development';
   } else if (VERBOSE === 'true') {
-    console.log('Detected webpack version <4. If you upgrade to >=4, stack traces from Happo will be a little better.');
+    console.log(
+      'Detected webpack version <4. If you upgrade to >=4, stack traces from Happo will be a little better.',
+    );
   }
   if (type === 'react') {
     const [babelRule] = baseConfig.module.rules;
@@ -81,7 +84,7 @@ export default async function createWebpackBundle(
       if (err) {
         new Logger().error(err);
       } else if (stats.compilation.errors && stats.compilation.errors.length) {
-        stats.compilation.errors.forEach(e => new Logger().error(e));
+        stats.compilation.errors.forEach((e) => new Logger().error(e));
       } else if (hash !== stats.hash) {
         hash = stats.hash;
         onBuildReady(bundleFilePath);
