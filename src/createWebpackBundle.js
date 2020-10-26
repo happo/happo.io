@@ -22,7 +22,6 @@ function generateBaseConfig({ entry, type, tmpdir }) {
     },
     resolve: {
       extensions: ['*', '.js', '.jsx', '.json', '.ts', '.tsx'],
-      fallback: { path: false },
     },
     module: {
       rules: [
@@ -45,6 +44,14 @@ function generateBaseConfig({ entry, type, tmpdir }) {
       console.log('Detected webpack version >=4. Using `mode: "development"`.');
     }
     baseConfig.mode = 'development';
+    if (/^[567]\./.test(getWebpack().version)) {
+      if (VERBOSE === 'true') {
+        console.log(
+          'Detected webpack version >=5. Adding no-op fallback for "path".',
+        );
+      }
+      baseConfig.resolve.fallback = { path: false };
+    }
   } else if (VERBOSE === 'true') {
     console.log(
       'Detected webpack version <4. If you upgrade to >=4, stack traces from Happo will be a little better.',
