@@ -12,7 +12,10 @@ let config;
 let sha;
 
 beforeEach(() => {
-  makeRequest.mockImplementation(() => Promise.resolve({}));
+  makeRequest.mockReset();
+  makeRequest.mockImplementation(() =>
+    Promise.resolve({ path: 'staticpkg/foobar.zip' }),
+  );
   sha = 'foobar';
   config = Object.assign({}, defaultConfig, {
     project: 'the project',
@@ -25,21 +28,22 @@ beforeEach(() => {
         css: '.foo { color: red }',
       },
     ],
-    stylesheets: [
-      path.resolve(__dirname, 'styles.css'),
-    ],
+    stylesheets: [path.resolve(__dirname, 'styles.css')],
   });
   subject = () => runCommand(sha, config, {});
 });
 
 it('sends the project name in the request', async () => {
   await subject();
-  expect(makeRequest.mock.calls[0][0].body.project).toEqual('the project');
+  expect(makeRequest.mock.calls[1][0].body.project).toEqual('the project');
 });
 
 it('produces the static package', async () => {
   await subject();
-  expect(config.targets.chrome.staticPackage).toEqual('a base64-encoded string');
+  expect(makeRequest.mock.calls[0][0].formData.payload.value).toEqual(
+    Buffer.from('a base64-encoded string', 'base64'),
+  );
+  expect(config.targets.chrome.staticPackage).toEqual('staticpkg/foobar.zip');
 });
 
 it('includes css', async () => {
