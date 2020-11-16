@@ -15,6 +15,10 @@ const green = withColorSupport((str) => `\x1b[32m${str}\x1b[0m`);
 const dim = withColorSupport((str) => `\x1b[90m${str}\x1b[0m`);
 const underline = withColorSupport((str) => `\x1b[36m\x1b[4m${str}\x1b[0m`);
 
+export function logTag(project) {
+  return project ? `[${project}] ` : '';
+}
+
 export default class Logger {
   constructor({
     stderrPrint = (str) => process.stderr.write(str),

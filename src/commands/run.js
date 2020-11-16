@@ -1,7 +1,7 @@
 import mkdirp from 'mkdirp';
 import rimraf from 'rimraf';
 
-import Logger from '../Logger';
+import Logger, { logTag } from '../Logger';
 import domRunner from '../domRunner';
 import makeRequest from '../makeRequest';
 import pageRunner from '../pageRunner';
@@ -32,7 +32,7 @@ export default async function runCommand(
   }
 
   if (isAsync) {
-    logger.start(`Creating async report for ${sha}...`);
+    logger.start(`${logTag(project)}Creating async report for ${sha}...`);
     const allRequestIds = [];
     result.forEach((item) => allRequestIds.push(...item.result));
     const { id } = await makeRequest(
@@ -51,9 +51,9 @@ export default async function runCommand(
     );
 
     logger.success();
-    logger.info(`Async report id: ${id}`);
+    logger.info(`${logTag(project)}Async report id: ${id}`);
   } else {
-    logger.start(`Uploading report for ${sha}...`);
+    logger.start(`${logTag(project)}Uploading report for ${sha}...`);
     const { url } = await uploadReport({
       snaps: result,
       sha,
@@ -65,7 +65,7 @@ export default async function runCommand(
       project,
     });
     logger.success();
-    logger.info(`View results at ${url}`);
+    logger.info(`${logTag(project)}View results at ${url}`);
   }
-  logger.info(`Done ${sha}`);
+  logger.info(`${logTag(project)}Done ${sha}`);
 }

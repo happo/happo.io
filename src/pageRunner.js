@@ -1,19 +1,20 @@
 import { performance } from 'perf_hooks';
 
-import Logger from './Logger';
+import Logger, { logTag } from './Logger';
 import constructReport from './constructReport';
 
 export default async function pagesRunner(
-  { apiKey, apiSecret, endpoint, targets, pages },
+  { apiKey, apiSecret, endpoint, targets, pages, project },
   { isAsync } = {},
 ) {
   const logger = new Logger();
+
   try {
-    logger.info('Preparing job for remote execution...');
+    logger.info(`${logTag(project)}Preparing job for remote execution...`);
     const outerStartTime = performance.now();
     const targetNames = Object.keys(targets);
     const tl = targetNames.length;
-    logger.info(`Generating screenshots in ${tl} target${tl > 1 ? 's' : ''}...`);
+    logger.info(`${logTag(project)}Generating screenshots in ${tl} target${tl > 1 ? 's' : ''}...`);
     const results = await Promise.all(
       targetNames.map(async (name) => {
         const startTime = performance.now();

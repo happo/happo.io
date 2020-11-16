@@ -6,7 +6,7 @@ import readline from 'readline';
 import { performance } from 'perf_hooks';
 
 import JSDOMDomProvider from './JSDOMDomProvider';
-import Logger from './Logger';
+import Logger, { logTag } from './Logger';
 import MultipleErrors from './MultipleErrors';
 import constructReport from './constructReport';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
@@ -19,14 +19,14 @@ import processSnapsInBundle from './processSnapsInBundle';
 
 const { VERBOSE = 'false' } = process.env;
 
-function logTargetResults({ name, globalCSS, snapPayloads }) {
+function logTargetResults({ name, globalCSS, snapPayloads, project }) {
   const cssPath = path.join(os.tmpdir(), `happo-verbose-${name}.css`);
   const snippetsPath = path.join(os.tmpdir(), `happo-snippets-${name}.json`);
   fs.writeFileSync(cssPath, JSON.stringify(globalCSS));
   fs.writeFileSync(snippetsPath, JSON.stringify(snapPayloads));
-  console.log(`Recorded CSS for target "${name}" can be found in ${cssPath}`);
+  console.log(`${logTag(project)}Recorded CSS for target "${name}" can be found in ${cssPath}`);
   console.log(
-    `Recorded HTML snippets for target "${name}" can be found in ${snippetsPath}`,
+    `${logTag(project)}Recorded HTML snippets for target "${name}" can be found in ${snippetsPath}`,
   );
 }
 
@@ -67,9 +67,10 @@ async function executeTargetWithPrerender({
   apiSecret,
   endpoint,
   isAsync,
+  project,
 }) {
   if (!snapPayloads.length) {
-    console.warn(`No examples found for target ${name}, skipping`);
+    console.warn(`${logTag(project)}No examples found for target ${name}, skipping`);
     return [];
   }
   const errors = snapPayloads.filter((p) => p.isError);
@@ -83,7 +84,7 @@ async function executeTargetWithPrerender({
   const globalCSS = cssBlocks.concat([{ css }]);
 
   if (VERBOSE === 'true') {
-    logTargetResults({ name, globalCSS, snapPayloads });
+    logTargetResults({ name, globalCSS, snapPayloads, project });
   }
 
   const assetsPackage = await prepareAssetsPackage({
@@ -152,6 +153,7 @@ async function generateScreenshots(
     prerender,
     tmpdir,
     isAsync,
+    project,
   },
   bundleFile,
   logger,
@@ -178,7 +180,7 @@ async function generateScreenshots(
   const targetNames = Object.keys(targets);
   const tl = targetNames.length;
   const DomProvider = resolveDomProvider({ plugins, jsdomOptions });
-  logger.info(`Generating screenshots in ${tl} target${tl > 1 ? 's' : ''}...`);
+  logger.info(`${logTag(project)}Generating screenshots in ${tl} target${tl > 1 ? 's' : ''}...`);
   try {
     const staticPackage = prerender
       ? undefined
@@ -219,8 +221,9 @@ async function generateScreenshots(
               endpoint,
               logger,
               isAsync,
+              project,
             });
-            logger.start(`  - ${name}`, { startTime });
+            logger.start(`  - ${logTag(project)}${name}`, { startTime });
             logger.success();
             return { name, result };
           })(),
@@ -241,7 +244,7 @@ async function generateScreenshots(
             apiSecret,
             endpoint,
           });
-          logger.start(`  - ${name}`, { startTime });
+          logger.start(`  - ${logTag(project)}${name}`, { startTime });
           logger.success();
           return { name, result };
         }),
@@ -276,6 +279,7 @@ export default async function domRunner(
     tmpdir,
     jsdomOptions,
     asyncTimeout,
+    project,
   },
   { only, isAsync, onReady },
 ) {
@@ -292,9 +296,11 @@ export default async function domRunner(
     jsdomOptions,
     plugins,
     tmpdir,
+    project,
   });
   const logger = new Logger();
-  logger.start('Searching for happo test files...');
+
+  logger.start(`${logTag(project)}Searching for happo test files...`);
   let entryFile;
   try {
     const entryPointResult = await createDynamicEntryPoint({
@@ -318,7 +324,7 @@ export default async function domRunner(
   const debugIndexHtml = fs.readFileSync(path.resolve(__dirname, 'debug.html'));
   fs.writeFileSync(path.resolve(tmpdir, 'index.html'), debugIndexHtml);
 
-  logger.start('Creating bundle...');
+  logger.start(`${logTag(project)}Creating bundle...`);
 
   if (onReady) {
     let currentBuildPromise;
