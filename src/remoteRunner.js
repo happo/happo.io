@@ -1,6 +1,6 @@
 import { performance } from 'perf_hooks';
 
-import Logger from './Logger';
+import Logger, { logTag } from './Logger';
 import constructReport from './constructReport';
 import createHash from './createHash';
 import loadCSSFile from './loadCSSFile';
@@ -30,13 +30,14 @@ async function uploadStaticPackage({ staticPackage, endpoint, apiKey, apiSecret 
 }
 
 export default async function remoteRunner(
-  { apiKey, apiSecret, endpoint, targets, plugins, stylesheets },
+  { apiKey, apiSecret, endpoint, targets, plugins, stylesheets, project },
   { generateStaticPackage },
   { isAsync },
 ) {
   const logger = new Logger();
+
   try {
-    logger.info('Generating static package...');
+    logger.info(`${logTag(project)}Generating static package...`);
     const staticPackage = await generateStaticPackage();
     const staticPackagePath = await uploadStaticPackage({
       staticPackage,
@@ -48,7 +49,7 @@ export default async function remoteRunner(
     const tl = targetNames.length;
     const cssBlocks = await Promise.all(stylesheets.map(loadCSSFile));
     plugins.forEach(({ css }) => cssBlocks.push(css || ''));
-    logger.info(`Generating screenshots in ${tl} target${tl > 1 ? 's' : ''}...`);
+    logger.info(`${logTag(project)}Generating screenshots in ${tl} target${tl > 1 ? 's' : ''}...`);
     const outerStartTime = performance.now();
     const results = await Promise.all(
       targetNames.map(async (name) => {
@@ -62,7 +63,7 @@ export default async function remoteRunner(
           endpoint,
           globalCSS: cssBlocks.join('').replace(/\n/g, ''),
         });
-        logger.start(`  - ${name}`, { startTime });
+        logger.start(`  - ${logTag(project)}${name}`, { startTime });
         logger.success();
         return { name, result };
       }),

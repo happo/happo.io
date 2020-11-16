@@ -1,4 +1,4 @@
-import Logger from '../src/Logger';
+import Logger, { logTag } from '../src/Logger';
 
 let subject;
 let stderrPrint;
@@ -68,4 +68,16 @@ it('logs durations with start() and fail()', () => {
   expect(printed).toMatch(/Pizza/);
   expect(printed).toMatch(/Yuck/);
   expect(printed).toMatch(/\(\d+\.\d+ms\)/);
+});
+
+describe('logTag()', () => {
+  it('is empty with no project', () => {
+    expect(logTag(null)).toEqual('');
+    expect(logTag(undefined)).toEqual('');
+    expect(logTag('')).toEqual('');
+  });
+
+  it('is [project] with a project', () => {
+    expect(logTag('pizza')).toEqual('[pizza] ');
+  });
 });
