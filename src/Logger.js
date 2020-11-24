@@ -19,6 +19,12 @@ export function logTag(project) {
   return project ? `[${project}] ` : '';
 }
 
+function printDuration(print, startTime) {
+  if (startTime) {
+    print(dim(` (${(performance.now() - startTime).toFixed(1)}ms)`));
+  }
+}
+
 export default class Logger {
   constructor({
     stderrPrint = (str) => process.stderr.write(str),
@@ -50,18 +56,12 @@ export default class Logger {
     }
   }
 
-  printDuration() {
-    if (this.startTime) {
-      this.print(dim(` (${(performance.now() - this.startTime).toFixed(1)}ms)`));
-    }
-  }
-
   success(msg) {
     this.print(green('✓'));
     if (msg) {
       this.print(green(` ${msg}`));
     }
-    this.printDuration();
+    printDuration(this.print, this.startTime);
     this.print('\n');
   }
 
@@ -70,7 +70,7 @@ export default class Logger {
     if (msg) {
       this.print(red(` ${msg}`));
     }
-    this.printDuration();
+    printDuration(this.print, this.startTime);
     this.print('\n');
   }
 
