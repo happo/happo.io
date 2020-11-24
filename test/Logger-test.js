@@ -24,6 +24,11 @@ it('does not print to stdout on errors', () => {
   expect(print).toHaveBeenCalledTimes(0);
 });
 
+it('prints to stderr on errors', () => {
+  subject().error(new Error('foo'));
+  expect(stderrPrint).toHaveBeenCalledTimes(2);
+});
+
 it('logs errors with stacks', () => {
   const error = new Error('damn');
   error.stack = 'foobar';
@@ -47,11 +52,13 @@ it('logs durations with start() and success()', () => {
 
   logger.start('Pizza');
   expect(print).toHaveBeenNthCalledWith(1, expect.stringContaining('Pizza'));
+  expect(stderrPrint).toHaveBeenCalledTimes(0);
   print.mockReset();
 
   logger.success('Yum');
   expect(print).toHaveBeenNthCalledWith(2, expect.stringContaining('Yum'));
   expect(print).toHaveBeenNthCalledWith(3, expect.stringMatching(/\(\d+\.\d+ms\)/));
+  expect(stderrPrint).toHaveBeenCalledTimes(0);
 });
 
 it('logs durations with start() and fail()', () => {
@@ -59,11 +66,13 @@ it('logs durations with start() and fail()', () => {
 
   logger.start('Pizza');
   expect(print).toHaveBeenNthCalledWith(1, expect.stringContaining('Pizza'));
+  expect(stderrPrint).toHaveBeenCalledTimes(0);
   print.mockReset();
 
   logger.fail('Yuck');
   expect(print).toHaveBeenNthCalledWith(2, expect.stringContaining('Yuck'));
   expect(print).toHaveBeenNthCalledWith(3, expect.stringMatching(/\(\d+\.\d+ms\)/));
+  expect(stderrPrint).toHaveBeenCalledTimes(0);
 });
 
 describe('logTag()', () => {
