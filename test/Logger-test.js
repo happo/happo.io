@@ -4,6 +4,18 @@ let subject;
 let stderrPrint;
 let print;
 
+function getCleanLogs(mockedFn) {
+  return (
+    mockedFn.mock.calls
+      .map(([str]) => str)
+      .join('')
+      // eslint-disable-next-line no-control-regex
+      .replace(/\x1b\[\d{1,2}m/g, '')
+  );
+}
+
+jest.useFakeTimers('modern');
+
 beforeEach(() => {
   stderrPrint = jest.fn();
   print = jest.fn();
@@ -47,32 +59,101 @@ it('logs errors without stacks', () => {
   expect(stderrPrint).toHaveBeenNthCalledWith(1, expect.stringContaining('damn'));
 });
 
+it('logs "Starting: msg" with start(msg)', () => {
+  const logger = subject();
+
+  logger.start('Pizza');
+  expect(print).toHaveBeenNthCalledWith(
+    1,
+    expect.stringContaining('Starting: Pizza'),
+  );
+});
+
+it('logs nothing with start()', () => {
+  const logger = subject();
+
+  logger.start();
+  expect(print).toHaveBeenCalledTimes(0);
+});
+
+it('logs start message with success()', () => {
+  const logger = subject();
+
+  logger.start('Pizza');
+  print.mockReset();
+
+  logger.success('Yum');
+  expect(print).toHaveBeenNthCalledWith(1, expect.stringContaining('✓'));
+  expect(print).toHaveBeenNthCalledWith(2, expect.stringContaining('Pizza:'));
+});
+
+it('handles no start message with success()', () => {
+  const logger = subject();
+
+  logger.start();
+  print.mockReset();
+
+  logger.success('Yum');
+  expect(print).toHaveBeenNthCalledWith(1, expect.stringContaining('✓'));
+});
+
 it('logs durations with start() and success()', () => {
   const logger = subject();
 
   logger.start('Pizza');
-  expect(print).toHaveBeenNthCalledWith(1, expect.stringContaining('Pizza'));
+  expect(print).toHaveBeenNthCalledWith(
+    1,
+    expect.stringContaining('Starting: Pizza'),
+  );
   expect(stderrPrint).toHaveBeenCalledTimes(0);
   print.mockReset();
 
+  jest.advanceTimersByTime(12);
+
   logger.success('Yum');
-  expect(print).toHaveBeenNthCalledWith(2, expect.stringContaining('Yum'));
-  expect(print).toHaveBeenNthCalledWith(3, expect.stringMatching(/\(\d+\.\d+ms\)/));
+  expect(print).toHaveBeenNthCalledWith(3, expect.stringContaining('Yum'));
+  expect(print).toHaveBeenNthCalledWith(4, expect.stringMatching(/\(\d+ms\)/));
   expect(stderrPrint).toHaveBeenCalledTimes(0);
+
+  expect(getCleanLogs(print)).toMatchInlineSnapshot(`
+    "✓ Pizza: Yum (12ms)
+    "
+  `);
 });
 
 it('logs durations with start() and fail()', () => {
   const logger = subject();
 
   logger.start('Pizza');
-  expect(print).toHaveBeenNthCalledWith(1, expect.stringContaining('Pizza'));
+  expect(print).toHaveBeenNthCalledWith(
+    1,
+    expect.stringContaining('Starting: Pizza'),
+  );
   expect(stderrPrint).toHaveBeenCalledTimes(0);
   print.mockReset();
 
+  jest.advanceTimersByTime(13);
+
   logger.fail('Yuck');
-  expect(print).toHaveBeenNthCalledWith(2, expect.stringContaining('Yuck'));
-  expect(print).toHaveBeenNthCalledWith(3, expect.stringMatching(/\(\d+\.\d+ms\)/));
+  expect(print).toHaveBeenNthCalledWith(3, expect.stringContaining('Yuck'));
+  expect(print).toHaveBeenNthCalledWith(4, expect.stringMatching(/\(\d+ms\)/));
   expect(stderrPrint).toHaveBeenCalledTimes(0);
+
+  expect(getCleanLogs(print)).toMatchInlineSnapshot(`
+    "✗ Pizza: Yuck (13ms)
+    "
+  `);
+});
+
+it('logs start message with fail()', () => {
+  const logger = subject();
+
+  logger.start('Pizza');
+  print.mockReset();
+
+  logger.fail('Yuck');
+  expect(print).toHaveBeenNthCalledWith(1, expect.stringContaining('✗'));
+  expect(print).toHaveBeenNthCalledWith(2, expect.stringContaining(' Pizza:'));
 });
 
 describe('logTag()', () => {
