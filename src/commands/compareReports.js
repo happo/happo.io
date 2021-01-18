@@ -20,7 +20,7 @@ export default async function compareReports(
   sha1,
   sha2,
   { apiKey, apiSecret, endpoint, project, compareThreshold },
-  { link, message, author, dryRun, isAsync },
+  { link, message, author, dryRun, isAsync, notify },
   log = console.log,
   maxTries = 5,
 ) {
@@ -37,6 +37,7 @@ export default async function compareReports(
           project,
           skipStatusPost,
           isAsync,
+          notify,
         },
       },
       { apiKey, apiSecret, maxTries },
