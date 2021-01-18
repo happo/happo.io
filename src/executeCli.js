@@ -14,7 +14,7 @@ import startJobCommand from './commands/startJob';
 import postGithubComment from './postGithubComment';
 import uploadReport from './uploadReport';
 
-const { HAPPO_IS_ASYNC: RAW_HAPPO_IS_ASYNC } = process.env;
+const { HAPPO_NOTIFY, HAPPO_IS_ASYNC: RAW_HAPPO_IS_ASYNC } = process.env;
 const HAPPO_IS_ASYNC = RAW_HAPPO_IS_ASYNC === 'true';
 
 commander
@@ -23,6 +23,10 @@ commander
   .option('-o, --only <component>', 'limit to one component')
   .option('-l, --link <url>', 'provide a link back to the commit')
   .option('-a, --async', 'process reports/comparisons asynchronously')
+  .option(
+    '-n, --notify <emails>',
+    'one or more (comma-separated) email addresses to notify with results',
+  )
   .option(
     '-m, --message <message>',
     'associate the run with a message (e.g. commit subject)',
@@ -105,11 +109,13 @@ commander
   .action(async (sha1, sha2) => {
     const config = await loadUserConfig(commander.config);
     const isAsync = commander.async || HAPPO_IS_ASYNC;
+    const notify = commander.notify || HAPPO_NOTIFY;
     const result = await compareReportsCommand(sha1, sha2, config, {
       link: commander.link,
       message: commander.message,
       author: commander.author,
       dryRun: commander.dryRun,
+      notify,
       isAsync,
     });
     if (isAsync) {

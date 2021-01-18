@@ -61,6 +61,15 @@ it('succeeds', async () => {
   ]);
 });
 
+describe('when `notify` is set', () => {
+  it('sends that param to the happo api', async () => {
+    cliArgs.notify = 'foo@bar.com';
+    await subject();
+    expect(makeRequest.mock.calls.length).toBe(2);
+    expect(makeRequest.mock.calls[1][0].body.notify).toEqual('foo@bar.com');
+  });
+});
+
 describe('when fetchPng fails', () => {
   beforeEach(() => {
     fetchPng.mockImplementation(() => Promise.reject(new Error('mocked')));
