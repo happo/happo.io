@@ -73,7 +73,7 @@ beforeEach(() => {
 
 it('sends the project name in the request', async () => {
   await subject();
-  expect(makeRequest.mock.calls[0][0].body.project).toEqual('the project');
+  expect(makeRequest.mock.calls[1][0].body.project).toEqual('the project');
 });
 
 it('produces the right html', async () => {
