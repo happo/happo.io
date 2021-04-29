@@ -17,16 +17,43 @@ import makeRequest from './makeRequest';
 import prepareAssetsPackage from './prepareAssetsPackage';
 import processSnapsInBundle from './processSnapsInBundle';
 
+const knownAssetPackagePaths = {};
+
 const { VERBOSE = 'false' } = process.env;
+
+async function uploadAssets({ apiKey, apiSecret, endpoint, hash, buffer }) {
+  const assetsRes = await makeRequest(
+    {
+      url: `${endpoint}/api/snap-requests/assets/${hash}`,
+      method: 'POST',
+      json: true,
+      formData: {
+        payload: {
+          options: {
+            filename: 'payload.zip',
+            contentType: 'application/zip',
+          },
+          value: buffer,
+        },
+      },
+    },
+    { apiKey, apiSecret, maxTries: 2 },
+  );
+  return assetsRes.path;
+}
 
 function logTargetResults({ name, globalCSS, snapPayloads, project }) {
   const cssPath = path.join(os.tmpdir(), `happo-verbose-${name}.css`);
   const snippetsPath = path.join(os.tmpdir(), `happo-snippets-${name}.json`);
   fs.writeFileSync(cssPath, JSON.stringify(globalCSS));
   fs.writeFileSync(snippetsPath, JSON.stringify(snapPayloads));
-  console.log(`${logTag(project)}Recorded CSS for target "${name}" can be found in ${cssPath}`);
   console.log(
-    `${logTag(project)}Recorded HTML snippets for target "${name}" can be found in ${snippetsPath}`,
+    `${logTag(project)}Recorded CSS for target "${name}" can be found in ${cssPath}`,
+  );
+  console.log(
+    `${logTag(
+      project,
+    )}Recorded HTML snippets for target "${name}" can be found in ${snippetsPath}`,
   );
 }
 
@@ -59,15 +86,14 @@ function resolveDomProvider({ plugins, jsdomOptions }) {
 async function executeTargetWithPrerender({
   name,
   targets,
-  css,
+  globalCSS,
   snapPayloads,
-  publicFolders,
-  cssBlocks,
   apiKey,
   apiSecret,
   endpoint,
   isAsync,
   project,
+  assetsPackage,
 }) {
   if (!snapPayloads.length) {
     console.warn(`${logTag(project)}No examples found for target ${name}, skipping`);
@@ -81,20 +107,9 @@ async function executeTargetWithPrerender({
     throw new MultipleErrors(errors);
   }
 
-  const globalCSS = cssBlocks.concat([{ css }]);
-
   if (VERBOSE === 'true') {
     logTargetResults({ name, globalCSS, snapPayloads, project });
   }
-
-  const assetsPackage = await prepareAssetsPackage({
-    globalCSS,
-    snapPayloads,
-    publicFolders,
-  });
-  snapPayloads.forEach((item) => {
-    delete item.assetPaths;
-  });
 
   const result = await targets[name].execute({
     asyncResults: isAsync,
@@ -120,24 +135,14 @@ async function uploadStaticPackage({
     tmpdir,
     publicFolders,
   });
-  const assetsRes = await makeRequest(
-    {
-      url: `${endpoint}/api/snap-requests/assets/${hash}`,
-      method: 'POST',
-      json: true,
-      formData: {
-        payload: {
-          options: {
-            filename: 'payload.zip',
-            contentType: 'application/zip',
-          },
-          value: buffer,
-        },
-      },
-    },
-    { apiKey, apiSecret, maxTries: 2 },
-  );
-  return assetsRes.path;
+  const assetsPath = await uploadAssets({
+    apiKey,
+    apiSecret,
+    endpoint,
+    hash,
+    buffer,
+  });
+  return assetsPath;
 }
 
 async function generateScreenshots(
@@ -180,7 +185,11 @@ async function generateScreenshots(
   const targetNames = Object.keys(targets);
   const tl = targetNames.length;
   const DomProvider = resolveDomProvider({ plugins, jsdomOptions });
-  logger.info(`${logTag(project)}Generating screenshots in ${tl} target${tl > 1 ? 's' : ''}...`);
+  logger.info(
+    `${logTag(project)}Generating screenshots in ${tl} target${
+      tl > 1 ? 's' : ''
+    }...`,
+  );
   try {
     const staticPackage = prerender
       ? undefined
@@ -198,24 +207,46 @@ async function generateScreenshots(
       for (const name of targetNames) {
         // These tasks are CPU-bound, and we need to be careful about how much
         // memory we are using at one time, so we want to run them serially.
-        // eslint-disable-next-line no-await-in-loop
+        /* eslint-disable no-await-in-loop */
         const { css, snapPayloads } = await processSnapsInBundle(bundleFile, {
           targetName: name,
           publicFolders,
           viewport: targets[name].viewport,
           DomProvider,
         });
+        const globalCSS = cssBlocks.concat([{ css }]);
+
+        const { buffer, hash } = await prepareAssetsPackage({
+          globalCSS,
+          snapPayloads,
+          publicFolders,
+        });
+
+        const assetsPackage =
+          knownAssetPackagePaths[hash] ||
+          (await uploadAssets({
+            endpoint,
+            apiKey,
+            apiSecret,
+            hash,
+            buffer,
+          }));
+        /* eslint-enable no-await-in-loop */
+
+        snapPayloads.forEach((item) => {
+          delete item.assetPaths;
+        });
+
         prerenderPromises.push(
           (async () => {
             const startTime = performance.now();
             const result = await executeTargetWithPrerender({
               name,
-              css,
+              globalCSS,
               snapPayloads,
               targets,
-              publicFolders,
+              assetsPackage,
               viewport: targets[name].viewport,
-              cssBlocks,
               apiKey,
               apiSecret,
               endpoint,

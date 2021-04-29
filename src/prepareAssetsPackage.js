@@ -1,4 +1,5 @@
 import { Writable } from 'stream';
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 
@@ -24,7 +25,8 @@ function makePackage({ paths, publicFolders }) {
     };
     stream.on('finish', () => {
       const buffer = Buffer.from(data);
-      resolve(buffer);
+      const hash = crypto.createHash('md5').update(buffer).digest('hex');
+      resolve({ buffer, hash });
     });
     archive.pipe(stream);
 
@@ -72,7 +74,11 @@ function makePackage({ paths, publicFolders }) {
   });
 }
 
-export default function prepareAssetsPackage({ globalCSS, snapPayloads, publicFolders }) {
+export default function prepareAssetsPackage({
+  globalCSS,
+  snapPayloads,
+  publicFolders,
+}) {
   const paths = {};
   globalCSS.forEach(({ css, source }) => {
     findCSSAssetPaths({ css, source }).forEach(({ assetPath, resolvePath }) => {
