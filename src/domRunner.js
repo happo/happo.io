@@ -222,15 +222,29 @@ async function generateScreenshots(
           publicFolders,
         });
 
-        const assetsPackage =
-          knownAssetPackagePaths[hash] ||
-          (await uploadAssets({
+        let assetsPackage = knownAssetPackagePaths[hash];
+        if (assetsPackage) {
+          if (VERBOSE === 'true') {
+            console.log(
+              `${logTag(project)}Assets package ${hash} has already been uploaded`,
+            );
+          }
+        } else {
+          if (VERBOSE === 'true') {
+            console.log(
+              `${logTag(project)}Uploading assets package ${hash}`,
+            );
+          }
+          assetsPackage = await uploadAssets({
             endpoint,
             apiKey,
             apiSecret,
             hash,
             buffer,
-          }));
+          });
+          knownAssetPackagePaths[hash] = assetsPackage;
+        }
+
         /* eslint-enable no-await-in-loop */
 
         snapPayloads.forEach((item) => {
