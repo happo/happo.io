@@ -99,14 +99,6 @@ async function executeTargetWithPrerender({
     console.warn(`${logTag(project)}No examples found for target ${name}, skipping`);
     return [];
   }
-  const errors = snapPayloads.filter((p) => p.isError);
-  if (errors.length === 1) {
-    throw errors[0];
-  }
-  if (errors.length > 1) {
-    throw new MultipleErrors(errors);
-  }
-
   if (VERBOSE === 'true') {
     logTargetResults({ name, globalCSS, snapPayloads, project });
   }
@@ -214,6 +206,15 @@ async function generateScreenshots(
           viewport: targets[name].viewport,
           DomProvider,
         });
+
+        const errors = snapPayloads.filter((p) => p.isError);
+        if (errors.length === 1) {
+          throw errors[0];
+        }
+        if (errors.length > 1) {
+          throw new MultipleErrors(errors);
+        }
+
         const globalCSS = cssBlocks.concat([{ css }]);
 
         const { buffer, hash } = await prepareAssetsPackage({
@@ -231,9 +232,7 @@ async function generateScreenshots(
           }
         } else {
           if (VERBOSE === 'true') {
-            console.log(
-              `${logTag(project)}Uploading assets package ${hash}`,
-            );
+            console.log(`${logTag(project)}Uploading assets package ${hash}`);
           }
           assetsPackage = await uploadAssets({
             endpoint,
