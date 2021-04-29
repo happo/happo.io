@@ -35,7 +35,8 @@ beforeEach(() => {
 
 it('creates a package when there are assets', async () => {
   const result = await subject();
-  expect(result).not.toBe(undefined);
+  expect(result.buffer).not.toBe(undefined);
+  expect(result.hash).not.toBe(undefined);
 });
 
 it('creates consistent results', async () => {
@@ -50,11 +51,12 @@ it('creates consistent results', async () => {
 it('does not fail when files are missing', async () => {
   const result = await subject();
   publicFolders = [path.join(__dirname, 'foobar')];
-  expect(result).not.toBe(undefined);
+  expect(result.buffer).not.toBe(undefined);
+  expect(result.hash).not.toBe(undefined);
 });
 
 it('picks out the right files', async () => {
-  const buffer = await subject();
+  const { buffer } = await subject();
   const zip = new AdmZip(buffer);
   expect(zip.getEntries().map(({ entryName }) => entryName)).toEqual([
     '1x1.jpg', // this is in the root because the css is always served from the root on happo workers
