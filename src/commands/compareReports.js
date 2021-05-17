@@ -20,10 +20,11 @@ export default async function compareReports(
   sha1,
   sha2,
   { apiKey, apiSecret, endpoint, project, compareThreshold },
-  { link, message, author, dryRun, isAsync, notify },
+  { link, message, author, dryRun, isAsync, notify, fallbackShas: rawFallbackShas },
   log = console.log,
   maxTries = 5,
 ) {
+  const fallbackShas = rawFallbackShas ? rawFallbackShas.split(/[,\s]+/) : undefined;
   const makeCompareCall = (skipStatusPost) =>
     makeRequest(
       {
@@ -38,6 +39,7 @@ export default async function compareReports(
           skipStatusPost,
           isAsync,
           notify,
+          fallbackShas,
         },
       },
       { apiKey, apiSecret, maxTries },
@@ -52,9 +54,7 @@ export default async function compareReports(
 
   const resolved = [];
   log(
-    `Found ${
-      firstCompareResult.diffs.length
-    } diffs to deep-compare using threshold ${compareThreshold}`,
+    `Found ${firstCompareResult.diffs.length} diffs to deep-compare using threshold ${compareThreshold}`,
   );
   if (dryRun) {
     log('Running in --dry-run mode -- no destructive commands will be issued');
@@ -81,9 +81,7 @@ export default async function compareReports(
         });
         if (!firstDiffDistance) {
           linesToLog.push(
-            `✓ ${after.component} - ${after.variant} - ${
-              after.target
-            } - diff below threshold, auto-ignoring`,
+            `✓ ${after.component} - ${after.variant} - ${after.target} - diff below threshold, auto-ignoring`,
           );
 
           if (!dryRun) {

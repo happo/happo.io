@@ -70,6 +70,19 @@ describe('when `notify` is set', () => {
   });
 });
 
+describe('when `fallbackShas` is set', () => {
+  it('sends that param to the happo api', async () => {
+    cliArgs.fallbackShas = 'foo,bar,car';
+    await subject();
+    expect(makeRequest.mock.calls.length).toBe(2);
+    expect(makeRequest.mock.calls[1][0].body.fallbackShas).toEqual([
+      'foo',
+      'bar',
+      'car',
+    ]);
+  });
+});
+
 describe('when fetchPng fails', () => {
   beforeEach(() => {
     fetchPng.mockImplementation(() => Promise.reject(new Error('mocked')));
