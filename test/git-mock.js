@@ -26,6 +26,9 @@ if (cmd === 'rev-parse') {
   } else {
     console.log('Commit message');
   }
+} else if (cmd === 'log') {
+  console.log('foo bar baz');
+  process.exit(0);
 } else {
   console.error('Unknown command:', cmd);
   process.exit(1);

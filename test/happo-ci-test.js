@@ -89,6 +89,7 @@ describe('when CURRENT_SHA and PREVIOUS_SHA is the same', () => {
     expect(getGitLog()).toEqual([
       'rev-parse bar',
       'rev-parse bar',
+      'log --format=%H --first-parent --max-count=50 bar^',
       'rev-parse HEAD',
       'show -s --format=%s',
     ]);
@@ -107,6 +108,7 @@ describe('when there is a report for PREVIOUS_SHA', () => {
     expect(getGitLog()).toEqual([
       'rev-parse foo',
       'rev-parse bar',
+      'log --format=%H --first-parent --max-count=50 foo^',
       'show -s --format=%s',
       'show -s --format=%ae',
       'rev-parse HEAD',
@@ -132,6 +134,7 @@ describe('when there is no report for PREVIOUS_SHA', () => {
     expect(getGitLog()).toEqual([
       'rev-parse no-report',
       'rev-parse bar',
+      'log --format=%H --first-parent --max-count=50 no-report^',
       'show -s --format=%s',
       'show -s --format=%ae',
       'rev-parse HEAD',
@@ -158,6 +161,7 @@ describe('when there is no report for PREVIOUS_SHA', () => {
       expect(getGitLog()).toEqual([
         'rev-parse no-report',
         'rev-parse bar',
+        'log --format=%H --first-parent --max-count=50 no-report^',
         'show -s --format=%s',
         'show -s --format=%ae',
         'show -s --format=%s',
@@ -182,6 +186,7 @@ describe('when the compare call fails', () => {
     expect(getGitLog()).toEqual([
       'rev-parse fail',
       'rev-parse bar',
+      'log --format=%H --first-parent --max-count=50 fail^',
       'show -s --format=%s',
       'show -s --format=%ae',
       'rev-parse HEAD',
@@ -207,6 +212,7 @@ describe('when happo.io is not installed for the PREVIOUS_SHA', () => {
     expect(getGitLog()).toEqual([
       'rev-parse no-happo',
       'rev-parse bar',
+      'log --format=%H --first-parent --max-count=50 no-happo^',
       'show -s --format=%s',
       'show -s --format=%ae',
       'rev-parse HEAD',
