@@ -1,3 +1,7 @@
+import path from 'path';
+
+import { createServer } from 'http-server';
+
 import compareSnapshots from '../src/compareSnapshots';
 import fetchPng from '../src/fetchPng';
 
@@ -9,6 +13,19 @@ let subject;
 let before;
 let after;
 let compareThreshold;
+
+let httpServer;
+
+beforeAll(async () => {
+  httpServer = createServer({
+    root: path.join(__dirname, 'assets'),
+  });
+  await new Promise((resolve) => httpServer.listen(8990, resolve));
+});
+
+afterAll(() => {
+  httpServer.close();
+});
 
 beforeEach(() => {
   fetchPng.mockImplementation(realFetchPng);
@@ -33,7 +50,7 @@ beforeEach(() => {
     compareSnapshots({
       before,
       after,
-      endpoint: 'https://dummyimage.com',
+      endpoint: 'http://localhost:8990',
       apiKey: 'foo',
       apiSecret: 'bar',
       compareThreshold,
@@ -46,13 +63,13 @@ it('returns the diff value when diff is above threshold between images', async (
 
 describe('when images are completely different', () => {
   beforeEach(() => {
-    before.url = 'https://dummyimage.com/20/000/000000.png';
-    before.width = 20;
-    before.height = 20;
+    before.url = 'http://localhost:8990/solid-black.png';
+    before.width = 90;
+    before.height = 90;
 
-    after.url = 'https://dummyimage.com/20/fff/ffffff.png';
-    after.width = 20;
-    after.height = 20;
+    after.url = 'http://localhost:8990/solid-white.png';
+    after.width = 90;
+    after.height = 90;
   });
 
   it('returns the diff value', async () => {
@@ -62,13 +79,13 @@ describe('when images are completely different', () => {
 
 describe('when images are of different height', () => {
   beforeEach(() => {
-    before.url = 'https://dummyimage.com/20/000/000000.png';
-    before.width = 20;
-    before.height = 20;
+    before.url = 'http://localhost:8990/solid-white.png';
+    before.width = 90;
+    before.height = 90;
 
-    after.url = 'https://dummyimage.com/20x40/fff/ffffff.png';
-    after.width = 20;
-    after.height = 40;
+    after.url = 'http://localhost:8990/solid-white-120px.png';
+    after.width = 90;
+    after.height = 120;
   });
 
   it('returns 1', async () => {
@@ -78,13 +95,13 @@ describe('when images are of different height', () => {
 
 describe('when images are of different width', () => {
   beforeEach(() => {
-    before.url = 'https://dummyimage.com/20/000/000000.png';
-    before.width = 20;
-    before.height = 20;
+    before.url = 'http://localhost:8990/solid-white.png';
+    before.width = 90;
+    before.height = 90;
 
-    after.url = 'https://dummyimage.com/40x20/fff/ffffff.png';
-    after.width = 40;
-    after.height = 20;
+    after.url = 'http://localhost:8990/solid-white-120px-wide.png';
+    after.width = 120;
+    after.height = 90;
   });
 
   it('returns 1', async () => {
@@ -94,11 +111,11 @@ describe('when images are of different width', () => {
 
 describe('with a minor diff', () => {
   beforeEach(() => {
-    before.url = 'https://dummyimage.com/200/000/ffffff.png&text=aa';
+    before.url = 'http://localhost:8990/ffffff-aa.png';
     before.width = 200;
     before.height = 200;
 
-    after.url = 'https://dummyimage.com/200/000/f7f7f7.png&text=aa';
+    after.url = 'http://localhost:8990/f7f7f7-aa.png';
     after.width = 200;
     after.height = 200;
   });
@@ -120,11 +137,11 @@ describe('with a minor diff', () => {
 
 describe('when images are equal', () => {
   beforeEach(() => {
-    before.url = 'https://dummyimage.com/200/000/ffffff.png&text=aa';
+    before.url = 'http://localhost:8990/ffffff-aa.png';
     before.width = 200;
     before.height = 200;
 
-    after.url = 'https://dummyimage.com/200/000/ffffff.png&text=aa';
+    after.url = 'http://localhost:8990/ffffff-aa.png';
     after.width = 200;
     after.height = 200;
   });

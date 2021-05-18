@@ -11,7 +11,7 @@ let url;
 beforeEach(() => {
   request.mockReset();
   request.mockImplementation((...args) => realRequest(...args));
-  url = 'https://dummyimage.com/200/000/ffffff.png&text=aa';
+  url = 'https://happo.io/static/github-logo.png';
   subject = () =>
     fetchPng(url, {
       apiKey: 'foo',
@@ -22,12 +22,13 @@ beforeEach(() => {
 
 it('resolves with a bitmap', async () => {
   const bitmap = await subject();
-  expect(bitmap.width).toBe(200);
-  expect(bitmap.height).toBe(200);
-  expect(bitmap.data.length).toBe(160000);
+  expect(bitmap.width).toBe(64);
+  expect(bitmap.height).toBe(64);
+  expect(bitmap.data.length).toBe(16384);
 });
 
 it('does not send credentials for external urls', async () => {
+  url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/272px-Google_2015_logo.svg.png';
   await subject();
   expect(request.mock.calls[0][0].auth).toBe(undefined);
 });
