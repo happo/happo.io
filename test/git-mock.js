@@ -27,6 +27,13 @@ if (cmd === 'rev-parse') {
     console.log('Commit message');
   }
 } else if (cmd === 'log') {
+  if (process.argv[6] === 'fail^') {
+    console.error(
+      "fatal: ambiguous argument 'fail^': unknown revision or path not in the working tree",
+    );
+    process.exit(1);
+    return;
+  }
   console.log('foo bar baz');
   process.exit(0);
 } else {
