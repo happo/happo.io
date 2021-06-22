@@ -1,6 +1,6 @@
 {
   "name": "happo.io",
-  "version": "6.6.1",
+  "version": "6.7.0",
   "description": "Visual diffing for UI components",
   "main": "./build/index.js",
   "bin": {
