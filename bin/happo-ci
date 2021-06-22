@@ -9,6 +9,7 @@ set -eou pipefail
 # Initialize optional env variables
 INSTALL_CMD=${INSTALL_CMD:-}
 HAPPO_IS_ASYNC=${HAPPO_IS_ASYNC:-}
+HAPPO_SKIP_START_JOB=${HAPPO_SKIP_START_JOB:-}
 HAPPO_GIT_COMMAND=${HAPPO_GIT_COMMAND:-git}
 HAPPO_COMMAND=${HAPPO_COMMAND:-"node_modules/happo.io/build/cli.js"}
 
@@ -27,6 +28,7 @@ echo "CURRENT_SHA: ${CURRENT_SHA}"
 echo "CHANGE_URL: ${CHANGE_URL}"
 echo "INSTALL_CMD: ${INSTALL_CMD}"
 echo "HAPPO_IS_ASYNC: ${HAPPO_IS_ASYNC}"
+echo "HAPPO_SKIP_START_JOB: ${HAPPO_SKIP_START_JOB}"
 echo "HAPPO_GIT_COMMAND: ${HAPPO_GIT_COMMAND}"
 echo "HAPPO_COMMAND: ${HAPPO_COMMAND}"
 echo "HAPPO_FALLBACK_SHAS: ${HAPPO_FALLBACK_SHAS}"
@@ -92,9 +94,13 @@ fi
 COMMIT_SUBJECT="$(${HAPPO_GIT_COMMAND} show -s --format=%s)"
 COMMIT_AUTHOR="$(${HAPPO_GIT_COMMAND} show -s --format=%ae)"
 
-"$HAPPO_COMMAND" start-job "$PREVIOUS_SHA" "$CURRENT_SHA" \
-  --link "${CHANGE_URL}" \
-  --message "${COMMIT_SUBJECT}"
+# If orchestration is being used and there is a guarantee that the orchestrate
+# endpoint will be hit before this runs, this start-job step can be skipped.
+if [ -z "$HAPPO_SKIP_START_JOB" ]; then
+  "$HAPPO_COMMAND" start-job "$PREVIOUS_SHA" "$CURRENT_SHA" \
+    --link "${CHANGE_URL}" \
+    --message "${COMMIT_SUBJECT}"
+fi
 
 run-happo "$CURRENT_SHA"
 
