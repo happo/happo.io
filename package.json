@@ -63,7 +63,6 @@
     "jsdom": "^16.4.0",
     "jsonwebtoken": "^8.2.1",
     "lcs-image-diff": "^2.0.0",
-    "mkdirp": "^0.5.1",
     "parse-srcset": "^1.0.2",
     "pngjs": "^3.4.0",
     "request": "^2.85.0",

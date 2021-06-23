@@ -1,4 +1,4 @@
-import mkdirp from 'mkdirp';
+import fs from 'fs';
 import rimraf from 'rimraf';
 
 import Logger from '../Logger';
@@ -16,7 +16,7 @@ export default async function devCommand(config, { only }) {
   let baselineSha;
   const logger = new Logger();
   rimraf.sync(config.tmpdir);
-  mkdirp.sync(config.tmpdir);
+  fs.mkdirSync(config.tmpdir, { recursive: true });
   domRunner(config, {
     only,
     onReady: async (snaps) => {

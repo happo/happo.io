@@ -1,4 +1,4 @@
-import mkdirp from 'mkdirp';
+import fs from 'fs';
 import rimraf from 'rimraf';
 
 import Logger, { logTag } from '../Logger';
@@ -17,7 +17,7 @@ export default async function runCommand(
   const { apiKey, apiSecret, endpoint, project, plugins, pages } = config;
 
   rimraf.sync(config.tmpdir);
-  mkdirp.sync(config.tmpdir);
+  fs.mkdirSync(config.tmpdir, { recursive: true });
 
   const staticPlugin = plugins.find(
     (plugin) => typeof plugin.generateStaticPackage === 'function',
