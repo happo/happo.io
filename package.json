@@ -3,6 +3,9 @@
   "version": "6.7.0",
   "description": "Visual diffing for UI components",
   "main": "./build/index.js",
+  "engines": {
+    "node": ">=10"
+  },
   "bin": {
     "happo": "./build/cli.js",
     "happo-ci-travis": "./bin/happo-ci-travis",
@@ -21,13 +24,7 @@
     "type": "git",
     "url": "git+https://github.com/happo/happo.io.git"
   },
-  "keywords": [
-    "visual",
-    "diffing",
-    "ui",
-    "testing",
-    "snapshots"
-  ],
+  "keywords": ["visual", "diffing", "ui", "testing", "snapshots"],
   "author": "Henric Trotzig",
   "license": "MIT",
   "bugs": {
@@ -36,15 +33,9 @@
   "homepage": "https://github.com/happo/happo.io#readme",
   "jest": {
     "testEnvironment": "node",
-    "setupFilesAfterEnv": [
-      "./test/jestSetup.js"
-    ],
-    "testMatch": [
-      "**/*-test.js*"
-    ],
-    "testPathIgnorePatterns": [
-      "node_modules"
-    ]
+    "setupFilesAfterEnv": ["./test/jestSetup.js"],
+    "testMatch": ["**/*-test.js*"],
+    "testPathIgnorePatterns": ["node_modules"]
   },
   "prettier": {
     "printWidth": 85,

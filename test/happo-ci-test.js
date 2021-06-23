@@ -90,7 +90,6 @@ describe('when CURRENT_SHA and PREVIOUS_SHA is the same', () => {
       'rev-parse bar',
       'rev-parse bar',
       'log --format=%H --first-parent --max-count=50 bar^',
-      'rev-parse HEAD',
       'show -s --format=%s',
     ]);
   });
@@ -102,7 +101,6 @@ describe('when there is a report for PREVIOUS_SHA', () => {
     expect(getCliLog()).toEqual([
       'start-job foo bar --link http://foo.bar/ --message Commit message',
       'run bar --link http://foo.bar/ --message Commit message',
-      'has-report foo',
       'compare foo bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
     ]);
     expect(getGitLog()).toEqual([
@@ -111,9 +109,106 @@ describe('when there is a report for PREVIOUS_SHA', () => {
       'log --format=%H --first-parent --max-count=50 foo^',
       'show -s --format=%s',
       'show -s --format=%ae',
-      'rev-parse HEAD',
       'show -s --format=%s',
     ]);
+  });
+
+  describe('when HAPPO_IS_ASYNC=false', () => {
+    beforeEach(() => {
+      env.HAPPO_IS_ASYNC = 'false';
+    });
+
+    it('runs the right happo commands', () => {
+      subject();
+      expect(getCliLog()).toEqual([
+        'start-job foo bar --link http://foo.bar/ --message Commit message',
+        'run bar --link http://foo.bar/ --message Commit message',
+        'has-report foo',
+        'compare foo bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
+      ]);
+      expect(getGitLog()).toEqual([
+        'rev-parse foo',
+        'rev-parse bar',
+        'log --format=%H --first-parent --max-count=50 foo^',
+        'show -s --format=%s',
+        'show -s --format=%ae',
+        'rev-parse HEAD',
+        'show -s --format=%s',
+      ]);
+    });
+  });
+
+  describe('when HAPPO_SKIP_START_JOB is set', () => {
+    beforeEach(() => {
+      env.HAPPO_SKIP_START_JOB = 'true';
+    });
+
+    it('runs the right happo commands', () => {
+      subject();
+      expect(getCliLog()).toEqual([
+        'run bar --link http://foo.bar/ --message Commit message',
+        'compare foo bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
+      ]);
+      expect(getGitLog()).toEqual([
+        'rev-parse foo',
+        'rev-parse bar',
+        'log --format=%H --first-parent --max-count=50 foo^',
+        'show -s --format=%s',
+        'show -s --format=%ae',
+        'show -s --format=%s',
+      ]);
+    });
+  });
+});
+describe('when CURRENT_SHA has the right hash length', () => {
+  beforeEach(() => {
+    env.CURRENT_SHA = '93a000afa511ff777143ff2aab48748429c2666a';
+  });
+
+  it('does not rev-parse to get the full sha', () => {
+    subject();
+    expect(getGitLog()).toEqual([
+      'rev-parse foo',
+      'log --format=%H --first-parent --max-count=50 foo^',
+      'show -s --format=%s',
+      'show -s --format=%ae',
+      'show -s --format=%s',
+    ]);
+  });
+
+  describe('when HAPPO_IS_ASYNC is false', () => {
+    beforeEach(() => {
+      env.HAPPO_IS_ASYNC = false;
+    });
+
+    it('does not rev-parse to get the full sha', () => {
+      subject();
+      expect(getGitLog()).toEqual([
+        'rev-parse foo',
+        'log --format=%H --first-parent --max-count=50 foo^',
+        'show -s --format=%s',
+        'show -s --format=%ae',
+        'rev-parse HEAD',
+        'checkout --force --quiet 93a000afa511ff777143ff2aab48748429c2666a',
+        'show -s --format=%s',
+      ]);
+    });
+  });
+
+  describe('when PREVIOUS_SHA is of the right length as well', () => {
+    beforeEach(() => {
+      env.PREVIOUS_SHA = '748e8b6a19831f61066a1ba4eb26ecd2ffa98879';
+    });
+
+    it('does not rev-parse to get the full sha', () => {
+      subject();
+      expect(getGitLog()).toEqual([
+        'log --format=%H --first-parent --max-count=50 748e8b6a19831f61066a1ba4eb26ecd2ffa98879^',
+        'show -s --format=%s',
+        'show -s --format=%ae',
+        'show -s --format=%s',
+      ]);
+    });
   });
 });
 
@@ -122,13 +217,11 @@ describe('when there is no report for PREVIOUS_SHA', () => {
     env.PREVIOUS_SHA = 'no-report';
   });
 
-  it('runs the right happo commands', () => {
+  it('does not checkout anything, runs a single report', () => {
     subject();
     expect(getCliLog()).toEqual([
       'start-job no-report bar --link http://foo.bar/ --message Commit message',
       'run bar --link http://foo.bar/ --message Commit message',
-      'has-report no-report',
-      'run no-report --link http://foo.bar/ --message Commit message',
       'compare no-report bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
     ]);
     expect(getGitLog()).toEqual([
@@ -137,25 +230,21 @@ describe('when there is no report for PREVIOUS_SHA', () => {
       'log --format=%H --first-parent --max-count=50 no-report^',
       'show -s --format=%s',
       'show -s --format=%ae',
-      'rev-parse HEAD',
       'show -s --format=%s',
-      'rev-parse HEAD',
-      'checkout --force --quiet no-report',
-      'show -s --format=%s',
-      'checkout --force --quiet bar',
     ]);
   });
 
-  describe('when HAPPO_IS_ASYNC', () => {
+  describe('when HAPPO_IS_ASYNC=false', () => {
     beforeEach(() => {
-      env.HAPPO_IS_ASYNC = 'true';
+      env.HAPPO_IS_ASYNC = 'false';
     });
-
-    it('does not checkout anything, runs a single report', () => {
+    it('runs the right happo commands', () => {
       subject();
       expect(getCliLog()).toEqual([
         'start-job no-report bar --link http://foo.bar/ --message Commit message',
         'run bar --link http://foo.bar/ --message Commit message',
+        'has-report no-report',
+        'run no-report --link http://foo.bar/ --message Commit message',
         'compare no-report bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
       ]);
       expect(getGitLog()).toEqual([
@@ -164,7 +253,12 @@ describe('when there is no report for PREVIOUS_SHA', () => {
         'log --format=%H --first-parent --max-count=50 no-report^',
         'show -s --format=%s',
         'show -s --format=%ae',
+        'rev-parse HEAD',
         'show -s --format=%s',
+        'rev-parse HEAD',
+        'checkout --force --quiet no-report',
+        'show -s --format=%s',
+        'checkout --force --quiet bar',
       ]);
     });
   });
@@ -180,7 +274,6 @@ describe('when the compare call fails', () => {
     expect(getCliLog()).toEqual([
       'start-job fail bar --link http://foo.bar/ --message Commit message',
       'run bar --link http://foo.bar/ --message Commit message',
-      'has-report fail',
       'compare fail bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
     ]);
     expect(getGitLog()).toEqual([
@@ -189,15 +282,15 @@ describe('when the compare call fails', () => {
       'log --format=%H --first-parent --max-count=50 fail^',
       'show -s --format=%s',
       'show -s --format=%ae',
-      'rev-parse HEAD',
       'show -s --format=%s',
     ]);
   });
 });
 
-describe('when happo.io is not installed for the PREVIOUS_SHA', () => {
+describe('when happo.io is not installed for the PREVIOUS_SHA and HAPPO_IS_ASYNC=false', () => {
   beforeEach(() => {
     env.PREVIOUS_SHA = 'no-happo';
+    env.HAPPO_IS_ASYNC = 'false';
   });
 
   it('runs the right happo commands', () => {
