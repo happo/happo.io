@@ -115,6 +115,30 @@ describe('when there is a report for PREVIOUS_SHA', () => {
       'show -s --format=%s',
     ]);
   });
+
+  describe('when HAPPO_SKIP_START_JOB is set', () => {
+    beforeEach(() => {
+      env.HAPPO_SKIP_START_JOB = 'true';
+    });
+
+    it('runs the right happo commands', () => {
+      subject();
+      expect(getCliLog()).toEqual([
+        'run bar --link http://foo.bar/ --message Commit message',
+        'has-report foo',
+        'compare foo bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
+      ]);
+      expect(getGitLog()).toEqual([
+        'rev-parse foo',
+        'rev-parse bar',
+        'log --format=%H --first-parent --max-count=50 foo^',
+        'show -s --format=%s',
+        'show -s --format=%ae',
+        'rev-parse HEAD',
+        'show -s --format=%s',
+      ]);
+    });
+  });
 });
 
 describe('when there is no report for PREVIOUS_SHA', () => {
