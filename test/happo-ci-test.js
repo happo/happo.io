@@ -140,6 +140,42 @@ describe('when there is a report for PREVIOUS_SHA', () => {
     });
   });
 });
+describe('when CURRENT_SHA has the right hash length', () => {
+  beforeEach(() => {
+    env.CURRENT_SHA = '93a000afa511ff777143ff2aab48748429c2666a';
+  });
+
+  it('does not rev-parse to get the full sha', () => {
+    subject();
+    expect(getGitLog()).toEqual([
+      'rev-parse foo',
+      'log --format=%H --first-parent --max-count=50 foo^',
+      'show -s --format=%s',
+      'show -s --format=%ae',
+      'rev-parse HEAD',
+      'checkout --force --quiet 93a000afa511ff777143ff2aab48748429c2666a',
+      'show -s --format=%s',
+    ]);
+  });
+
+  describe('when PREVIOUS_SHA is of the right length as well', () => {
+    beforeEach(() => {
+      env.PREVIOUS_SHA = '748e8b6a19831f61066a1ba4eb26ecd2ffa98879';
+    });
+
+    it('does not rev-parse to get the full sha', () => {
+      subject();
+      expect(getGitLog()).toEqual([
+        'log --format=%H --first-parent --max-count=50 748e8b6a19831f61066a1ba4eb26ecd2ffa98879^',
+        'show -s --format=%s',
+        'show -s --format=%ae',
+        'rev-parse HEAD',
+        'checkout --force --quiet 93a000afa511ff777143ff2aab48748429c2666a',
+        'show -s --format=%s',
+      ]);
+    });
+  });
+});
 
 describe('when there is no report for PREVIOUS_SHA', () => {
   beforeEach(() => {

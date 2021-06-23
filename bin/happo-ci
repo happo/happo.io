@@ -14,10 +14,12 @@ HAPPO_GIT_COMMAND=${HAPPO_GIT_COMMAND:-git}
 HAPPO_COMMAND=${HAPPO_COMMAND:-"node_modules/happo.io/build/cli.js"}
 
 # Make sure we use the full commit shas
-if [ -n "$PREVIOUS_SHA" ]; then
+if [ -n "$PREVIOUS_SHA" ] && [ ${#PREVIOUS_SHA} -ne 40 ]; then
   PREVIOUS_SHA="$(${HAPPO_GIT_COMMAND} rev-parse "$PREVIOUS_SHA")"
 fi
-CURRENT_SHA="$(${HAPPO_GIT_COMMAND} rev-parse "$CURRENT_SHA")"
+if [ ${#CURRENT_SHA} -ne 40 ]; then
+  CURRENT_SHA="$(${HAPPO_GIT_COMMAND} rev-parse "$CURRENT_SHA")"
+fi
 
 HAPPO_FALLBACK_SHAS_COUNT=${HAPPO_FALLBACK_SHAS_COUNT:-50}
 HAPPO_FALLBACK_SHAS=${HAPPO_FALLBACK_SHAS:-$(${HAPPO_GIT_COMMAND} log --format=%H --first-parent --max-count=${HAPPO_FALLBACK_SHAS_COUNT} "$PREVIOUS_SHA"^ || true)}
