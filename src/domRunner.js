@@ -324,6 +324,7 @@ export default async function domRunner(
     jsdomOptions,
     asyncTimeout,
     project,
+    webpack,
   },
   { only, isAsync, onReady },
 ) {
@@ -377,7 +378,7 @@ export default async function domRunner(
     // We're in dev/watch mode
     createWebpackBundle(
       entryFile,
-      { type, customizeWebpackConfig, plugins, tmpdir },
+      { type, customizeWebpackConfig, plugins, tmpdir, webpack },
       {
         onBuildReady: async (bundleFile) => {
           if (currentBuildPromise) {
@@ -420,7 +421,7 @@ export default async function domRunner(
 
   const bundleFile = await createWebpackBundle(
     entryFile,
-    { type, customizeWebpackConfig, plugins, tmpdir },
+    { type, customizeWebpackConfig, plugins, tmpdir, webpack },
     {},
   );
   logger.success();

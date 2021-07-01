@@ -34,3 +34,4 @@ export function customizeWebpackConfig(config) {
   // always there.
   return config;
 }
+export const webpack = undefined;
