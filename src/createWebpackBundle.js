@@ -10,7 +10,7 @@ function getWebpack() {
   return require('webpack');
 }
 
-function generateBaseConfig({ entry, type, tmpdir }) {
+function generateBaseConfig({ entry, type, tmpdir, webpack }) {
   const babelLoader = require.resolve('babel-loader');
   const baseConfig = {
     devtool: 'nosources-source-map',
@@ -39,12 +39,13 @@ function generateBaseConfig({ entry, type, tmpdir }) {
     },
     plugins: [],
   };
-  if (/^[4567]\./.test(getWebpack().version)) {
+  const usedWebpack = webpack || getWebpack();
+  if (/^[4567]\./.test(usedWebpack.version)) {
     if (VERBOSE === 'true') {
       console.log('Detected webpack version >=4. Using `mode: "development"`.');
     }
     baseConfig.mode = 'development';
-    if (/^[567]\./.test(getWebpack().version)) {
+    if (/^[567]\./.test(usedWebpack.version)) {
       if (VERBOSE === 'true') {
         console.log(
           'Detected webpack version >=5. Adding no-op fallback for "path".',
@@ -67,10 +68,10 @@ function generateBaseConfig({ entry, type, tmpdir }) {
 
 export default async function createWebpackBundle(
   entry,
-  { type, customizeWebpackConfig, plugins, tmpdir },
+  { type, customizeWebpackConfig, plugins, tmpdir, webpack },
   { onBuildReady },
 ) {
-  let config = generateBaseConfig({ entry, type, tmpdir });
+  let config = generateBaseConfig({ entry, type, tmpdir, webpack });
   for (const plugin of plugins) {
     if (typeof plugin.customizeWebpackConfig === 'function') {
       config = await plugin.customizeWebpackConfig(config); // eslint-disable-line no-await-in-loop
@@ -81,7 +82,8 @@ export default async function createWebpackBundle(
     console.log('Using this webpack config:');
     console.log(config);
   }
-  const compiler = getWebpack()(config);
+
+  const compiler = (webpack || getWebpack())(config);
   const bundleFilePath = path.join(config.output.path, config.output.filename);
 
   if (onBuildReady) {
