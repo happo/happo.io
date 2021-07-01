@@ -421,7 +421,7 @@ export default async function domRunner(
 
   const bundleFile = await createWebpackBundle(
     entryFile,
-    { type, customizeWebpackConfig, plugins, tmpdir },
+    { type, customizeWebpackConfig, plugins, tmpdir, webpack },
     {},
   );
   logger.success();
