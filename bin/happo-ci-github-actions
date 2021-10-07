@@ -23,7 +23,7 @@ ENV_VARS=$(echo "
   if (!process.env.CHANGE_URL) {
     if (json.pull_request) {
       console.log(\`export CHANGE_URL=\${json.pull_request.html_url}\`);
-    } else {
+    } else if (json.head_commit) {
       console.log(\`export CHANGE_URL=\${json.head_commit.url}\`);
     }
   }
