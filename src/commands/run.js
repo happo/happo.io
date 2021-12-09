@@ -21,7 +21,7 @@ export default async function runCommand(
 
   const staticPlugin = plugins.find(
     (plugin) => typeof plugin.generateStaticPackage === 'function',
-  );
+  ) || { generateStaticPackage: config.generateStaticPackage };
   let result;
   if (pages) {
     result = await pageRunner(config, { isAsync });
