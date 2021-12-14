@@ -58,3 +58,5 @@ export default function createStaticPackage({ tmpdir, publicFolders }) {
     archive.finalize();
   });
 }
+
+export { FILE_CREATION_DATE };

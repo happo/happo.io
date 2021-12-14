@@ -1,8 +1,10 @@
-import { performance } from 'perf_hooks';
 import { Writable } from 'stream';
 
 import Archiver from 'archiver';
 
+import { performance } from 'perf_hooks';
+
+import { FILE_CREATION_DATE } from './createStaticPackage';
 import Logger, { logTag } from './Logger';
 import constructReport from './constructReport';
 import createHash from './createHash';
@@ -12,7 +14,6 @@ import makeRequest from './makeRequest';
 function staticDirToZipBuffer(dir) {
   return new Promise((resolve, reject) => {
     const archive = new Archiver('zip');
-
     const stream = new Writable();
     const data = [];
 
@@ -26,7 +27,7 @@ function staticDirToZipBuffer(dir) {
     });
     archive.pipe(stream);
 
-    archive.directory(dir, false);
+    archive.directory(dir, false, { date: FILE_CREATION_DATE });
     archive.on('error', reject);
     archive.finalize();
   });
