@@ -55,7 +55,8 @@ async function resolvePackageData(staticPackage) {
       resolve(hashCreator.read());
     });
   });
-  return { value: readStream, hash };
+  readStream.destroy();
+  return { value: fs.createReadStream(file), hash };
 }
 
 async function uploadStaticPackage({ staticPackage, endpoint, apiKey, apiSecret }) {
