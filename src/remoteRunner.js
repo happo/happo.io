@@ -1,4 +1,7 @@
-import { Writable } from 'stream';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import crypto from 'crypto';
 
 import Archiver from 'archiver';
 
@@ -11,32 +14,28 @@ import createHash from './createHash';
 import loadCSSFile from './loadCSSFile';
 import makeRequest from './makeRequest';
 
-function staticDirToZipBuffer(dir) {
+function staticDirToZipFile(dir) {
   return new Promise((resolve, reject) => {
     const archive = new Archiver('zip');
-    const stream = new Writable();
-    const data = [];
+    const rnd = crypto.randomBytes(4).toString('hex');
+    const pathToZipFile = path.join(os.tmpdir(), `happo-static-${rnd}.zip`);
+    const output = fs.createWriteStream(pathToZipFile);
 
-    // eslint-disable-next-line no-underscore-dangle
-    stream._write = (chunk, enc, done) => {
-      data.push(...chunk);
-      done();
-    };
-    stream.on('finish', () => {
-      resolve(Buffer.from(data));
+    output.on('finish', () => {
+      resolve(pathToZipFile);
     });
-    archive.pipe(stream);
-
+    archive.pipe(output);
     archive.directory(dir, false, { date: FILE_CREATION_DATE });
     archive.on('error', reject);
     archive.finalize();
   });
 }
 
-function resolvePackageBuffer(staticPackage) {
+async function resolvePackageData(staticPackage) {
   if (typeof staticPackage === 'string') {
     // legacy plugins
-    return Buffer.from(staticPackage, 'base64');
+    const buffer = Buffer.from(staticPackage, 'base64');
+    return { value: buffer, hash: createHash(buffer) };
   }
 
   if (!staticPackage.path) {
@@ -45,12 +44,22 @@ function resolvePackageBuffer(staticPackage) {
     );
   }
 
-  return staticDirToZipBuffer(staticPackage.path);
+  const file = await staticDirToZipFile(staticPackage.path);
+  const readStream = fs.createReadStream(file);
+  const hash = await new Promise((resolve) => {
+    const hashCreator = crypto.createHash('md5');
+    readStream.pipe(hashCreator);
+    hashCreator.setEncoding('hex');
+    readStream.on('end', () => {
+      hashCreator.end();
+      resolve(hashCreator.read());
+    });
+  });
+  return { value: readStream, hash };
 }
 
 async function uploadStaticPackage({ staticPackage, endpoint, apiKey, apiSecret }) {
-  const buffer = await resolvePackageBuffer(staticPackage);
-  const hash = createHash(buffer);
+  const { value, hash } = await resolvePackageData(staticPackage);
   const assetsRes = await makeRequest(
     {
       url: `${endpoint}/api/snap-requests/assets/${hash}`,
@@ -62,7 +71,7 @@ async function uploadStaticPackage({ staticPackage, endpoint, apiKey, apiSecret 
             filename: 'payload.zip',
             contentType: 'application/zip',
           },
-          value: buffer,
+          value,
         },
       },
     },
