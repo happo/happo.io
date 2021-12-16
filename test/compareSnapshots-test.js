@@ -50,7 +50,7 @@ beforeEach(() => {
     compareSnapshots({
       before,
       after,
-      endpoint: 'http://localhost:8990',
+      endpoint: 'https://happo.io',
       apiKey: 'foo',
       apiSecret: 'bar',
       compareThreshold,

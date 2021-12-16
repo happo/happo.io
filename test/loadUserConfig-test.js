@@ -1,4 +1,4 @@
-import request from 'request-promise-native';
+import fetch from 'node-fetch';
 import requireRelative from 'require-relative';
 
 import Logger from '../src/Logger';
@@ -7,7 +7,7 @@ import loadUserConfig from '../src/loadUserConfig';
 
 const actualRequireRelative = jest.requireActual('require-relative');
 
-jest.mock('request-promise-native');
+jest.mock('node-fetch');
 jest.mock('require-relative');
 jest.mock('../src/Logger');
 
@@ -36,7 +36,9 @@ it('yells if targets are missing', async () => {
     apiSecret: '2',
     targets: {},
   }));
-  await expect(loadUserConfig('bogus')).rejects.toThrow(/You need at least one target/);
+  await expect(loadUserConfig('bogus')).rejects.toThrow(
+    /You need at least one target/,
+  );
 });
 
 it('does not yell if all required things are in place', async () => {
@@ -61,13 +63,17 @@ describe('when HAPPO_CONFIG_URL is defined', () => {
   });
 
   it('uses config from that file', async () => {
-    const config = await loadUserConfig('bogus', { HAPPO_CONFIG_FILE: './test/.happo-alternate.js' });
+    const config = await loadUserConfig('bogus', {
+      HAPPO_CONFIG_FILE: './test/.happo-alternate.js',
+    });
     expect(config.apiKey).toEqual('tom');
     expect(config.apiSecret).toEqual('dooner');
   });
 
   it('allows async config', async () => {
-    const config = await loadUserConfig('bogus', { HAPPO_CONFIG_FILE: './test/.happo-alternate-async.js' });
+    const config = await loadUserConfig('bogus', {
+      HAPPO_CONFIG_FILE: './test/.happo-alternate-async.js',
+    });
     expect(config.apiKey).toEqual('tom');
     expect(config.apiSecret).toEqual('dooner');
   });
@@ -80,7 +86,9 @@ describe('when CHANGE_URL is defined', () => {
         firefox: new RemoteBrowserTarget('firefox', { viewport: '800x600' }),
       },
     }));
-    request.mockImplementation(() => Promise.resolve({ secret: 'yay' }));
+    fetch.mockImplementation(() =>
+      Promise.resolve({ ok: true, json: () => ({ secret: 'yay' }) }),
+    );
   });
 
   it('grabs a temporary secret', async () => {
@@ -98,13 +106,13 @@ describe('when CHANGE_URL is defined', () => {
 
   describe('when the API has an error response', () => {
     beforeEach(() => {
-      request.mockImplementation(() => Promise.reject(new Error('nope')));
+      fetch.mockImplementation(() => ({ ok: false, text: () => 'nope' }));
     });
 
     it('yells', async () => {
-      await expect(loadUserConfig('bogus', { CHANGE_URL: 'foo.bar' })).rejects.toThrow(
-        /Failed to obtain temporary pull-request token/,
-      );
+      await expect(
+        loadUserConfig('bogus', { CHANGE_URL: 'foo.bar' }),
+      ).rejects.toThrow(/Failed to obtain temporary pull-request token/);
     });
   });
 });
@@ -124,5 +132,7 @@ it('warns when using an unknown config key', async () => {
   expect(config.apiKey).toEqual('1');
   expect(config.apiSecret).toEqual('2');
   expect(warn.mock.calls.length).toBe(1);
-  expect(warn.mock.calls[0][0]).toEqual('Unknown config key used in .happo.js: "foobar"');
+  expect(warn.mock.calls[0][0]).toEqual(
+    'Unknown config key used in .happo.js: "foobar"',
+  );
 });

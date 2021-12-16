@@ -1,4 +1,4 @@
-import request from 'request-promise-native';
+import fetch from 'node-fetch';
 import requireRelative from 'require-relative';
 
 import Logger from './Logger';
@@ -24,22 +24,22 @@ async function load(pathToConfigFile) {
 }
 
 async function getPullRequestSecret({ endpoint }, env) {
-  const { secret } = await request({
-    url: `${endpoint}/api/pull-request-token`,
+  const res = await fetch(`${endpoint}/api/pull-request-token`, {
     method: 'POST',
-    json: true,
-    body: {
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
       prUrl: env.CHANGE_URL,
-    },
+    }),
   });
 
+  if (!res.ok) {
+    throw new Error(`Failed to get pull request secret: ${res.status} - ${await res.text()}`);
+  }
+  const { secret } = await res.json();
   return secret;
 }
 
-export default async function loadUserConfig(
-  pathToConfigFile,
-  env = process.env,
-) {
+export default async function loadUserConfig(pathToConfigFile, env = process.env) {
   const { CHANGE_URL, HAPPO_CONFIG_FILE } = env;
 
   if (HAPPO_CONFIG_FILE) {
