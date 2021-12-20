@@ -23,7 +23,5 @@ jobs:
     - run: yarn install --frozen-lockfile --ignore-engines
     - run: yarn lint
     - run: yarn test
-    - run: yarn add --dev webpack@3
-    - run: yarn test
     - run: yarn add --dev webpack@4
     - run: yarn test
