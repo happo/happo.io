@@ -32,7 +32,6 @@ if (cmd === 'rev-parse') {
       "fatal: ambiguous argument 'fail^': unknown revision or path not in the working tree",
     );
     process.exit(1);
-    return;
   }
   console.log('foo bar baz');
   process.exit(0);

@@ -36,7 +36,7 @@ it('does not send credentials for external urls', async () => {
 
 it('sends credentials for happo urls', async () => {
   url = 'https://happo.io/a/120/img/happo-io/5ed1580f2dc7243b92c9ff648bbd1824';
-  await expect(subject()).rejects.toThrow('wrong content type'); // the response will be a text/plain;
+  await subject();
   expect(fetch.mock.calls[0][1].headers.Authorization).toMatch(/Bearer [a-z0-9]+/);
 });
 

@@ -1,5 +1,3 @@
-import { Readable } from 'stream';
-
 import FormData from 'form-data';
 import HttpsProxyAgent from 'https-proxy-agent';
 import asyncRetry from 'async-retry';
