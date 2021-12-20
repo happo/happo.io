@@ -1,4 +1,4 @@
-import request from 'request-promise-native';
+import fetch from 'node-fetch';
 
 import Logger from './Logger';
 
@@ -30,20 +30,25 @@ export default async function postGithubComment({
 
   const normalizedGithubApiUrl = githubApiUrl.replace(/\/$/, '');
 
-  await request({
-    url: `${normalizedGithubApiUrl}/repos/${owner}/${repo}/issues/${prNumber}/comments`,
-    method: 'POST',
-    json: true,
-    headers: {
-      'User-Agent': 'happo.io client',
+  const auth = Buffer.from(`${user}:${pass}`).toString('base64');
+  const res = await fetch(
+    `${normalizedGithubApiUrl}/repos/${owner}/${repo}/issues/${prNumber}/comments`,
+    {
+      method: 'POST',
+      json: true,
+      headers: {
+        'User-Agent': 'happo.io client',
+        Authorization: `Basic ${auth}`,
+      },
+      body: {
+        body: `[![Happo status](${statusImageUrl})](${compareUrl})`,
+      },
     },
-    auth: {
-      user,
-      pass,
-    },
-    body: {
-      body: `[![Happo status](${statusImageUrl})](${compareUrl})`,
-    },
-  });
+  );
+  if (!res.ok) {
+    throw new Error(
+      `Failed to post github comment: ${res.status} ${await res.text()}`,
+    );
+  }
   return true;
 }

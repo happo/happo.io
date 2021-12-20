@@ -1,51 +1,181 @@
-import request from 'request-promise-native';
+import fs from 'fs';
+import http from 'http';
+
+import multiparty from 'multiparty';
 
 import makeRequest from '../src/makeRequest';
 
-jest.mock('request-promise-native');
 jest.setTimeout(30000);
 
 let subject;
 let props;
 let options;
+let env;
+
+let httpServer;
+let errorTries;
+
+beforeAll(async () => {
+  httpServer = http.createServer((req, res) => {
+    if (req.url === '/success' || (req.url === '/failure-retry' && errorTries > 2)) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          result: 'Hello world!',
+        }),
+      );
+    } else if (req.url === '/form-data') {
+      const form = new multiparty.Form();
+
+      form.parse(req, (err, fields, files) => {
+        if (err) {
+          res.writeHead(400, { 'Content-Type': 'text/plain' });
+          res.end(err.message);
+          return;
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ fields, files }));
+      });
+    } else if (req.url === '/body-data') {
+      let data = '';
+      req.on('data', (chunk) => {
+        data += chunk;
+      });
+      req.on('end', () => {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ body: JSON.parse(data) }));
+      });
+    } else {
+      errorTries += 1;
+      res.writeHead(500, { 'Content-Type': 'text/plain' });
+      res.end('Nope');
+    }
+  });
+  await new Promise((resolve) => httpServer.listen(8990, resolve));
+});
+
+afterAll(async () => {
+  await new Promise((resolve) => httpServer.close(resolve));
+});
 
 beforeEach(() => {
-  request.mockImplementation(async () => 'Hello world!');
+  errorTries = 0;
   props = {
-    url: 'https://happo.io',
+    url: 'http://localhost:8990/success',
     method: 'GET',
   };
   options = {
     apiKey: 'foo',
     apiSecret: 'bar',
     maxTries: 3,
+    minTimeout: 0,
+    maxTimeout: 1,
   };
-  subject = () => makeRequest(props, options);
+  env = undefined;
+
+  subject = () => makeRequest(props, options, env);
 });
 
 it('returns the response', async () => {
   const response = await subject();
-  expect(response).toEqual('Hello world!');
+  expect(response).toEqual({ result: 'Hello world!' });
+});
+
+it('can use a proxy', async () => {
+  env = { HTTP_PROXY: 'http://localhost:1122' };
+  options.maxTries = 1;
+  await expect(subject()).rejects.toThrow(/connect ECONNREFUSED/);
+});
+
+it('can post json', async () => {
+  props.url = 'http://localhost:8990/body-data';
+  props.method = 'POST';
+  props.body = { foo: 'bar' };
+  const response = await subject();
+  expect(response).toEqual({ body: { foo: 'bar' } });
+});
+
+it('can upload form data with buffers', async () => {
+  props.url = 'http://localhost:8990/form-data';
+  props.method = 'POST';
+  props.formData = {
+    type: 'browser-chrome',
+    targetName: 'chrome',
+    payloadHash: 'foobar',
+    payload: {
+      options: {
+        filename: 'payload.json',
+        contentType: 'application/json',
+      },
+      value: Buffer.from('{"foo": "bar"}'),
+    },
+  };
+  const response = await subject();
+  expect(response).toEqual({
+    fields: {
+      payloadHash: ['foobar'],
+      targetName: ['chrome'],
+      type: ['browser-chrome'],
+    },
+    files: {
+      payload: [
+        {
+          fieldName: 'payload',
+          headers: {
+            'content-disposition':
+              'form-data; name="payload"; filename="payload.json"',
+            'content-type': 'application/json',
+          },
+          originalFilename: 'payload.json',
+          path: expect.any(String),
+          size: 14,
+        },
+      ],
+    },
+  });
+});
+
+it('can upload form data with streams', async () => {
+  props.url = 'http://localhost:8990/form-data';
+  props.method = 'POST';
+  props.formData = {
+    payload: {
+      options: {
+        filename: 'payload.json',
+        contentType: 'application/json',
+      },
+      value: fs.createReadStream('package.json'),
+    },
+  };
+  const response = await subject();
+  expect(response).toEqual({
+    fields: {},
+    files: {
+      payload: [
+        {
+          fieldName: 'payload',
+          headers: {
+            'content-disposition':
+              'form-data; name="payload"; filename="payload.json"',
+            'content-type': 'application/json',
+          },
+          originalFilename: 'payload.json',
+          path: expect.any(String),
+          size: expect.any(Number),
+        },
+      ],
+    },
+  });
 });
 
 describe('when the request fails twice', () => {
   beforeEach(() => {
-    props.url = 'http://sometimes-throws';
-    let tries = 0;
-    request.mockReset();
-    request.mockImplementation(async () => {
-      tries += 1;
-      if (tries < 3) {
-        throw new Error('Nope');
-      }
-      return 'Foo bar';
-    });
+    props.url = 'http://localhost:8990/failure-retry';
   });
 
   it('retries and succeeds', async () => {
     const response = await subject();
-    expect(response).toEqual('Foo bar');
-    expect(request.mock.calls.length).toBe(3);
+    expect(response).toEqual({ result: 'Hello world!' });
   });
 
   describe('and we do not allow retries', () => {
@@ -55,17 +185,13 @@ describe('when the request fails twice', () => {
 
     it('throws', async () => {
       await expect(subject()).rejects.toThrow(/Nope/);
-      expect(request.mock.calls.length).toBe(1);
     });
   });
 });
 
 describe('when the request fails repeatedly', () => {
   beforeEach(() => {
-    props.url = 'http://always-throws';
-    request.mockImplementation(async () => {
-      throw new Error('Nope');
-    });
+    props.url = 'http://localhost:8990/failure';
   });
 
   it('gives up retrying', async () => {

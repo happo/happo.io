@@ -5,7 +5,7 @@ module.exports = {
     './build/**',
   ],
   aliases: {
-    'request': 'request-promise-native',
+    'fetch': 'node-fetch',
   },
   declarationKeyword: 'import',
   importDevDependencies: true,

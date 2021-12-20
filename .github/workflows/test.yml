@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x, 16.x]
+        node-version: [12.x, 14.x, 16.x]
 
     steps:
     - uses: actions/checkout@v2
@@ -22,8 +22,6 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: yarn install --frozen-lockfile --ignore-engines
     - run: yarn lint
-    - run: yarn test
-    - run: yarn add --dev webpack@3
     - run: yarn test
     - run: yarn add --dev webpack@4
     - run: yarn test

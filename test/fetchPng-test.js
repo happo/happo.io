@@ -1,16 +1,16 @@
-import request from 'request';
+import fetch from 'node-fetch';
 
 import fetchPng from '../src/fetchPng';
 
-jest.mock('request');
-const realRequest = jest.requireActual('request');
+jest.mock('node-fetch');
+const realFetch = jest.requireActual('node-fetch');
 
 let subject;
 let url;
 
 beforeEach(() => {
-  request.mockReset();
-  request.mockImplementation((...args) => realRequest(...args));
+  fetch.mockReset();
+  fetch.mockImplementation((...args) => realFetch(...args));
   url = 'https://happo.io/static/github-logo.png';
   subject = () =>
     fetchPng(url, {
@@ -28,16 +28,16 @@ it('resolves with a bitmap', async () => {
 });
 
 it('does not send credentials for external urls', async () => {
-  url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/272px-Google_2015_logo.svg.png';
+  url =
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/272px-Google_2015_logo.svg.png';
   await subject();
-  expect(request.mock.calls[0][0].auth).toBe(undefined);
+  expect(fetch.mock.calls[0][1].headers.Authorization).toBe(undefined);
 });
 
 it('sends credentials for happo urls', async () => {
   url = 'https://happo.io/a/120/img/happo-io/5ed1580f2dc7243b92c9ff648bbd1824';
   await subject();
-  expect(request.mock.calls[0][0].auth).not.toBe(undefined);
-  expect(request.mock.calls[0][0].auth.bearer).not.toBe(undefined);
+  expect(fetch.mock.calls[0][1].headers.Authorization).toMatch(/Bearer [a-z0-9]+/);
 });
 
 describe('with an invalid url', () => {
@@ -50,7 +50,7 @@ describe('with an invalid url', () => {
     try {
       await subject();
     } catch (e) {
-      expect(e.message).toMatch('Invalid URI');
+      expect(e.message).toMatch('Only absolute URLs are supported');
     }
   });
 });
@@ -61,11 +61,8 @@ describe('with a url that is not an image', () => {
   });
 
   it('rejects', async () => {
-    expect.assertions = 1;
-    try {
-      await subject();
-    } catch (e) {
-      expect(e.message).toMatch('Invalid file signature');
-    }
+    await expect(subject()).rejects.toThrow(
+      /Failed to fetch PNG at.*wrong content type/,
+    );
   });
 });

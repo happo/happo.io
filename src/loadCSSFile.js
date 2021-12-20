@@ -1,12 +1,16 @@
 import fs from 'fs';
 
-import request from 'request-promise-native';
+import fetch from 'node-fetch';
 
-export default function loadCSSFile(cssFile) {
+export default async function loadCSSFile(cssFile) {
   if (cssFile.startsWith('/')) {
     // local file
     return fs.readFileSync(cssFile, 'utf-8');
   }
 
-  return request(cssFile);
+  const res = await fetch(cssFile);
+  if (!res.ok) {
+    throw new Error(`Unable to fetch css file: ${cssFile}`);
+  }
+  return res.text();
 }
