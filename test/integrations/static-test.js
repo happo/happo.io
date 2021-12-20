@@ -55,25 +55,18 @@ beforeEach(async () => {
 
 it('produces the static package', async () => {
   await subject();
-  expect(config.targets.chrome.staticPackage).toEqual(
-    'staticpkg/716966f385c6d10e661d41f2780eec7e.zip',
-  );
+  expect(config.targets.chrome.staticPackage).toMatch(/staticpkg\/[a-z0-9]+\.zip/);
 });
 
 it('has a consistent hash', async () => {
   await subject();
-  expect(config.targets.chrome.staticPackage).toEqual(
-    'staticpkg/716966f385c6d10e661d41f2780eec7e.zip',
-  );
+  const firstHash = config.targets.chrome.staticPackage;
+  expect(firstHash).toMatch(/staticpkg\/[a-z0-9]+\.zip/);
   delete config.targets.chrome.staticPackage;
   execSync(`touch ${path.join(__dirname, 'static-files', 'iframe.html')}`);
   await subject();
-  expect(config.targets.chrome.staticPackage).toEqual(
-    'staticpkg/716966f385c6d10e661d41f2780eec7e.zip',
-  );
+  expect(config.targets.chrome.staticPackage).toEqual(firstHash);
   delete config.targets.chrome.staticPackage;
   await subject();
-  expect(config.targets.chrome.staticPackage).toEqual(
-    'staticpkg/716966f385c6d10e661d41f2780eec7e.zip',
-  );
+  expect(config.targets.chrome.staticPackage).toEqual(firstHash);
 });
