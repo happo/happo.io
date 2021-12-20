@@ -1,5 +1,3 @@
-import { performance } from 'perf_hooks';
-
 import supportsColor from 'supports-color';
 
 // https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
@@ -19,6 +17,12 @@ export function logTag(project) {
   return project ? `[${project}] ` : '';
 }
 
+function printDuration(print, startTime) {
+  if (startTime) {
+    print(dim(` (${(Date.now() - startTime)}ms)`));
+  }
+}
+
 export default class Logger {
   constructor({
     stderrPrint = (str) => process.stderr.write(str),
@@ -27,6 +31,7 @@ export default class Logger {
     this.print = print;
     this.stderrPrint = stderrPrint;
     this.startTime = undefined;
+    this.startMsg = undefined;
   }
 
   mute() {
@@ -44,34 +49,44 @@ export default class Logger {
   }
 
   start(msg, { startTime } = {}) {
-    this.startTime = startTime || performance.now();
+    this.startTime = startTime || Date.now();
+    this.startMsg = msg;
     if (msg) {
-      this.print(`${msg} `);
-    }
-  }
-
-  printDuration() {
-    if (this.startTime) {
-      this.print(dim(` (${(performance.now() - this.startTime).toFixed(1)}ms)`));
+      this.print(`Starting: ${msg} `);
+      this.print('\n');
     }
   }
 
   success(msg) {
     this.print(green('✓'));
+
+    if (this.startMsg) {
+      this.print(green(` ${this.startMsg}:`));
+    }
+
     if (msg) {
       this.print(green(` ${msg}`));
     }
-    this.printDuration();
+    printDuration(this.print, this.startTime);
     this.print('\n');
+
+    this.startMsg = undefined;
   }
 
   fail(msg) {
     this.print(red('✗'));
+
+    if (this.startMsg) {
+      this.print(red(` ${this.startMsg}:`));
+    }
+
     if (msg) {
       this.print(red(` ${msg}`));
     }
-    this.printDuration();
+    printDuration(this.print, this.startTime);
     this.print('\n');
+
+    this.startMsg = undefined;
   }
 
   error(e) {

@@ -68,6 +68,7 @@
     "lcs-image-diff": "^2.0.0",
     "parse-srcset": "^1.0.2",
     "pngjs": "^3.4.0",
+    "prettier": "^2.2.0",
     "request": "^2.85.0",
     "request-promise-native": "^1.0.5",
     "require-relative": "^0.8.7",
