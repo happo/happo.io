@@ -3,8 +3,6 @@ import os from 'os';
 import path from 'path';
 import readline from 'readline';
 
-import { performance } from 'perf_hooks';
-
 import JSDOMDomProvider from './JSDOMDomProvider';
 import Logger, { logTag } from './Logger';
 import MultipleErrors from './MultipleErrors';
@@ -252,7 +250,7 @@ async function generateScreenshots(
 
         prerenderPromises.push(
           (async () => {
-            const startTime = performance.now();
+            const startTime = Date.now();
             const result = await executeTargetWithPrerender({
               name,
               globalCSS,
@@ -278,7 +276,7 @@ async function generateScreenshots(
     } else {
       results = await Promise.all(
         targetNames.map(async (name) => {
-          const startTime = performance.now();
+          const startTime = Date.now();
           const result = await targets[name].execute({
             asyncResults: isAsync,
             targetName: name,

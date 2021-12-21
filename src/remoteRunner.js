@@ -5,8 +5,6 @@ import crypto from 'crypto';
 
 import Archiver from 'archiver';
 
-import { performance } from 'perf_hooks';
-
 import { FILE_CREATION_DATE } from './createStaticPackage';
 import Logger, { logTag } from './Logger';
 import constructReport from './constructReport';
@@ -106,10 +104,10 @@ export default async function remoteRunner(
         tl > 1 ? 's' : ''
       }...`,
     );
-    const outerStartTime = performance.now();
+    const outerStartTime = Date.now();
     const results = await Promise.all(
       targetNames.map(async (name) => {
-        const startTime = performance.now();
+        const startTime = Date.now();
         const result = await targets[name].execute({
           targetName: name,
           asyncResults: isAsync,
