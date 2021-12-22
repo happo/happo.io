@@ -62,11 +62,13 @@ export default async function makeRequest(
         ),
       );
       if (!response.ok) {
-        throw new Error(
+        const e = new Error(
           `Request to ${method} ${url} failed: ${
             response.status
           } - ${await response.text()}`,
         );
+        e.statusCode = response.status;
+        throw e;
       }
       const result = await response.json();
       return result;

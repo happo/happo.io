@@ -20,6 +20,21 @@ const knownAssetPackagePaths = {};
 const { VERBOSE = 'false' } = process.env;
 
 async function uploadAssets({ apiKey, apiSecret, endpoint, hash, buffer }) {
+  try {
+    const hasAssetsRes = await makeRequest(
+      {
+        url: `${endpoint}/api/snap-requests/assets-data/${hash}`,
+        method: 'GET',
+        json: true,
+      },
+      { apiKey, apiSecret, maxTries: 1 },
+    );
+    return hasAssetsRes.path;
+  } catch (e) {
+    if (e.statusCode !== 404) {
+      throw e;
+    }
+  }
   const assetsRes = await makeRequest(
     {
       url: `${endpoint}/api/snap-requests/assets/${hash}`,

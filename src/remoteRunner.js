@@ -59,6 +59,24 @@ async function resolvePackageData(staticPackage) {
 
 async function uploadStaticPackage({ staticPackage, endpoint, apiKey, apiSecret }) {
   const { value, hash } = await resolvePackageData(staticPackage);
+
+  try {
+    // Check if the assets already exist. If so, we don't have to upload them.
+    const assetsDataRes = await makeRequest(
+      {
+        url: `${endpoint}/api/snap-requests/assets-data/${hash}`,
+        method: 'GET',
+        json: true,
+      },
+      { apiKey, apiSecret, maxTries: 1 },
+    );
+    return assetsDataRes.path;
+  } catch (e) {
+    if (e.statusCode !== 404) {
+      throw e;
+    }
+  }
+
   const assetsRes = await makeRequest(
     {
       url: `${endpoint}/api/snap-requests/assets/${hash}`,

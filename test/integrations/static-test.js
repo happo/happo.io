@@ -12,6 +12,7 @@ let subject;
 let config;
 let sha;
 let httpServer;
+let mockPkgExists = false;
 
 beforeAll(async () => {
   httpServer = http.createServer((req, res) => {
@@ -24,6 +25,18 @@ beforeAll(async () => {
           path: `staticpkg/${hash}.zip`,
         }),
       );
+    } else if (/assets-data/.test(req.url)) {
+      if (mockPkgExists) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(
+          JSON.stringify({
+            path: 'staticpkg/mock.zip',
+          }),
+        );
+      } else {
+        res.writeHead(404);
+        res.end('not found');
+      }
     } else {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(
@@ -41,6 +54,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
+  mockPkgExists = false;
   sha = 'foobar';
   config = Object.assign({}, defaultConfig, {
     apiKey: 'foobar',
@@ -69,4 +83,12 @@ it('has a consistent hash', async () => {
   delete config.targets.chrome.staticPackage;
   await subject();
   expect(config.targets.chrome.staticPackage).toEqual(firstHash);
+});
+
+describe('when the static package already exists', () => {
+  it('does not upload it', async () => {
+    mockPkgExists = true;
+    await subject();
+    expect(config.targets.chrome.staticPackage).toEqual('staticpkg/mock.zip');
+  });
 });
