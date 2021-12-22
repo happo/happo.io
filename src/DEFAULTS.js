@@ -35,3 +35,4 @@ export function customizeWebpackConfig(config) {
   return config;
 }
 export const webpack = undefined;
+export const jsdomOptions = undefined;
