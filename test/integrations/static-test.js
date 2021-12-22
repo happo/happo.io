@@ -31,6 +31,7 @@ beforeAll(async () => {
         res.end(
           JSON.stringify({
             path: 'staticpkg/mock.zip',
+            uploadedAt: new Date(0),
           }),
         );
       } else {

@@ -19,9 +19,9 @@ const knownAssetPackagePaths = {};
 
 const { VERBOSE = 'false' } = process.env;
 
-async function uploadAssets({ apiKey, apiSecret, endpoint, hash, buffer }) {
+async function uploadAssets({ apiKey, apiSecret, endpoint, hash, buffer, logger, project }) {
   try {
-    const hasAssetsRes = await makeRequest(
+    const assetsDataRes = await makeRequest(
       {
         url: `${endpoint}/api/snap-requests/assets-data/${hash}`,
         method: 'GET',
@@ -29,7 +29,10 @@ async function uploadAssets({ apiKey, apiSecret, endpoint, hash, buffer }) {
       },
       { apiKey, apiSecret, maxTries: 1 },
     );
-    return hasAssetsRes.path;
+    logger.info(
+      `${logTag(project)}Reusing existing assets at ${assetsDataRes.path} (previously uploaded on ${assetsDataRes.uploadedAt})`,
+    );
+    return assetsDataRes.path;
   } catch (e) {
     if (e.statusCode !== 404) {
       throw e;
@@ -135,6 +138,8 @@ async function uploadStaticPackage({
   endpoint,
   apiKey,
   apiSecret,
+  logger,
+  project,
 }) {
   const { buffer, hash } = await createStaticPackage({
     tmpdir,
@@ -146,6 +151,8 @@ async function uploadStaticPackage({
     endpoint,
     hash,
     buffer,
+    logger,
+    project,
   });
   return assetsPath;
 }
@@ -204,6 +211,8 @@ async function generateScreenshots(
           apiKey,
           apiSecret,
           endpoint,
+          logger,
+          project,
         });
 
     let results;
@@ -253,6 +262,8 @@ async function generateScreenshots(
             apiSecret,
             hash,
             buffer,
+            logger,
+            project,
           });
           knownAssetPackagePaths[hash] = assetsPackage;
         }

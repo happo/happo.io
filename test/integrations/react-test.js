@@ -19,7 +19,7 @@ beforeEach(() => {
   makeRequest.mockImplementation((req) => {
     if (/\/assets\//.test(req.url) && req.method === 'POST') {
       // uploading assets
-      return Promise.resolve({ path: req.formData.payload.value });
+      return Promise.resolve({ path: req.formData.payload.value, uploadedAt: new Date() });
     }
     if (/\/assets-data\//.test(req.url) && req.method === 'GET') {
       // checking if assets exist

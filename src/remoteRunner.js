@@ -57,7 +57,14 @@ async function resolvePackageData(staticPackage) {
   return { value: fs.createReadStream(file), hash };
 }
 
-async function uploadStaticPackage({ staticPackage, endpoint, apiKey, apiSecret }) {
+async function uploadStaticPackage({
+  staticPackage,
+  endpoint,
+  apiKey,
+  apiSecret,
+  logger,
+  project,
+}) {
   const { value, hash } = await resolvePackageData(staticPackage);
 
   try {
@@ -69,6 +76,9 @@ async function uploadStaticPackage({ staticPackage, endpoint, apiKey, apiSecret 
         json: true,
       },
       { apiKey, apiSecret, maxTries: 1 },
+    );
+    logger.info(
+      `${logTag(project)}Reusing existing assets at ${assetsDataRes.path} (previously uploaded on ${assetsDataRes.uploadedAt})`,
     );
     return assetsDataRes.path;
   } catch (e) {
@@ -112,6 +122,8 @@ export default async function remoteRunner(
       endpoint,
       apiSecret,
       apiKey,
+      logger,
+      project,
     });
     const targetNames = Object.keys(targets);
     const tl = targetNames.length;
