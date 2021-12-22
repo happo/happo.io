@@ -61,7 +61,7 @@ export default async function runCommand(
           project,
         },
       },
-      { endpoint, apiKey, apiSecret, maxTries: 3 },
+      { endpoint, apiKey, apiSecret, retryCount: 3 },
     );
 
     logger.success();

@@ -25,7 +25,14 @@ function prepareFormData(data) {
 
 export default async function makeRequest(
   requestAttributes,
-  { apiKey, apiSecret, maxTries = 0, minTimeout, maxTimeout },
+  {
+    apiKey,
+    apiSecret,
+    retryCount = 0,
+    /* legacy */ maxTries,
+    minTimeout,
+    maxTimeout,
+  },
   { HTTP_PROXY } = process.env,
 ) {
   const { url, method, formData, body: jsonBody } = requestAttributes;
@@ -74,7 +81,7 @@ export default async function makeRequest(
       return result;
     },
     {
-      retries: maxTries,
+      retries: retryCount || maxTries,
       minTimeout,
       maxTimeout,
       onRetry: () => {

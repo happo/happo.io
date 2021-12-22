@@ -67,7 +67,7 @@ beforeEach(() => {
   options = {
     apiKey: 'foo',
     apiSecret: 'bar',
-    maxTries: 3,
+    retryCount: 3,
     minTimeout: 0,
     maxTimeout: 1,
   };
@@ -83,7 +83,7 @@ it('returns the response', async () => {
 
 it('can use a proxy', async () => {
   env = { HTTP_PROXY: 'http://localhost:1122' };
-  options.maxTries = 1;
+  options.retryCount = 1;
   await expect(subject()).rejects.toThrow(/connect ECONNREFUSED/);
 });
 
@@ -180,11 +180,24 @@ describe('when the request fails twice', () => {
 
   describe('and we do not allow retries', () => {
     beforeEach(() => {
-      delete options.maxTries;
+      delete options.retryCount;
     });
 
     it('throws', async () => {
       await expect(subject()).rejects.toThrow(/Nope/);
+    });
+
+    describe('when using maxTries instead of retryCount', () => {
+      // legacy, there are clients out there using this name
+      //
+      beforeEach(() => {
+        options.maxTries = 3;
+      });
+
+      it('retries and succeeds', async () => {
+        const response = await subject();
+        expect(response).toEqual({ result: 'Hello world!' });
+      });
     });
   });
 });

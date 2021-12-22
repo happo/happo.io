@@ -22,6 +22,6 @@ export default function uploadReport({
         project,
       },
     },
-    { apiKey, apiSecret, maxTries: 5 },
+    { apiKey, apiSecret, retryCount: 5 },
   );
 }

@@ -102,7 +102,7 @@ async function uploadStaticPackage({
         },
       },
     },
-    { apiKey, apiSecret, maxTries: 2 },
+    { apiKey, apiSecret, retryCount: 2 },
   );
   return assetsRes.path;
 }

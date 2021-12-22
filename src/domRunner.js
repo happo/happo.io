@@ -53,7 +53,7 @@ async function uploadAssets({ apiKey, apiSecret, endpoint, hash, buffer, logger,
         },
       },
     },
-    { apiKey, apiSecret, maxTries: 2 },
+    { apiKey, apiSecret, retryCount: 2 },
   );
   return assetsRes.path;
 }
