@@ -27,7 +27,7 @@ async function uploadAssets({ apiKey, apiSecret, endpoint, hash, buffer, logger,
         method: 'GET',
         json: true,
       },
-      { apiKey, apiSecret, maxTries: 1 },
+      { apiKey, apiSecret },
     );
     logger.info(
       `${logTag(project)}Reusing existing assets at ${assetsDataRes.path} (previously uploaded on ${assetsDataRes.uploadedAt})`,
