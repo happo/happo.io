@@ -334,10 +334,10 @@ it('works with prerender=false', async () => {
     'happo-entry.js',
     'iframe.html',
     'index.html',
+    'one.jpg',
     'static/',
     'static/media/',
     'static/media/1x1.f9992a90.png',
-    'test/integrations/assets/one.jpg',
   ]);
   // require('fs').writeFileSync('staticPackage.zip',
   //   Buffer.from(config.targets.chrome.staticPackage, 'base64'));
