@@ -8,6 +8,22 @@ import pageRunner from '../pageRunner';
 import remoteRunner from '../remoteRunner';
 import uploadReport from '../uploadReport';
 
+function getStaticPlugin(plugins, config) {
+  const staticPlugin = plugins.find(
+    (plugin) => typeof plugin.generateStaticPackage === 'function',
+  );
+
+  if (staticPlugin) {
+    return staticPlugin;
+  }
+
+  if (config.generateStaticPackage) {
+    return { generateStaticPackage: config.generateStaticPackage };
+  }
+
+  return null;
+}
+
 export default async function runCommand(
   sha,
   config,
@@ -19,9 +35,7 @@ export default async function runCommand(
   rimraf.sync(config.tmpdir);
   fs.mkdirSync(config.tmpdir, { recursive: true });
 
-  const staticPlugin = plugins.find(
-    (plugin) => typeof plugin.generateStaticPackage === 'function',
-  );
+  const staticPlugin = getStaticPlugin(plugins, config);
   let result;
   if (pages) {
     result = await pageRunner(config, { isAsync });
@@ -47,7 +61,7 @@ export default async function runCommand(
           project,
         },
       },
-      { endpoint, apiKey, apiSecret, maxTries: 3 },
+      { endpoint, apiKey, apiSecret, retryCount: 3 },
     );
 
     logger.success();

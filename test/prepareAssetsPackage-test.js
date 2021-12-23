@@ -39,6 +39,10 @@ it('creates a package when there are assets', async () => {
   expect(result.hash).not.toBe(undefined);
 });
 
+it('creates deterministic hashes when content has not changed', async () => {
+  expect((await subject()).hash).toEqual((await subject()).hash);
+});
+
 it('creates consistent results', async () => {
   const first = await subject();
   await new Promise((resolve) => setTimeout(resolve, 2000));

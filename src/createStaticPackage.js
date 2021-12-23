@@ -38,13 +38,15 @@ export default function createStaticPackage({ tmpdir, publicFolders }) {
     });
     archive.pipe(stream);
 
-    archive.directory(tmpdir, false);
+    archive.directory(tmpdir, false, { date: FILE_CREATION_DATE });
 
     publicFolders.forEach((folder) => {
       if (folder === tmpdir) {
         // ignore, since this is handled separately
       } else if (folder.startsWith(process.cwd())) {
-        archive.directory(folder.slice(process.cwd().length + 1));
+        archive.directory(folder.slice(process.cwd().length + 1), false, {
+          date: FILE_CREATION_DATE,
+        });
       }
     });
 
@@ -53,8 +55,9 @@ export default function createStaticPackage({ tmpdir, publicFolders }) {
       date: FILE_CREATION_DATE,
     });
 
-
     archive.on('error', reject);
     archive.finalize();
   });
 }
+
+export { FILE_CREATION_DATE };

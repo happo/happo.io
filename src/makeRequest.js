@@ -25,7 +25,14 @@ function prepareFormData(data) {
 
 export default async function makeRequest(
   requestAttributes,
-  { apiKey, apiSecret, maxTries = 0, minTimeout, maxTimeout },
+  {
+    apiKey,
+    apiSecret,
+    retryCount = 0,
+    /* legacy */ maxTries,
+    minTimeout,
+    maxTimeout,
+  },
   { HTTP_PROXY } = process.env,
 ) {
   const { url, method, formData, body: jsonBody } = requestAttributes;
@@ -62,17 +69,19 @@ export default async function makeRequest(
         ),
       );
       if (!response.ok) {
-        throw new Error(
+        const e = new Error(
           `Request to ${method} ${url} failed: ${
             response.status
           } - ${await response.text()}`,
         );
+        e.statusCode = response.status;
+        throw e;
       }
       const result = await response.json();
       return result;
     },
     {
-      retries: maxTries,
+      retries: retryCount || maxTries,
       minTimeout,
       maxTimeout,
       onRetry: () => {

@@ -3,8 +3,6 @@ import os from 'os';
 import path from 'path';
 import readline from 'readline';
 
-import { performance } from 'perf_hooks';
-
 import JSDOMDomProvider from './JSDOMDomProvider';
 import Logger, { logTag } from './Logger';
 import MultipleErrors from './MultipleErrors';
@@ -21,7 +19,25 @@ const knownAssetPackagePaths = {};
 
 const { VERBOSE = 'false' } = process.env;
 
-async function uploadAssets({ apiKey, apiSecret, endpoint, hash, buffer }) {
+async function uploadAssets({ apiKey, apiSecret, endpoint, hash, buffer, logger, project }) {
+  try {
+    const assetsDataRes = await makeRequest(
+      {
+        url: `${endpoint}/api/snap-requests/assets-data/${hash}`,
+        method: 'GET',
+        json: true,
+      },
+      { apiKey, apiSecret },
+    );
+    logger.info(
+      `${logTag(project)}Reusing existing assets at ${assetsDataRes.path} (previously uploaded on ${assetsDataRes.uploadedAt})`,
+    );
+    return assetsDataRes.path;
+  } catch (e) {
+    if (e.statusCode !== 404) {
+      throw e;
+    }
+  }
   const assetsRes = await makeRequest(
     {
       url: `${endpoint}/api/snap-requests/assets/${hash}`,
@@ -37,7 +53,7 @@ async function uploadAssets({ apiKey, apiSecret, endpoint, hash, buffer }) {
         },
       },
     },
-    { apiKey, apiSecret, maxTries: 2 },
+    { apiKey, apiSecret, retryCount: 2 },
   );
   return assetsRes.path;
 }
@@ -122,6 +138,8 @@ async function uploadStaticPackage({
   endpoint,
   apiKey,
   apiSecret,
+  logger,
+  project,
 }) {
   const { buffer, hash } = await createStaticPackage({
     tmpdir,
@@ -133,6 +151,8 @@ async function uploadStaticPackage({
     endpoint,
     hash,
     buffer,
+    logger,
+    project,
   });
   return assetsPath;
 }
@@ -191,6 +211,8 @@ async function generateScreenshots(
           apiKey,
           apiSecret,
           endpoint,
+          logger,
+          project,
         });
 
     let results;
@@ -240,6 +262,8 @@ async function generateScreenshots(
             apiSecret,
             hash,
             buffer,
+            logger,
+            project,
           });
           knownAssetPackagePaths[hash] = assetsPackage;
         }
@@ -252,7 +276,7 @@ async function generateScreenshots(
 
         prerenderPromises.push(
           (async () => {
-            const startTime = performance.now();
+            const startTime = Date.now();
             const result = await executeTargetWithPrerender({
               name,
               globalCSS,
@@ -278,7 +302,7 @@ async function generateScreenshots(
     } else {
       results = await Promise.all(
         targetNames.map(async (name) => {
-          const startTime = performance.now();
+          const startTime = Date.now();
           const result = await targets[name].execute({
             asyncResults: isAsync,
             targetName: name,

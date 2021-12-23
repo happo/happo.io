@@ -1,58 +1,95 @@
+import { execSync } from 'child_process';
 import path from 'path';
+import http from 'http';
 
 import MockTarget from './MockTarget';
 import * as defaultConfig from '../../src/DEFAULTS';
-import makeRequest from '../../src/makeRequest';
 import runCommand from '../../src/commands/run';
 
-jest.mock('../../src/makeRequest');
+const ASSETS_URL_PATTERN = /\/api\/snap-requests\/assets\/(.+)/;
 
 let subject;
 let config;
 let sha;
+let httpServer;
+let mockPkgExists = false;
 
-beforeEach(() => {
-  makeRequest.mockReset();
-  makeRequest.mockImplementation(() =>
-    Promise.resolve({ path: 'staticpkg/foobar.zip' }),
-  );
+beforeAll(async () => {
+  httpServer = http.createServer((req, res) => {
+    const match = req.url.match(ASSETS_URL_PATTERN);
+    if (match) {
+      const hash = match[1];
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          path: `staticpkg/${hash}.zip`,
+        }),
+      );
+    } else if (/assets-data/.test(req.url)) {
+      if (mockPkgExists) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(
+          JSON.stringify({
+            path: 'staticpkg/mock.zip',
+            uploadedAt: new Date(0),
+          }),
+        );
+      } else {
+        res.writeHead(404);
+        res.end('not found');
+      }
+    } else {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          url: 'http://foobar.com',
+        }),
+      );
+    }
+  });
+  await new Promise((resolve) => httpServer.listen(8990, resolve));
+});
+
+afterAll(async () => {
+  await new Promise((resolve) => httpServer.close(resolve));
+});
+
+beforeEach(async () => {
+  mockPkgExists = false;
   sha = 'foobar';
   config = Object.assign({}, defaultConfig, {
+    apiKey: 'foobar',
+    apiSecret: 'barfoo',
+    endpoint: 'http://localhost:8990',
     project: 'the project',
     targets: { chrome: new MockTarget() },
-    plugins: [
-      {
-        generateStaticPackage: () => Promise.resolve('a base64-encoded string'),
-      },
-      {
-        css: '.foo { color: red }',
-      },
-    ],
-    stylesheets: [path.resolve(__dirname, 'styles.css')],
+    generateStaticPackage: () => ({ path: path.join(__dirname, 'static-files') }),
   });
   subject = () => runCommand(sha, config, {});
 });
 
-it('sends the project name in the request', async () => {
-  await subject();
-  expect(makeRequest.mock.calls[1][0].body.project).toEqual('the project');
-});
-
 it('produces the static package', async () => {
   await subject();
-  expect(makeRequest.mock.calls[0][0].formData.payload.value).toEqual(
-    Buffer.from('a base64-encoded string', 'base64'),
-  );
-  expect(config.targets.chrome.staticPackage).toEqual('staticpkg/foobar.zip');
+  expect(config.targets.chrome.staticPackage).toMatch(/staticpkg\/[a-z0-9]+\.zip/);
 });
 
-it('includes css', async () => {
+it('has a consistent hash', async () => {
   await subject();
-  expect(config.targets.chrome.globalCSS).toEqual('.a { b: c }.foo { color: red }');
+  const firstHash = config.targets.chrome.staticPackage;
+  expect(firstHash).toMatch(/staticpkg\/[a-z0-9]+\.zip/);
+  delete config.targets.chrome.staticPackage;
+  execSync(`touch ${path.join(__dirname, 'static-files', 'iframe.html')}`);
+  await subject();
+  expect(config.targets.chrome.staticPackage).toEqual(firstHash);
+  delete config.targets.chrome.staticPackage;
+  await subject();
+  expect(config.targets.chrome.staticPackage).toEqual(firstHash);
 });
 
-it('includes external css', async () => {
-  config.stylesheets.push('http://andybrewer.github.io/mvp/mvp.css');
-  await subject();
-  expect(config.targets.chrome.globalCSS).toMatch(/\.a { b: c }.*MVP\.css v/);
+describe('when the static package already exists', () => {
+  it('does not upload it', async () => {
+    mockPkgExists = true;
+    await subject();
+    expect(config.targets.chrome.staticPackage).toEqual('staticpkg/mock.zip');
+  });
 });

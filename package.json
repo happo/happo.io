@@ -1,6 +1,6 @@
 {
   "name": "happo.io",
-  "version": "6.8.0",
+  "version": "6.9.0-rc.8",
   "description": "Visual diffing for UI components",
   "main": "./build/index.js",
   "engines": {
@@ -18,7 +18,7 @@
     "test": "jest --runInBand",
     "lint": "eslint .",
     "build": "rimraf build && babel src --ignore 'test/.*' --out-dir build --copy-files",
-    "prepublish": "yarn build"
+    "prepare": "yarn build"
   },
   "repository": {
     "type": "git",

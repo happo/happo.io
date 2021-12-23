@@ -22,7 +22,7 @@ export default async function compareReports(
   { apiKey, apiSecret, endpoint, project, compareThreshold },
   { link, message, author, dryRun, isAsync, notify, fallbackShas: rawFallbackShas },
   log = console.log,
-  maxTries = 5,
+  retryCount = 5,
 ) {
   const fallbackShas = rawFallbackShas ? rawFallbackShas.split(/[,\s]+/) : undefined;
   const makeCompareCall = (skipStatusPost) =>
@@ -42,7 +42,7 @@ export default async function compareReports(
           fallbackShas,
         },
       },
-      { apiKey, apiSecret, maxTries },
+      { apiKey, apiSecret, retryCount },
     );
   const firstCompareResult = await makeCompareCall(
     typeof compareThreshold === 'number' || dryRun,
@@ -75,7 +75,7 @@ export default async function compareReports(
           after,
           endpoint,
           compareThreshold,
-          retries: maxTries,
+          retries: retryCount,
           apiKey,
           apiSecret,
         });
