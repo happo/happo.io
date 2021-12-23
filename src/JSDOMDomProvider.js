@@ -1,4 +1,5 @@
 import { JSDOM, VirtualConsole } from 'jsdom';
+import mergeJsdomOptions from './mergeJSDOMOptions';
 
 const { VERBOSE } = process.env;
 
@@ -19,6 +20,25 @@ export default class JSDOMDomProvider {
     });
     virtualConsole.sendTo(console, { omitJSDOMErrors: true });
 
+    const defaultJsdomOptions = {
+      runScripts: 'dangerously',
+      resources: 'usable',
+      url: 'http://localhost',
+      virtualConsole,
+      beforeParse(win) {
+        win.outerWidth = win.innerWidth = width;
+        win.outerHeight = win.innerHeight = height;
+        Object.defineProperties(win.screen, {
+          width: { value: width },
+          availWidth: { value: width },
+          height: { value: height },
+          availHeight: { value: height },
+        });
+        win.requestAnimationFrame = (callback) => setTimeout(callback, 0);
+        win.cancelAnimationFrame = clearTimeout;
+      },
+    };
+
     this.dom = new JSDOM(
       `
         <!DOCTYPE html>
@@ -30,27 +50,7 @@ export default class JSDOMDomProvider {
           </body>
         </html>
       `.trim(),
-      Object.assign(
-        {
-          runScripts: 'dangerously',
-          resources: 'usable',
-          url: 'http://localhost',
-          virtualConsole,
-          beforeParse(win) {
-            win.outerWidth = win.innerWidth = width;
-            win.outerHeight = win.innerHeight = height;
-            Object.defineProperties(win.screen, {
-              width: { value: width },
-              availWidth: { value: width },
-              height: { value: height },
-              availHeight: { value: height },
-            });
-            win.requestAnimationFrame = (callback) => setTimeout(callback, 0);
-            win.cancelAnimationFrame = clearTimeout;
-          },
-        },
-        jsdomOptions,
-      ),
+      mergeJsdomOptions(defaultJsdomOptions, jsdomOptions),
     );
   }
 
