@@ -13,6 +13,9 @@ HAPPO_SKIP_START_JOB=${HAPPO_SKIP_START_JOB:-}
 HAPPO_GIT_COMMAND=${HAPPO_GIT_COMMAND:-git}
 HAPPO_COMMAND=${HAPPO_COMMAND:-"node_modules/happo.io/build/cli.js"}
 
+# Make HAPPO_IS_ASYNC available to sub commands (`happo run`, `happo compare`)
+export HAPPO_IS_ASYNC
+
 # Make sure we use the full commit shas
 if [ -n "$PREVIOUS_SHA" ] && [ ${#PREVIOUS_SHA} -ne 40 ]; then
   PREVIOUS_SHA="$(${HAPPO_GIT_COMMAND} rev-parse "$PREVIOUS_SHA")"
