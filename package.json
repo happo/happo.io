@@ -68,7 +68,7 @@
     "jsdom": "^16.4.0",
     "jsonwebtoken": "^8.2.1",
     "lcs-image-diff": "^2.0.0",
-    "node-fetch": "^2.6.6",
+    "node-fetch": "^3.1.1",
     "parse-srcset": "^1.0.2",
     "pngjs": "^3.4.0",
     "prettier": "^2.2.0",
