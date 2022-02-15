@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 
-import requireRelative from 'require-relative';
-
 import findTestFiles from './findTestFiles';
 
 const { VERBOSE = 'false' } = process.env;
@@ -53,7 +51,7 @@ export default async function createDynamicEntryPoint({
     'window.snaps = {};',
   ];
   if (type === 'react') {
-    const pathToReactDom = requireRelative.resolve('react-dom', process.cwd());
+    const pathToReactDom = require.resolve('react-dom');
     const pathToRW = renderWrapperModule || require.resolve('./renderWrapperReact');
     strings.push(
       `let renderWrapper = require('${pathToRW}');`,
