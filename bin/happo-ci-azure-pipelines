@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Make the whole script fail on errors
+set -eou pipefail
+
+
+if [ -z "${SYSTEM_PULLREQUEST_PULLREQUESTID:-}" ]
+then
+  echo "[HAPPO] Build is not triggered for a pull request"
+
+  export CURRENT_SHA="${BUILD_SOURCEVERSION}"
+
+  # Set PREVIOUS_SHA equal to CURRENT_SHA (this will disable comparisons)
+  export PREVIOUS_SHA="${BUILD_SOURCEVERSION}"
+  # Strip out the "@owner" part of the source repository URI before setting as
+  export CHANGE_URL=$(echo "${BUILD_REPOSITORY_URI}/commit/${BUILD_SOURCEVERSION}" | sed "s/\/\/.*@/\/\//")
+else
+  echo "[HAPPO] Build is triggered for a pull request"
+
+  # Azure pipelines will make a shallow fetch from the git repository. In order
+  # to calculate the base commit sha we need more information from the branches
+  # so we have to make another fetch here.
+  git fetch
+
+  # Grab the branch names (without the "origin/" part)
+  TARGET_BRANCH=$(echo "${SYSTEM_PULLREQUEST_TARGETBRANCH}" | cut -d '/' -f3)
+  SOURCE_BRANCH=$(echo "${SYSTEM_PULLREQUEST_SOURCEBRANCH}" | cut -d '/' -f3)
+  echo "[HAPPO] Target branch: ${TARGET_BRANCH}"
+  echo "[HAPPO] Source branch: ${SOURCE_BRANCH}"
+  export PREVIOUS_SHA=$(git merge-base "origin/${TARGET_BRANCH}" "origin/${SOURCE_BRANCH}")
+  export CURRENT_SHA=$(git rev-parse "origin/${SOURCE_BRANCH}")
+
+  # Strip out the "@owner" part of the source repository URI before setting as
+  # CHANGE_URL
+  export CHANGE_URL=$(echo "${SYSTEM_PULLREQUEST_SOURCEREPOSITORYURI}/${SYSTEM_PULLREQUEST_PULLREQUESTID}" | sed "s/\/\/.*@/\/\//")
+fi
+
+# Delegate to the canonical script
+happo-ci
