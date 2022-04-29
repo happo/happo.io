@@ -8,12 +8,19 @@ if [ -z "${SYSTEM_PULLREQUEST_PULLREQUESTID:-}" ]
 then
   echo "[HAPPO] Build is not triggered for a pull request"
 
-  export CURRENT_SHA="${BUILD_SOURCEVERSION}"
+  if [ -z ${CURRENT_SHA+x} ]; then
+    export CURRENT_SHA="${BUILD_SOURCEVERSION}"
+  fi
 
-  # Set PREVIOUS_SHA equal to CURRENT_SHA (this will disable comparisons)
-  export PREVIOUS_SHA="${BUILD_SOURCEVERSION}"
-  # Strip out the "@owner" part of the source repository URI before setting as
-  export CHANGE_URL=$(echo "${BUILD_REPOSITORY_URI}/commit/${BUILD_SOURCEVERSION}" | sed "s/\/\/.*@/\/\//")
+  if [ -z ${PREVIOUS_SHA+x} ]; then
+    # Set PREVIOUS_SHA equal to CURRENT_SHA (this will disable comparisons)
+    export PREVIOUS_SHA="${BUILD_SOURCEVERSION}"
+  fi
+
+  if [ -z ${CHANGE_URL+x} ]; then
+    # Strip out the "@owner" part of the source repository URI before setting as
+    export CHANGE_URL=$(echo "${BUILD_REPOSITORY_URI}/commit/${BUILD_SOURCEVERSION}" | sed "s/\/\/.*@/\/\//")
+  fi
 else
   echo "[HAPPO] Build is triggered for a pull request"
 
@@ -27,12 +34,19 @@ else
   SOURCE_BRANCH=$(echo "${SYSTEM_PULLREQUEST_SOURCEBRANCH}" | cut -d '/' -f3)
   echo "[HAPPO] Target branch: ${TARGET_BRANCH}"
   echo "[HAPPO] Source branch: ${SOURCE_BRANCH}"
-  export PREVIOUS_SHA=$(git merge-base "origin/${TARGET_BRANCH}" "origin/${SOURCE_BRANCH}")
-  export CURRENT_SHA=$(git rev-parse "origin/${SOURCE_BRANCH}")
 
-  # Strip out the "@owner" part of the source repository URI before setting as
-  # CHANGE_URL
-  export CHANGE_URL=$(echo "${SYSTEM_PULLREQUEST_SOURCEREPOSITORYURI}/${SYSTEM_PULLREQUEST_PULLREQUESTID}" | sed "s/\/\/.*@/\/\//")
+  if [ -z ${PREVIOUS_SHA+x} ]; then
+    export PREVIOUS_SHA=$(git merge-base "origin/${TARGET_BRANCH}" "origin/${SOURCE_BRANCH}")
+  fi
+  if [ -z ${CURRENT_SHA+x} ]; then
+    export CURRENT_SHA=$(git rev-parse "origin/${SOURCE_BRANCH}")
+  fi
+
+  if [ -z ${CHANGE_URL+x} ]; then
+    # Strip out the "@owner" part of the source repository URI before setting as
+    # CHANGE_URL
+    export CHANGE_URL=$(echo "${SYSTEM_PULLREQUEST_SOURCEREPOSITORYURI}/${SYSTEM_PULLREQUEST_PULLREQUESTID}" | sed "s/\/\/.*@/\/\//")
+  fi
 fi
 
 # Delegate to the canonical script
