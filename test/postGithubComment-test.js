@@ -39,9 +39,11 @@ it('posts a comment', async () => {
   expect(url).toEqual(
     'https://api.ghe.com/repos/happo/happo-view/issues/156/comments',
   );
-  expect(body).toEqual({
-    body: '[![Happo status](https://foo.bar/foo/bar/status.svg)](https://foo.bar/foo/bar)',
-  });
+  expect(body).toEqual(
+    JSON.stringify({
+      body: '[![Happo status](https://foo.bar/foo/bar/status.svg)](https://foo.bar/foo/bar)',
+    }),
+  );
   expect(headers).toEqual({
     Authorization: 'Basic Zm9vOmJhcg==',
     'User-Agent': 'happo.io client',
