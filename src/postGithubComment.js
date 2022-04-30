@@ -31,6 +31,7 @@ export default async function postGithubComment({
   const normalizedGithubApiUrl = githubApiUrl.replace(/\/$/, '');
 
   const auth = Buffer.from(`${user}:${pass}`).toString('base64');
+  const body = `[![Happo status](${statusImageUrl})](${compareUrl})`;
   const res = await fetch(
     `${normalizedGithubApiUrl}/repos/${owner}/${repo}/issues/${prNumber}/comments`,
     {
@@ -40,9 +41,7 @@ export default async function postGithubComment({
         'User-Agent': 'happo.io client',
         Authorization: `Basic ${auth}`,
       },
-      body: {
-        body: `[![Happo status](${statusImageUrl})](${compareUrl})`,
-      },
+      body: JSON.stringify({ body }),
     },
   );
   if (!res.ok) {
