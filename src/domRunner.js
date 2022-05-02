@@ -10,6 +10,7 @@ import constructReport from './constructReport';
 import createDynamicEntryPoint from './createDynamicEntryPoint';
 import createStaticPackage from './createStaticPackage';
 import createWebpackBundle from './createWebpackBundle';
+import ensureTarget from './ensureTarget';
 import loadCSSFile from './loadCSSFile';
 import makeRequest from './makeRequest';
 import prepareAssetsPackage from './prepareAssetsPackage';
@@ -19,7 +20,15 @@ const knownAssetPackagePaths = {};
 
 const { VERBOSE = 'false' } = process.env;
 
-async function uploadAssets({ apiKey, apiSecret, endpoint, hash, buffer, logger, project }) {
+async function uploadAssets({
+  apiKey,
+  apiSecret,
+  endpoint,
+  hash,
+  buffer,
+  logger,
+  project,
+}) {
   try {
     const assetsDataRes = await makeRequest(
       {
@@ -30,7 +39,9 @@ async function uploadAssets({ apiKey, apiSecret, endpoint, hash, buffer, logger,
       { apiKey, apiSecret },
     );
     logger.info(
-      `${logTag(project)}Reusing existing assets at ${assetsDataRes.path} (previously uploaded on ${assetsDataRes.uploadedAt})`,
+      `${logTag(project)}Reusing existing assets at ${
+        assetsDataRes.path
+      } (previously uploaded on ${assetsDataRes.uploadedAt})`,
     );
     return assetsDataRes.path;
   } catch (e) {
@@ -119,7 +130,7 @@ async function executeTargetWithPrerender({
     logTargetResults({ name, globalCSS, snapPayloads, project });
   }
 
-  const result = await targets[name].execute({
+  const result = await ensureTarget(targets[name]).execute({
     asyncResults: isAsync,
     targetName: name,
     assetsPackage,
