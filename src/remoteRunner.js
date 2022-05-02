@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
 import crypto from 'crypto';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 import Archiver from 'archiver';
 
@@ -9,6 +9,7 @@ import { FILE_CREATION_DATE } from './createStaticPackage';
 import Logger, { logTag } from './Logger';
 import constructReport from './constructReport';
 import createHash from './createHash';
+import ensureTarget from './ensureTarget';
 import loadCSSFile from './loadCSSFile';
 import makeRequest from './makeRequest';
 
@@ -138,7 +139,7 @@ export default async function remoteRunner(
     const results = await Promise.all(
       targetNames.map(async (name) => {
         const startTime = Date.now();
-        const result = await targets[name].execute({
+        const result = await ensureTarget(targets[name]).execute({
           targetName: name,
           asyncResults: isAsync,
           staticPackage: staticPackagePath,

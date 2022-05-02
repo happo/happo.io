@@ -1,14 +1,13 @@
-const RemoteBrowserTarget = require('./build/RemoteBrowserTarget').default;
-
 module.exports = {
-  pages: [
-    { url: 'https://beteendelabbet.se/', title: 'Beteendelabbet' },
-  ],
+  apiKey: process.env.HAPPO_API_KEY,
+  apiSecret: process.env.HAPPO_API_SECRET,
+  pages: [{ url: 'https://beteendelabbet.se/', title: 'Beteendelabbet' }],
   targets: {
-    'chrome-large': new RemoteBrowserTarget('chrome', {
+    'chrome-large': {
+      browserType: 'chrome',
       viewport: '800x600',
       chunks: 2,
       maxHeight: 10000,
-    }),
+    },
   },
 };

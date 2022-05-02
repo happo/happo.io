@@ -1,5 +1,6 @@
 import Logger, { logTag } from './Logger';
 import constructReport from './constructReport';
+import ensureTarget from './ensureTarget';
 
 export default async function pagesRunner(
   { apiKey, apiSecret, endpoint, targets, pages, project },
@@ -16,7 +17,7 @@ export default async function pagesRunner(
     const results = await Promise.all(
       targetNames.map(async (name) => {
         const startTime = Date.now();
-        const result = await targets[name].execute({
+        const result = await ensureTarget(targets[name]).execute({
           targetName: name,
           asyncResults: isAsync,
           pages,
