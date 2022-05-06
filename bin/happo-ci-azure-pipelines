@@ -45,7 +45,7 @@ else
   if [ -z ${CHANGE_URL+x} ]; then
     # Strip out the "@owner" part of the source repository URI before setting as
     # CHANGE_URL
-    export CHANGE_URL=$(echo "${SYSTEM_PULLREQUEST_SOURCEREPOSITORYURI}/${SYSTEM_PULLREQUEST_PULLREQUESTID}" | sed "s/\/\/.*@/\/\//")
+    export CHANGE_URL=$(echo "${SYSTEM_PULLREQUEST_SOURCEREPOSITORYURI}/pullrequest/${SYSTEM_PULLREQUEST_PULLREQUESTID}" | sed "s/\/\/.*@/\/\//")
   fi
 fi
 
