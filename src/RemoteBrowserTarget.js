@@ -22,6 +22,34 @@ async function waitFor({ requestId, endpoint, apiKey, apiSecret }) {
 
 const MIN_INTERNET_EXPLORER_WIDTH = 400;
 
+function getPageSlices(pages, chunks) {
+  const extendsPages = {};
+  const rawPages = [];
+  for (const page of pages) {
+    if (page.extends) {
+      extendsPages[page.extends] = extendsPages[page.extends] || [];
+      extendsPages[page.extends].push(page);
+    } else {
+      rawPages.push(page);
+    }
+  }
+  const result = [];
+  const pagesPerChunk = Math.ceil(rawPages.length / chunks);
+  for (let i = 0; i < chunks; i += 1) {
+    const pageSlice = rawPages.slice(
+      i * pagesPerChunk,
+      i * pagesPerChunk + pagesPerChunk,
+    );
+    result.push(pageSlice);
+  }
+
+  for (const sha of Object.keys(extendsPages)) {
+    extendsPages[sha].extendsSha = sha;
+    result.push(extendsPages[sha]);
+  }
+  return result;
+}
+
 export default class RemoteBrowserTarget {
   constructor(browserName, { viewport, chunks = 1, maxHeight, ...otherOptions }) {
     const viewportMatch = viewport.match(VIEWPORT_PATTERN);
@@ -69,6 +97,7 @@ export default class RemoteBrowserTarget {
         staticPackage,
         assetsPackage,
         pages: pageSlice,
+        extendsSha: pageSlice ? pageSlice.extendsSha : undefined,
       });
       const payloadHash = createHash(
         payloadString + (pageSlice ? Math.random() : ''),
@@ -111,12 +140,7 @@ export default class RemoteBrowserTarget {
         }
       }
     } else if (pages) {
-      const pagesPerChunk = Math.ceil(pages.length / this.chunks);
-      for (let i = 0; i < this.chunks; i += 1) {
-        const pageSlice = pages.slice(
-          i * pagesPerChunk,
-          i * pagesPerChunk + pagesPerChunk,
-        );
+      for (const pageSlice of getPageSlices(pages, this.chunks)) {
         // We allow one `await` inside the loop here to avoid POSTing all payloads
         // to the server at the same time (thus reducing load a little).
         // eslint-disable-next-line no-await-in-loop
