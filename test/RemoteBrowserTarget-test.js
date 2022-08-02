@@ -88,6 +88,46 @@ describe('#execute', () => {
     });
   });
 
+  describe('with pages', () => {
+    it('sends the right requests', async () => {
+      const target = subject();
+      const result = await target.execute({
+        pages: [
+          { url: 'http://google.com', title: 'Google' },
+          { title: 'google 2', extends: 'foobar' },
+          { title: 'google 3', extends: 'barfoo' },
+        ],
+        apiKey: 'foobar',
+        apiSecret: 'p@assword',
+        endpoint: 'http://localhost',
+      });
+
+      expect(result).toEqual([
+        { component: 'foobar', snapRequestId: 44 },
+        { component: 'foobar', snapRequestId: 44 },
+        { component: 'foobar', snapRequestId: 44 },
+      ]);
+
+      expect(makeRequest.mock.calls.length).toBe(6);
+
+      const payload = JSON.parse(
+        makeRequest.mock.calls[0][0].formData.payload.value,
+      );
+      expect(payload.pages).toEqual([{ title: 'Google', url: 'http://google.com' }]);
+      const payload2 = JSON.parse(
+        makeRequest.mock.calls[2][0].formData.payload.value,
+      );
+      expect(payload2.pages).toEqual([{ title: 'google 2', extends: 'foobar' }]);
+      expect(payload2.extendsSha).toEqual('foobar');
+
+      const payload3 = JSON.parse(
+        makeRequest.mock.calls[4][0].formData.payload.value,
+      );
+      expect(payload3.pages).toEqual([{ title: 'google 3', extends: 'barfoo' }]);
+      expect(payload3.extendsSha).toEqual('barfoo');
+    });
+  });
+
   describe('when chunks is equal to two', () => {
     beforeEach(() => {
       chunks = 2;
