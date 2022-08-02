@@ -40,7 +40,9 @@ function getPageSlices(pages, chunks) {
       i * pagesPerChunk,
       i * pagesPerChunk + pagesPerChunk,
     );
-    result.push(pageSlice);
+    if (pageSlice.length > 0) {
+      result.push(pageSlice);
+    }
   }
 
   for (const sha of Object.keys(extendsPages)) {
@@ -102,23 +104,30 @@ export default class RemoteBrowserTarget {
       const payloadHash = createHash(
         payloadString + (pageSlice ? Math.random() : ''),
       );
+      const formData = {
+        type:
+          pageSlice && pageSlice.extendsSha
+            ? 'extends-report'
+            : `browser-${this.browserName}`,
+        targetName,
+        payloadHash,
+        payload: {
+          options: {
+            filename: 'payload.json',
+            contentType: 'application/json',
+          },
+          value: payloadString,
+        },
+      };
+      if (pageSlice && pageSlice.extendsSha) {
+        formData.extendsSha = pageSlice.extendsSha;
+      }
       return makeRequest(
         {
           url: `${endpoint}/api/snap-requests`,
           method: 'POST',
           json: true,
-          formData: {
-            type: `browser-${this.browserName}`,
-            targetName,
-            payloadHash,
-            payload: {
-              options: {
-                filename: 'payload.json',
-                contentType: 'application/json',
-              },
-              value: payloadString,
-            },
-          },
+          formData,
         },
         { apiKey, apiSecret, retryCount: 5 },
       );

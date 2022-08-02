@@ -49,7 +49,7 @@ export default async function runCommand(
     logger.start(`${logTag(project)}Creating async report for ${sha}...`);
     const allRequestIds = [];
     result.forEach((item) => allRequestIds.push(...item.result));
-    const { id } = await makeRequest(
+    const response = await makeRequest(
       {
         url: `${endpoint}/api/async-reports/${sha}`,
         method: 'POST',
@@ -63,9 +63,10 @@ export default async function runCommand(
       },
       { endpoint, apiKey, apiSecret, retryCount: 3 },
     );
+    const { id, url } = response;
 
     logger.success();
-    logger.info(`${logTag(project)}Async report id: ${id}`);
+    logger.info(`${logTag(project)}Async report (id=${id}): ${url}`);
   } else {
     logger.start(`${logTag(project)}Uploading report for ${sha}...`);
     const { url } = await uploadReport({
