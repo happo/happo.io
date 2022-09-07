@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-import '@babel/polyfill';
-
 import fs from 'fs';
 
 import sourceMaps from 'source-map-support';
