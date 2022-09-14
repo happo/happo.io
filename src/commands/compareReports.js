@@ -50,7 +50,7 @@ export default async function compareReports(
   if (typeof compareThreshold !== 'number' || isAsync) {
 
   if(!isAsync && afterSyncComparison && typeof afterSyncComparison === "function") {
-    afterSyncComparison(firstCompareResult);
+    await afterSyncComparison(firstCompareResult);
   };
     // We're not using a threshold -- return results right away
     return firstCompareResult;
@@ -116,7 +116,7 @@ export default async function compareReports(
   log(secondCompareResult.summary);
 
   if(!isAsync && afterSyncComparison && typeof afterSyncComparison === "function") {
-    afterSyncComparison(secondCompareResult);
+    await afterSyncComparison(secondCompareResult);
   };
 
   return { resolved, ...secondCompareResult };
