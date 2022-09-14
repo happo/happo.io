@@ -315,3 +315,39 @@ describe('when requests fail with a text response', () => {
     }
   });
 });
+
+describe('when `afterSyncComparison` is set', ()=>{
+  const afterSyncComparisonMock = jest.fn();
+  beforeEach(()=>{
+    config.afterSyncComparison = afterSyncComparisonMock;
+    afterSyncComparisonMock.mockClear();
+  })
+
+  it('and compareThreshold defined, run afterSyncComparison with api response', async () => {
+    config.compareThreshold = 0.5;
+    cliArgs.isAsync = false;
+    await subject();
+    expect(afterSyncComparisonMock).toHaveBeenCalledTimes(1);
+    expect(afterSyncComparisonMock).toBeCalledWith(compareResult);
+  });
+
+  it('and isAsync is enabled and compareThreshold is defined, afterSyncComparison shouldn\'t be run', async ()=> {
+    cliArgs.isAsync = true;
+    await subject();
+    expect(afterSyncComparisonMock).toHaveBeenCalledTimes(0);
+  })
+
+  it('and compareThreshold is not defined, run afterSyncComparison with api response', async () => {
+    delete config.compareThreshold;
+    cliArgs.isAsync = false;
+    await subject();
+    expect(afterSyncComparisonMock).toHaveBeenCalledTimes(1);
+    expect(afterSyncComparisonMock).toBeCalledWith(compareResult);
+  });
+
+  it('and isAsync is enabled and compareThreshold is not defined, afterSyncComparison shouldn\'t be run', async ()=> {
+    cliArgs.isAsync = true;
+    await subject();
+    expect(afterSyncComparisonMock).toHaveBeenCalledTimes(0);
+  })
+})

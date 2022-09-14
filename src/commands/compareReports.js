@@ -19,7 +19,7 @@ function ignore({ before, after, apiKey, apiSecret, endpoint }) {
 export default async function compareReports(
   sha1,
   sha2,
-  { apiKey, apiSecret, endpoint, project, compareThreshold },
+  { apiKey, apiSecret, endpoint, project, compareThreshold, afterSyncComparison },
   { link, message, author, dryRun, isAsync, notify, fallbackShas: rawFallbackShas },
   log = console.log,
   retryCount = 5,
@@ -48,6 +48,10 @@ export default async function compareReports(
     typeof compareThreshold === 'number' || dryRun,
   );
   if (typeof compareThreshold !== 'number' || isAsync) {
+
+  if(!isAsync && afterSyncComparison && typeof afterSyncComparison === "function") {
+    afterSyncComparison(firstCompareResult);
+  };
     // We're not using a threshold -- return results right away
     return firstCompareResult;
   }
@@ -110,5 +114,10 @@ export default async function compareReports(
   // from the first call will be excluded from the result.
   const secondCompareResult = await makeCompareCall(false);
   log(secondCompareResult.summary);
+
+  if(!isAsync && afterSyncComparison && typeof afterSyncComparison === "function") {
+    afterSyncComparison(secondCompareResult);
+  };
+
   return { resolved, ...secondCompareResult };
 }
