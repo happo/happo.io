@@ -48,10 +48,13 @@ export default async function compareReports(
     typeof compareThreshold === 'number' || dryRun,
   );
   if (typeof compareThreshold !== 'number' || isAsync) {
-
-  if(!isAsync && afterSyncComparison && typeof afterSyncComparison === "function") {
-    await afterSyncComparison(firstCompareResult);
-  };
+    if (
+      !isAsync &&
+      afterSyncComparison &&
+      typeof afterSyncComparison === 'function'
+    ) {
+      await afterSyncComparison(firstCompareResult);
+    }
     // We're not using a threshold -- return results right away
     return firstCompareResult;
   }
@@ -115,9 +118,9 @@ export default async function compareReports(
   const secondCompareResult = await makeCompareCall(false);
   log(secondCompareResult.summary);
 
-  if(!isAsync && afterSyncComparison && typeof afterSyncComparison === "function") {
+  if (!isAsync && afterSyncComparison && typeof afterSyncComparison === 'function') {
     await afterSyncComparison(secondCompareResult);
-  };
+  }
 
   return { resolved, ...secondCompareResult };
 }
