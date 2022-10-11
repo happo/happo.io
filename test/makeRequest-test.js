@@ -17,6 +17,17 @@ let errorTries;
 
 beforeAll(async () => {
   httpServer = http.createServer((req, res) => {
+    if (req.url === '/timeout') {
+      setTimeout(() => {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(
+          JSON.stringify({
+            result: 'Hello world!',
+          }),
+        );
+      }, 1000);
+      return;
+    }
     if (req.url === '/success' || (req.url === '/failure-retry' && errorTries > 2)) {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(
@@ -68,8 +79,8 @@ beforeEach(() => {
     apiKey: 'foo',
     apiSecret: 'bar',
     retryCount: 3,
-    minTimeout: 0,
-    maxTimeout: 1,
+    retryMinTimeout: 0,
+    retryMaxTimeout: 1,
   };
   env = undefined;
 
@@ -199,6 +210,18 @@ describe('when the request fails twice', () => {
         expect(response).toEqual({ result: 'Hello world!' });
       });
     });
+  });
+});
+
+describe('can have a timeout', () => {
+  it('cancels the request after the alotted time', async () => {
+    props.url = 'http://localhost:8990/timeout';
+    delete props.method;
+    options.timeout = 1;
+    options.retryCount = 0;
+    await expect(subject()).rejects.toThrow(
+      /Timeout when fetching http:\/\/localhost:8990\/timeout using method GET/,
+    );
   });
 });
 
