@@ -1,3 +1,4 @@
+import AbortController from 'abort-controller';
 import FormData from 'form-data';
 import HttpsProxyAgent from 'https-proxy-agent';
 import asyncRetry from 'async-retry';
@@ -30,12 +31,13 @@ export default async function makeRequest(
     apiSecret,
     retryCount = 0,
     /* legacy */ maxTries,
-    minTimeout,
-    maxTimeout,
+    timeout = 60000,
+    retryMinTimeout,
+    retryMaxTimeout,
   },
   { HTTP_PROXY } = process.env,
 ) {
-  const { url, method, formData, body: jsonBody } = requestAttributes;
+  const { url, method = 'GET', formData, body: jsonBody } = requestAttributes;
   const body = formData
     ? prepareFormData(formData)
     : jsonBody
@@ -56,34 +58,46 @@ export default async function makeRequest(
       if (jsonBody) {
         headers['Content-Type'] = 'application/json';
       }
-      const response = await fetch(
-        url,
-        Object.assign(
-          {
-            headers,
-            compress: true,
-            agent: HTTP_PROXY ? new HttpsProxyAgent(HTTP_PROXY) : undefined,
-          },
-          requestAttributes,
-          { body },
-        ),
-      );
-      if (!response.ok) {
-        const e = new Error(
-          `Request to ${method} ${url} failed: ${
-            response.status
-          } - ${await response.text()}`,
+      const controller = new AbortController();
+      const abortTimeout = setTimeout(() => controller.abort(), timeout);
+      try {
+        const response = await fetch(
+          url,
+          Object.assign(
+            {
+              headers,
+              compress: true,
+              agent: HTTP_PROXY ? new HttpsProxyAgent(HTTP_PROXY) : undefined,
+              signal: controller.signal,
+            },
+            requestAttributes,
+            { body },
+          ),
         );
-        e.statusCode = response.status;
+        if (!response.ok) {
+          const e = new Error(
+            `Request to ${method} ${url} failed: ${
+              response.status
+            } - ${await response.text()}`,
+          );
+          e.statusCode = response.status;
+          throw e;
+        }
+        const result = await response.json();
+        return result;
+      } catch (e) {
+        if (e.type === 'aborted') {
+          e.message = `Timeout when fetching ${url} using method ${method}`;
+        }
         throw e;
+      } finally {
+        clearTimeout(abortTimeout);
       }
-      const result = await response.json();
-      return result;
     },
     {
       retries: retryCount || maxTries,
-      minTimeout,
-      maxTimeout,
+      minTimeout: retryMinTimeout,
+      maxTimeout: retryMaxTimeout,
       onRetry: () => {
         console.warn(`Failed ${method} ${url}. Retrying...`);
       },
