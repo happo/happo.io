@@ -28,7 +28,7 @@ jobs:
       with:
         node-version: 14.x
     - run: yarn install --frozen-lockfile --ignore-engines
-    - run: yarn add --dev webpack@4
+    - run: yarn add --dev webpack@4 babel-loader@8
     - run: yarn test
 
   node18:
