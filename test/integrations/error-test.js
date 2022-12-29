@@ -6,6 +6,7 @@ import makeRequest from '../../src/makeRequest';
 import runCommand from '../../src/commands/run';
 
 jest.mock('../../src/makeRequest');
+jest.setTimeout(30000);
 
 const originalConsoleWarn = console.warn;
 const originalConsoleErr = console.error;
