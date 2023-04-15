@@ -41,6 +41,7 @@ function resolvePRLink(env = process.env) {
   const { GITHUB_EVENT_PATH } = env;
 
   if (GITHUB_EVENT_PATH) {
+    // eslint-disable-next-line import/no-dynamic-require
     const ghEvent = require(GITHUB_EVENT_PATH);
     if (ghEvent.pull_request) {
       return ghEvent.pull_request.html_url;
