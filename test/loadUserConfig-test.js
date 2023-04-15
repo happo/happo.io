@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import path from 'path';
 import requireRelative from 'require-relative';
 
 import Logger from '../src/Logger';
@@ -113,6 +114,39 @@ describe('when CHANGE_URL is defined', () => {
       await expect(
         loadUserConfig('bogus', { CHANGE_URL: 'foo.bar' }),
       ).rejects.toThrow(/Failed to obtain temporary pull-request token/);
+    });
+  });
+});
+
+describe('when GITHUB_EVENT_PATH is defined', () => {
+  beforeEach(() => {
+    requireRelative.mockImplementation(() => ({
+      targets: {
+        firefox: new RemoteBrowserTarget('firefox', { viewport: '800x600' }),
+      },
+    }));
+    fetch.mockImplementation(() =>
+      Promise.resolve({ ok: true, json: () => ({ secret: 'yay' }) }),
+    );
+  });
+
+  it('grabs a temporary secret', async () => {
+    const config = await loadUserConfig('bogus', {
+      GITHUB_EVENT_PATH: path.resolve(__dirname, 'github_pull_request_event.json'),
+    });
+    expect(config.apiKey).toEqual(
+      'https://github.com/Codertocat/Hello-World/pull/2',
+    );
+    expect(config.apiSecret).toEqual('yay');
+  });
+
+  describe('when the event is not a PR', () => {
+    it('yells', async () => {
+      await expect(
+        loadUserConfig('bogus', {
+          GITHUB_EVENT_PATH: path.resolve(__dirname, 'github_push_event.json'),
+        }),
+      ).rejects.toThrow(/You need an.*apiSecret/);
     });
   });
 });
