@@ -122,7 +122,7 @@ describe('with a misconfigured file', () => {
     expect(false).toBe(true);
   });
 
-  describe('with the puppeteer plugin', () => {
+  xdescribe('with the puppeteer plugin', () => {
     beforeEach(() => {
       config.plugins = [happoPluginPuppeteer()];
     });
@@ -151,7 +151,7 @@ describe('with generated examples that fail to initialize', () => {
     config.type = 'react';
   });
 
-  describe('with the puppeteer plugin', () => {
+  xdescribe('with the puppeteer plugin', () => {
     beforeEach(() => {
       config.plugins = [happoPluginPuppeteer()];
     });

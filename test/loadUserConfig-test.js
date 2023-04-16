@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import path from 'path';
 import requireRelative from 'require-relative';
 
 import Logger from '../src/Logger';
@@ -27,7 +28,7 @@ beforeEach(() => {
 
 it('yells if api tokens are missing', async () => {
   requireRelative.mockImplementation(() => ({}));
-  await expect(loadUserConfig('bogus')).rejects.toThrow(/You need an `apiKey`/);
+  await expect(loadUserConfig('bogus', {})).rejects.toThrow(/You need an `apiKey`/);
 });
 
 it('yells if targets are missing', async () => {
@@ -36,7 +37,7 @@ it('yells if targets are missing', async () => {
     apiSecret: '2',
     targets: {},
   }));
-  await expect(loadUserConfig('bogus')).rejects.toThrow(
+  await expect(loadUserConfig('bogus', {})).rejects.toThrow(
     /You need at least one target/,
   );
 });
@@ -49,7 +50,7 @@ it('does not yell if all required things are in place', async () => {
       firefox: new RemoteBrowserTarget('firefox', { viewport: '800x600' }),
     },
   }));
-  const config = await loadUserConfig('bogus');
+  const config = await loadUserConfig('bogus', {});
   expect(config.apiKey).toEqual('1');
   expect(config.apiSecret).toEqual('2');
   expect(config.targets).toEqual({
@@ -117,6 +118,39 @@ describe('when CHANGE_URL is defined', () => {
   });
 });
 
+describe('when GITHUB_EVENT_PATH is defined', () => {
+  beforeEach(() => {
+    requireRelative.mockImplementation(() => ({
+      targets: {
+        firefox: new RemoteBrowserTarget('firefox', { viewport: '800x600' }),
+      },
+    }));
+    fetch.mockImplementation(() =>
+      Promise.resolve({ ok: true, json: () => ({ secret: 'yay' }) }),
+    );
+  });
+
+  it('grabs a temporary secret', async () => {
+    const config = await loadUserConfig('bogus', {
+      GITHUB_EVENT_PATH: path.resolve(__dirname, 'github_pull_request_event.json'),
+    });
+    expect(config.apiKey).toEqual(
+      'https://github.com/Codertocat/Hello-World/pull/2',
+    );
+    expect(config.apiSecret).toEqual('yay');
+  });
+
+  describe('when the event is not a PR', () => {
+    it('yells', async () => {
+      await expect(
+        loadUserConfig('bogus', {
+          GITHUB_EVENT_PATH: path.resolve(__dirname, 'github_push_event.json'),
+        }),
+      ).rejects.toThrow(/You need an.*apiSecret/);
+    });
+  });
+});
+
 it('warns when using an unknown config key', async () => {
   requireRelative.mockImplementation(() => ({
     apiKey: '1',
@@ -128,7 +162,7 @@ it('warns when using an unknown config key', async () => {
       firefox: new RemoteBrowserTarget('firefox', { viewport: '800x600' }),
     },
   }));
-  const config = await loadUserConfig('bogus');
+  const config = await loadUserConfig('bogus', {});
   expect(config.apiKey).toEqual('1');
   expect(config.apiSecret).toEqual('2');
   expect(warn.mock.calls.length).toBe(1);

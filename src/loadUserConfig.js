@@ -23,13 +23,11 @@ async function load(pathToConfigFile) {
   }
 }
 
-async function getPullRequestSecret({ endpoint }, env) {
+async function getPullRequestSecret({ endpoint }, prUrl) {
   const res = await fetch(`${endpoint}/api/pull-request-token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      prUrl: env.CHANGE_URL,
-    }),
+    body: JSON.stringify({ prUrl }),
   });
 
   if (!res.ok) {
@@ -37,6 +35,18 @@ async function getPullRequestSecret({ endpoint }, env) {
   }
   const { secret } = await res.json();
   return secret;
+}
+
+function resolvePRLink(env = process.env) {
+  const { GITHUB_EVENT_PATH } = env;
+
+  if (GITHUB_EVENT_PATH) {
+    // eslint-disable-next-line import/no-dynamic-require
+    const ghEvent = require(GITHUB_EVENT_PATH);
+    if (ghEvent.pull_request) {
+      return ghEvent.pull_request.html_url;
+    }
+  }
 }
 
 export default async function loadUserConfig(pathToConfigFile, env = process.env) {
@@ -48,7 +58,8 @@ export default async function loadUserConfig(pathToConfigFile, env = process.env
 
   const config = await load(pathToConfigFile);
   if (!config.apiKey || !config.apiSecret) {
-    if (!CHANGE_URL) {
+    const prUrl = CHANGE_URL || resolvePRLink(env);
+    if (!prUrl) {
       throw new Error(
         'You need an `apiKey` and `apiSecret` in your config. ' +
           'To obtain one, go to https://happo.io/settings',
@@ -59,8 +70,8 @@ export default async function loadUserConfig(pathToConfigFile, env = process.env
       new Logger().info(
         'No `apiKey` or `apiSecret` found in config. Falling back to pull-request authentication.',
       );
-      config.apiKey = CHANGE_URL;
-      config.apiSecret = await getPullRequestSecret(config, env);
+      config.apiKey = prUrl;
+      config.apiSecret = await getPullRequestSecret(config, prUrl);
     } catch (e) {
       throw new WrappedError('Failed to obtain temporary pull-request token', e);
     }
