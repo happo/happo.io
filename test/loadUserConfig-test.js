@@ -28,7 +28,7 @@ beforeEach(() => {
 
 it('yells if api tokens are missing', async () => {
   requireRelative.mockImplementation(() => ({}));
-  await expect(loadUserConfig('bogus')).rejects.toThrow(/You need an `apiKey`/);
+  await expect(loadUserConfig('bogus', {})).rejects.toThrow(/You need an `apiKey`/);
 });
 
 it('yells if targets are missing', async () => {
@@ -37,7 +37,7 @@ it('yells if targets are missing', async () => {
     apiSecret: '2',
     targets: {},
   }));
-  await expect(loadUserConfig('bogus')).rejects.toThrow(
+  await expect(loadUserConfig('bogus', {})).rejects.toThrow(
     /You need at least one target/,
   );
 });
@@ -50,7 +50,7 @@ it('does not yell if all required things are in place', async () => {
       firefox: new RemoteBrowserTarget('firefox', { viewport: '800x600' }),
     },
   }));
-  const config = await loadUserConfig('bogus');
+  const config = await loadUserConfig('bogus', {});
   expect(config.apiKey).toEqual('1');
   expect(config.apiSecret).toEqual('2');
   expect(config.targets).toEqual({
@@ -162,7 +162,7 @@ it('warns when using an unknown config key', async () => {
       firefox: new RemoteBrowserTarget('firefox', { viewport: '800x600' }),
     },
   }));
-  const config = await loadUserConfig('bogus');
+  const config = await loadUserConfig('bogus', {});
   expect(config.apiKey).toEqual('1');
   expect(config.apiSecret).toEqual('2');
   expect(warn.mock.calls.length).toBe(1);
