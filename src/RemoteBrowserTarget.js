@@ -124,7 +124,7 @@ export default class RemoteBrowserTarget {
       }
       return makeRequest(
         {
-          url: `${endpoint}/api/snap-requests`,
+          url: `${endpoint}/api/snap-requests?payloadHash=${payloadHash}`,
           method: 'POST',
           json: true,
           formData,
