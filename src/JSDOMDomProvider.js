@@ -55,8 +55,15 @@ export default class JSDOMDomProvider {
   }
 
   async init({ targetName }) {
-    await new Promise((resolve) => {
-      this.dom.window.onBundleReady = resolve;
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() =>
+        reject(new Error('Failed to load Happo bundle within 10s. Check console log for errors.')),
+      10000);
+
+      this.dom.window.onBundleReady = () => {
+        clearTimeout(timeout);
+        resolve();
+      };
     });
     return this.dom.window.happoProcessor.init({ targetName });
   }

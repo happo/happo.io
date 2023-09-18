@@ -151,17 +151,19 @@ describe('with generated examples that fail to initialize', () => {
     config.type = 'react';
   });
 
-  xdescribe('with the puppeteer plugin', () => {
-    beforeEach(() => {
-      config.plugins = [happoPluginPuppeteer()];
-    });
-
-    it('logs an error', async () => {
+  it('throws a timeout error', async () => {
+    try {
       await subject();
-      expect(console.log.mock.calls.length).toBe(1);
-      expect(console.log.mock.calls[0][0]).toEqual(
-        'Uncaught ReferenceError: foo is not defined',
+    } catch (e) {
+      expect(e.message).toMatch(
+        /Failed to load Happo bundle within/,
       );
-    });
+      expect(console.error.mock.calls[1][0]).toMatch(/foo is not defined/);
+      return;
+    }
+
+
+    // If we end up here, something is wrong
+    expect(false).toBe(true);
   });
 });
