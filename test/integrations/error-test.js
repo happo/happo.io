@@ -155,13 +155,10 @@ describe('with generated examples that fail to initialize', () => {
     try {
       await subject();
     } catch (e) {
-      expect(e.message).toMatch(
-        /Failed to load Happo bundle within/,
-      );
+      expect(e.message).toMatch(/Failed to load Happo bundle within/);
       expect(console.error.mock.calls[1][0]).toMatch(/foo is not defined/);
       return;
     }
-
 
     // If we end up here, something is wrong
     expect(false).toBe(true);
