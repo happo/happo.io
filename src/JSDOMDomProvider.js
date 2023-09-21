@@ -1,7 +1,10 @@
 import { JSDOM, VirtualConsole } from 'jsdom';
 import mergeJsdomOptions from './mergeJSDOMOptions';
 
-const { VERBOSE } = process.env;
+const { VERBOSE, HAPPO_BUNDLE_LOAD_TIMEOUT_MS: rawBundleLoadTimeout = '60000' } =
+  process.env;
+
+const HAPPO_BUNDLE_LOAD_TIMEOUT_MS = parseInt(rawBundleLoadTimeout, 10);
 
 const MAX_ERROR_DETAIL_LENGTH = 200;
 
@@ -10,7 +13,11 @@ export default class JSDOMDomProvider {
     const virtualConsole = new VirtualConsole();
     virtualConsole.on('jsdomError', (e) => {
       const { stack, detail = '' } = e;
-      if (VERBOSE || typeof detail !== 'string' || detail.length < MAX_ERROR_DETAIL_LENGTH) {
+      if (
+        VERBOSE ||
+        typeof detail !== 'string' ||
+        detail.length < MAX_ERROR_DETAIL_LENGTH
+      ) {
         console.error(stack, detail);
       } else {
         const newDetail = `${(detail || '').slice(0, MAX_ERROR_DETAIL_LENGTH)}...
@@ -56,9 +63,15 @@ export default class JSDOMDomProvider {
 
   async init({ targetName }) {
     await new Promise((resolve, reject) => {
-      const timeout = setTimeout(() =>
-        reject(new Error('Failed to load Happo bundle within 10s. Check console log for errors.')),
-      10000);
+      const timeout = setTimeout(
+        () =>
+          reject(
+            new Error(
+              `Failed to load Happo bundle within ${HAPPO_BUNDLE_LOAD_TIMEOUT_MS}ms. Check console log for errors.`,
+            ),
+          ),
+        HAPPO_BUNDLE_LOAD_TIMEOUT_MS,
+      );
 
       this.dom.window.onBundleReady = () => {
         clearTimeout(timeout);
