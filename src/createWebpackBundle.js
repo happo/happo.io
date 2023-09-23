@@ -96,7 +96,10 @@ export default async function createWebpackBundle(
         stats.compilation.errors.forEach((e) => new Logger().error(e));
       } else if (hash !== stats.hash) {
         hash = stats.hash;
-        onBuildReady(bundleFilePath);
+
+        // Call the timeout on next tick to allow webpack to fully write the
+        // bundle to the bundleFilePath
+        setTimeout(() => onBuildReady(bundleFilePath));
       }
     });
     return;
