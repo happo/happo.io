@@ -46,6 +46,7 @@ export default async function makeRequest(
 
   return asyncRetry(
     async () => {
+      const start = Date.now();
       const signed = jwt.sign({ key: apiKey }, apiSecret, {
         header: { kid: apiKey },
       });
@@ -59,7 +60,10 @@ export default async function makeRequest(
         headers['Content-Type'] = 'application/json';
       }
       const controller = new AbortController();
-      const abortTimeout = setTimeout(() => controller.abort(), timeout);
+      const abortTimeout = setTimeout(() => {
+        console.error(`Timing out request ${method} ${url} after ${timeout} ms.`);
+        controller.abort();
+      }, timeout);
       try {
         const response = await fetch(
           url,
@@ -74,9 +78,10 @@ export default async function makeRequest(
             { body },
           ),
         );
+        const totalTime = Date.now() - start;
         if (!response.ok) {
           const e = new Error(
-            `Request to ${method} ${url} failed: ${
+            `Request to ${method} ${url} failed after ${totalTime} ms: ${
               response.status
             } - ${await response.text()}`,
           );
@@ -98,8 +103,9 @@ export default async function makeRequest(
       retries: retryCount || maxTries,
       minTimeout: retryMinTimeout,
       maxTimeout: retryMaxTimeout,
-      onRetry: () => {
+      onRetry: (e) => {
         console.warn(`Failed ${method} ${url}. Retrying...`);
+        console.warn(e);
       },
     },
   );
