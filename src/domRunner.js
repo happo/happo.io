@@ -70,8 +70,8 @@ async function uploadAssets({
 }
 
 function logTargetResults({ name, globalCSS, snapPayloads, project }) {
-  const cssPath = path.join(os.tmpdir(), `happo-verbose-${name}.css`);
-  const snippetsPath = path.join(os.tmpdir(), `happo-snippets-${name}.json`);
+  const cssPath = path.join(os.tmpdir(), `happo-verbose-${project}-${name}.css`);
+  const snippetsPath = path.join(os.tmpdir(), `happo-snippets-${project}-${name}.json`);
   fs.writeFileSync(cssPath, JSON.stringify(globalCSS));
   fs.writeFileSync(snippetsPath, JSON.stringify(snapPayloads));
   console.log(
