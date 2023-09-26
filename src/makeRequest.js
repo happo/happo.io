@@ -78,10 +78,9 @@ export default async function makeRequest(
             { body },
           ),
         );
-        const totalTime = Date.now() - start;
         if (!response.ok) {
           const e = new Error(
-            `Request to ${method} ${url} failed after ${totalTime} ms: ${
+            `Request to ${method} ${url} failed: ${
               response.status
             } - ${await response.text()}`,
           );
@@ -94,6 +93,7 @@ export default async function makeRequest(
         if (e.type === 'aborted') {
           e.message = `Timeout when fetching ${url} using method ${method}`;
         }
+        e.message = `${e.message} (took ${Date.now() - start} ms)`;
         throw e;
       } finally {
         clearTimeout(abortTimeout);
