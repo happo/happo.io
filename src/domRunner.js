@@ -285,8 +285,7 @@ async function generateScreenshots(
           delete item.assetPaths;
         });
 
-        prerenderPromises.push(
-          (async () => {
+        const promise = (async () => {
             const startTime = Date.now();
             const result = await executeTargetWithPrerender({
               name,
@@ -305,8 +304,16 @@ async function generateScreenshots(
             logger.start(`  - ${logTag(project)}${name}`, { startTime });
             logger.success();
             return { name, result };
-          })(),
-        );
+          })();
+
+        prerenderPromises.push(promise);
+        if (isAsync) {
+          // If we're processing things asynchronously, we wait for the request
+          // to finish before moving to the next. This will ease up on
+          // concurrency which will help large payloads.
+          // eslint-disable-next-line no-await-in-loop
+          await promise;
+        }
       }
 
       results = await Promise.all(prerenderPromises);
