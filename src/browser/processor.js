@@ -36,7 +36,7 @@ async function renderExample(exampleRenderFunc, { component, variant }) {
   document.body.innerHTML = '';
   const rootElement = document.createElement('div');
   rootElement.setAttribute('id', ROOT_ELEMENT_ID);
-  rootElement.setAttribute('data-happo-ignore', ROOT_ELEMENT_ID);
+  rootElement.setAttribute('data-happo-ignore', 'true');
   document.body.appendChild(rootElement);
 
   const renderInDom = (renderResult) =>

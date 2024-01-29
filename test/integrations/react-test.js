@@ -150,7 +150,7 @@ it('produces the right html', async () => {
       component: 'Foo-react',
       css: '',
       html:
-        '<div id="happo-root"><div>Outside portal</div></div><div>Inside portal</div>',
+        '<div id="happo-root" data-happo-ignore="true"><div>Outside portal</div></div><div>Inside portal</div>',
       variant: 'innerPortal',
     },
     {
