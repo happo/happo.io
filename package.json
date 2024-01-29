@@ -1,6 +1,6 @@
 {
   "name": "happo.io",
-  "version": "8.4.4",
+  "version": "9.0.0",
   "description": "Visual diffing for UI components",
   "main": "./build/index.js",
   "engines": {
