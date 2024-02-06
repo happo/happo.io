@@ -72,12 +72,14 @@ export default class Processor {
     this.cursor = -1;
   }
 
-  init({ targetName } = {}) {
+  init({ targetName, only, chunk } = {}) {
     // validate examples before we start rendering
     this.flattenedExamples = validateAndFilterExamples(
       this.flattenedUnfilteredExamples,
       {
         targetName,
+        only,
+        chunk,
       },
     );
   }
@@ -141,9 +143,8 @@ export default class Processor {
   }
 
   async processCurrent() {
-    const { component, fileName, variant, render } = this.flattenedExamples[
-      this.cursor
-    ];
+    const { component, fileName, variant, render } =
+      this.flattenedExamples[this.cursor];
     const exampleRenderFunc = getRenderFunc(render);
     window.happoCleanup();
     try {
