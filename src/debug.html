@@ -3,12 +3,18 @@
   <head>
     <meta charset="utf-8" />
     <title>Happo debug page</title>
+  </head>
+  <body>
+    <h1>Happo debug page</h1>
+    <button onClick="renderAll()">Render all</button>
+    <ul id="all"></ul>
+
     <script src="/happo-bundle.js"></script>
     <script>
       function summarize(results) {
-        const errors = results.filter(x => x.isError);
-        const successfuls = results.filter(x => !x.isError);
-        const errorMsgs = [...new Set(errors.map(x => x.cause.message))];
+        const errors = results.filter((x) => x.isError);
+        const successfuls = results.filter((x) => !x.isError);
+        const errorMsgs = [...new Set(errors.map((x) => x.cause.message))];
         const el = document.createElement('div');
         el.innerHTML = `
           <h1>Results</h1>
@@ -41,19 +47,14 @@
         happoProcessor.flattenedExamples.forEach((example, i) => {
           const li = document.createElement('li');
           li.innerHTML = `
-          ${example.component}-${example-variant} <button onclick="renderOne(${i})">render</button>
+          ${example.component}-${
+            example - variant
+          } <button onclick="renderOne(${i})">render</button>
           `;
-          allUl.appendChild(li)
+          allUl.appendChild(li);
         });
       }
     </script>
-  </head>
-  <body>
-    <h1>Happo debug page</h1>
-    <button onClick="renderAll()">Render all</button>
-    <ul id="all">
-    </ul>
-
     <script>
       document.addEventListener('DOMContentLoaded', populateList);
     </script>
