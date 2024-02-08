@@ -44,12 +44,11 @@
 
       async function populateList() {
         const allUl = document.getElementById('all');
+        happoProcessor.init();
         happoProcessor.flattenedExamples.forEach((example, i) => {
           const li = document.createElement('li');
           li.innerHTML = `
-          ${example.component}-${
-            example - variant
-          } <button onclick="renderOne(${i})">render</button>
+          ${example.component}-${example.variant} <button onclick="renderOne(${i})">render</button>
           `;
           allUl.appendChild(li);
         });
