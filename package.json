@@ -8,11 +8,11 @@
   },
   "bin": {
     "happo": "./build/cli.js",
-    "happo-ci-travis": "./bin/happo-ci-travis",
+    "happo-ci": "./bin/happo-ci",
+    "happo-ci-azure-pipelines": "./bin/happo-ci-azure-pipelines",
     "happo-ci-circleci": "./bin/happo-ci-circleci",
     "happo-ci-github-actions": "./bin/happo-ci-github-actions",
-    "happo-ci-azure-pipelines": "./bin/happo-ci-azure-pipelines",
-    "happo-ci": "./bin/happo-ci"
+    "happo-ci-travis": "./bin/happo-ci-travis"
   },
   "scripts": {
     "update-toc": "./scripts/gh-md-toc --insert README.md",
@@ -107,5 +107,6 @@
   "peerDependencies": {
     "babel-loader": "^7.0.0 || ^8.0.0 || ^9.0.0",
     "webpack": "^3.5.5 || ^4.0.0 || ^5.0.0"
-  }
+  },
+  "packageManager": "yarn@1.22.22"
 }
