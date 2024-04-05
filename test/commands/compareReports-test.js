@@ -95,6 +95,30 @@ describe('when `fallbackShas` is set', () => {
   });
 });
 
+describe('when `fallbackShas` is a space-separated list', () => {
+  it('sends that param to the happo api', async () => {
+    cliArgs.fallbackShas = 'foo bar car';
+    await subject();
+    expect(makeRequest.mock.calls[1][0].body.fallbackShas).toEqual([
+      'foo',
+      'bar',
+      'car',
+    ]);
+  });
+});
+
+describe('when `fallbackShas` is a newline-separated list', () => {
+  it('sends that param to the happo api', async () => {
+    cliArgs.fallbackShas = 'foo\nbar\ncar';
+    await subject();
+    expect(makeRequest.mock.calls[1][0].body.fallbackShas).toEqual([
+      'foo',
+      'bar',
+      'car',
+    ]);
+  });
+});
+
 describe('when fetchPng fails', () => {
   beforeEach(() => {
     fetchPng.mockImplementation(() => Promise.reject(new Error('mocked')));

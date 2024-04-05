@@ -28,8 +28,8 @@ commander
   .option('-l, --link <url>', 'provide a link back to the commit')
   .option('-a, --async', 'process reports/comparisons asynchronously')
   .option(
-    '--fallbackShas',
-    'comma-separated list of fallback shas for compare calls',
+    '--fallbackShas <shas>',
+    'space-, newline- or comma-separated list of fallback shas for compare calls',
   )
   .option(
     '-n, --notify <emails>',
