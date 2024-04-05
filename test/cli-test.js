@@ -6,21 +6,26 @@ let subject;
 let command;
 
 beforeEach(() => {
-  command = '';
+  command = undefined;
   subject = () =>
     new Promise((resolve) => {
       let stdout = '';
+      let stderr = '';
 
-      const cmd = spawn(happoCommand, command ? [command] : undefined);
+      const cmd = spawn(happoCommand, command);
 
       cmd.stdout.on('data', (data) => {
         stdout += data;
+      });
+      cmd.stderr.on('data', (data) => {
+        stderr += data;
       });
 
       cmd.on('close', (exitCode) => {
         resolve({
           exitCode,
           stdout,
+          stderr,
         });
       });
     });
@@ -40,7 +45,7 @@ describe('when no command is given', () => {
 
 describe('when an invalid command is given', () => {
   beforeEach(() => {
-    command = 'foobar';
+    command = ['foobar'];
   });
 
   it('displays help', async () => {
@@ -56,5 +61,50 @@ describe('when an invalid command is given', () => {
   it('exits with a non-zero exit code', async () => {
     const result = await subject();
     expect(result.exitCode).toEqual(1);
+  });
+});
+
+describe('happo compare', () => {
+  describe('without shas', () => {
+    beforeEach(() => {
+      command = ['compare'];
+    });
+
+    it('displays help', async () => {
+      const result = await subject();
+      expect(result.stderr).toMatch(/missing required argument.*sha1/m);
+    });
+
+    it('exits with a non-zero exit code', async () => {
+      const result = await subject();
+      expect(result.exitCode).toEqual(1);
+    });
+  });
+
+  describe('with misconfigured fallbackShas', () => {
+    beforeEach(() => {
+      command = ['compare', 'a', 'b', '--fallbackShas'];
+    });
+
+    it('displays help', async () => {
+      const result = await subject();
+      expect(result.stderr).toMatch(/--fallbackShas.*argument missing/m);
+    });
+
+    it('exits with a non-zero exit code', async () => {
+      const result = await subject();
+      expect(result.exitCode).toEqual(1);
+    });
+  });
+
+  describe('with fallbackShas', () => {
+    beforeEach(() => {
+      command = ['compare', 'a', 'b', '--fallbackShas', 'd,e,f'];
+    });
+
+    it('does not warn about missing argument', async () => {
+      const result = await subject();
+      expect(result.stderr).not.toMatch(/--fallbackShas.*argument missing/m);
+    });
   });
 });
