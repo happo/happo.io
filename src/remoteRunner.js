@@ -13,14 +13,46 @@ import ensureTarget from './ensureTarget';
 import loadCSSFile from './loadCSSFile';
 import makeRequest from './makeRequest';
 
+export function validateArchive(totalBytes, fileSizes) {
+  const totalMegaBytes = Math.round(totalBytes / 1024 / 1024);
+  if (totalMegaBytes < 30) {
+    return;
+  }
+  const messageBits = [
+    `Package size is ${totalMegaBytes} MB (${totalBytes} bytes), maximum is 60 MB.`,
+    "Here are the largest 20 files in the archive. Consider removing ones that aren't necessary.",
+  ];
+  fileSizes
+    .sort((a, b) => b.size - a.size)
+    .slice(0, 20)
+    .forEach((file) => {
+      messageBits.push(
+        `${file.name}: ${Math.round(file.size / 1024 / 1024)} MB (${
+          file.size
+        } bytes)`,
+      );
+    });
+
+  if (totalMegaBytes > 60) {
+    throw new Error(messageBits.join('\n'));
+  }
+  console.warn(messageBits.join('\n'));
+}
+
 function staticDirToZipFile(dir) {
   return new Promise((resolve, reject) => {
     const archive = new Archiver('zip');
     const rnd = crypto.randomBytes(4).toString('hex');
     const pathToZipFile = path.join(os.tmpdir(), `happo-static-${rnd}.zip`);
     const output = fs.createWriteStream(pathToZipFile);
+    const fileSizes = [];
 
-    output.on('finish', () => {
+    archive.on('entry', (entry) => {
+      fileSizes.push({ name: entry.name, size: entry.size });
+    });
+
+    output.on('finish', async () => {
+      await validateArchive(archive.pointer(), fileSizes);
       resolve(pathToZipFile);
     });
     archive.pipe(output);
@@ -44,6 +76,7 @@ async function resolvePackageData(staticPackage) {
   }
 
   const file = await staticDirToZipFile(staticPackage.path);
+
   const readStream = fs.createReadStream(file);
   const hash = await new Promise((resolve) => {
     const hashCreator = crypto.createHash('md5');
@@ -79,7 +112,9 @@ async function uploadStaticPackage({
       { apiKey, apiSecret },
     );
     logger.info(
-      `${logTag(project)}Reusing existing assets at ${assetsDataRes.path} (previously uploaded on ${assetsDataRes.uploadedAt})`,
+      `${logTag(project)}Reusing existing assets at ${
+        assetsDataRes.path
+      } (previously uploaded on ${assetsDataRes.uploadedAt})`,
     );
     return assetsDataRes.path;
   } catch (e) {
