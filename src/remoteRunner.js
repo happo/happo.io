@@ -12,6 +12,7 @@ import createHash from './createHash';
 import ensureTarget from './ensureTarget';
 import loadCSSFile from './loadCSSFile';
 import makeRequest from './makeRequest';
+import validateArchive from './validateArchive';
 
 function staticDirToZipFile(dir) {
   return new Promise((resolve, reject) => {
@@ -19,8 +20,14 @@ function staticDirToZipFile(dir) {
     const rnd = crypto.randomBytes(4).toString('hex');
     const pathToZipFile = path.join(os.tmpdir(), `happo-static-${rnd}.zip`);
     const output = fs.createWriteStream(pathToZipFile);
+    const entries = [];
 
-    output.on('finish', () => {
+    archive.on('entry', (entry) => {
+      entries.push(entry);
+    });
+
+    output.on('finish', async () => {
+      validateArchive(archive.pointer(), entries);
       resolve(pathToZipFile);
     });
     archive.pipe(output);
@@ -44,6 +51,7 @@ async function resolvePackageData(staticPackage) {
   }
 
   const file = await staticDirToZipFile(staticPackage.path);
+
   const readStream = fs.createReadStream(file);
   const hash = await new Promise((resolve) => {
     const hashCreator = crypto.createHash('md5');
@@ -79,7 +87,9 @@ async function uploadStaticPackage({
       { apiKey, apiSecret },
     );
     logger.info(
-      `${logTag(project)}Reusing existing assets at ${assetsDataRes.path} (previously uploaded on ${assetsDataRes.uploadedAt})`,
+      `${logTag(project)}Reusing existing assets at ${
+        assetsDataRes.path
+      } (previously uploaded on ${assetsDataRes.uploadedAt})`,
     );
     return assetsDataRes.path;
   } catch (e) {
