@@ -20,14 +20,14 @@ function staticDirToZipFile(dir) {
     const rnd = crypto.randomBytes(4).toString('hex');
     const pathToZipFile = path.join(os.tmpdir(), `happo-static-${rnd}.zip`);
     const output = fs.createWriteStream(pathToZipFile);
-    const fileSizes = [];
+    const entries = [];
 
     archive.on('entry', (entry) => {
-      fileSizes.push({ name: entry.name, size: entry.size });
+      entries.push(entry);
     });
 
     output.on('finish', async () => {
-      validateArchive(archive.pointer(), fileSizes);
+      validateArchive(archive.pointer(), entries);
       resolve(pathToZipFile);
     });
     archive.pipe(output);

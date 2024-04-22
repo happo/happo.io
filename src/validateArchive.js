@@ -1,4 +1,4 @@
-export default function validateArchive(totalBytes, fileSizes) {
+export default function validateArchive(totalBytes, entries) {
   const totalMegaBytes = Math.round(totalBytes / 1024 / 1024);
   if (totalMegaBytes < 30) {
     return;
@@ -7,6 +7,10 @@ export default function validateArchive(totalBytes, fileSizes) {
     `Package size is ${totalMegaBytes} MB (${totalBytes} bytes), maximum is 60 MB.`,
     "Here are the largest 20 files in the archive. Consider removing ones that aren't necessary.",
   ];
+  const fileSizes = entries.map((entry) => ({
+    name: entry.name,
+    size: entry.stats ? entry.stats.size : (entry.size || 0),
+  }));
   fileSizes
     .sort((a, b) => b.size - a.size)
     .slice(0, 20)

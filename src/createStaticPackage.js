@@ -1,7 +1,9 @@
-import crypto from 'crypto';
 import { Writable } from 'stream';
+import crypto from 'crypto';
 
 import Archiver from 'archiver';
+
+import validateArchive from './validateArchive';
 
 // We're setting the creation date to the same for all files so that the zip
 // packages created for the same content ends up having the same fingerprint.
@@ -31,7 +33,14 @@ export default function createStaticPackage({ tmpdir, publicFolders }) {
       data.push(...chunk);
       done();
     };
+
+    const entries = [];
+    archive.on('entry', (entry) => {
+      entries.push(entry);
+    });
+
     stream.on('finish', () => {
+      validateArchive(archive.pointer(), entries);
       const buffer = Buffer.from(data);
       const hash = crypto.createHash('md5').update(buffer).digest('hex');
       resolve({ buffer, hash });
