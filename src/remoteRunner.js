@@ -94,7 +94,13 @@ async function uploadStaticPackage({
     return assetsDataRes.path;
   } catch (e) {
     if (e.statusCode !== 404) {
-      throw e;
+      logger.warn(
+        `${logTag(
+          project,
+        )}Assuming assets don't exist since we got error response: ${
+          e.statusCode
+        } - ${e.message} - ${e.stack}`,
+      );
     }
   }
 
