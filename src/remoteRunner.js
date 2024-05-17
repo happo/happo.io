@@ -11,7 +11,7 @@ import constructReport from './constructReport';
 import createHash from './createHash';
 import ensureTarget from './ensureTarget';
 import loadCSSFile from './loadCSSFile';
-import makeRequest from './makeRequest';
+import uploadAssets from './uploadAssets';
 import validateArchive from './validateArchive';
 
 function staticDirToZipFile(dir) {
@@ -66,64 +66,6 @@ async function resolvePackageData(staticPackage) {
   return { value: fs.createReadStream(file), hash };
 }
 
-async function uploadStaticPackage({
-  staticPackage,
-  endpoint,
-  apiKey,
-  apiSecret,
-  logger,
-  project,
-}) {
-  const { value, hash } = await resolvePackageData(staticPackage);
-
-  try {
-    // Check if the assets already exist. If so, we don't have to upload them.
-    const assetsDataRes = await makeRequest(
-      {
-        url: `${endpoint}/api/snap-requests/assets-data/${hash}`,
-        method: 'GET',
-        json: true,
-      },
-      { apiKey, apiSecret },
-    );
-    logger.info(
-      `${logTag(project)}Reusing existing assets at ${
-        assetsDataRes.path
-      } (previously uploaded on ${assetsDataRes.uploadedAt})`,
-    );
-    return assetsDataRes.path;
-  } catch (e) {
-    if (e.statusCode !== 404) {
-      logger.warn(
-        `${logTag(
-          project,
-        )}Assuming assets don't exist since we got error response: ${
-          e.statusCode
-        } - ${e.message} - ${e.stack}`,
-      );
-    }
-  }
-
-  const assetsRes = await makeRequest(
-    {
-      url: `${endpoint}/api/snap-requests/assets/${hash}`,
-      method: 'POST',
-      json: true,
-      formData: {
-        payload: {
-          options: {
-            filename: 'payload.zip',
-            contentType: 'application/zip',
-          },
-          value,
-        },
-      },
-    },
-    { apiKey, apiSecret, retryCount: 2 },
-  );
-  return assetsRes.path;
-}
-
 export default async function remoteRunner(
   { apiKey, apiSecret, endpoint, targets, plugins, stylesheets, project },
   { generateStaticPackage },
@@ -134,8 +76,10 @@ export default async function remoteRunner(
   try {
     logger.info(`${logTag(project)}Generating static package...`);
     const staticPackage = await generateStaticPackage();
-    const staticPackagePath = await uploadStaticPackage({
-      staticPackage,
+
+    const { value, hash } = await resolvePackageData(staticPackage);
+    const staticPackagePath = await uploadAssets(value, {
+      hash,
       endpoint,
       apiSecret,
       apiKey,
