@@ -12,66 +12,20 @@ import createStaticPackage from './createStaticPackage';
 import createWebpackBundle from './createWebpackBundle';
 import ensureTarget from './ensureTarget';
 import loadCSSFile from './loadCSSFile';
-import makeRequest from './makeRequest';
 import prepareAssetsPackage from './prepareAssetsPackage';
 import processSnapsInBundle from './processSnapsInBundle';
+import uploadAssets from './uploadAssets';
 
 const knownAssetPackagePaths = {};
 
 const { VERBOSE = 'false' } = process.env;
 
-async function uploadAssets({
-  apiKey,
-  apiSecret,
-  endpoint,
-  hash,
-  buffer,
-  logger,
-  project,
-}) {
-  try {
-    const assetsDataRes = await makeRequest(
-      {
-        url: `${endpoint}/api/snap-requests/assets-data/${hash}`,
-        method: 'GET',
-        json: true,
-      },
-      { apiKey, apiSecret },
-    );
-    logger.info(
-      `${logTag(project)}Reusing existing assets at ${
-        assetsDataRes.path
-      } (previously uploaded on ${assetsDataRes.uploadedAt})`,
-    );
-    return assetsDataRes.path;
-  } catch (e) {
-    if (e.statusCode !== 404) {
-      throw e;
-    }
-  }
-  const assetsRes = await makeRequest(
-    {
-      url: `${endpoint}/api/snap-requests/assets/${hash}`,
-      method: 'POST',
-      json: true,
-      formData: {
-        payload: {
-          options: {
-            filename: 'payload.zip',
-            contentType: 'application/zip',
-          },
-          value: buffer,
-        },
-      },
-    },
-    { apiKey, apiSecret, retryCount: 2 },
-  );
-  return assetsRes.path;
-}
-
 function logTargetResults({ name, globalCSS, snapPayloads, project }) {
   const cssPath = path.join(os.tmpdir(), `happo-verbose-${project}-${name}.css`);
-  const snippetsPath = path.join(os.tmpdir(), `happo-snippets-${project}-${name}.json`);
+  const snippetsPath = path.join(
+    os.tmpdir(),
+    `happo-snippets-${project}-${name}.json`,
+  );
   fs.writeFileSync(cssPath, JSON.stringify(globalCSS));
   fs.writeFileSync(snippetsPath, JSON.stringify(snapPayloads));
   console.log(
@@ -156,12 +110,11 @@ async function uploadStaticPackage({
     tmpdir,
     publicFolders,
   });
-  const assetsPath = await uploadAssets({
+  const assetsPath = await uploadAssets(buffer, {
     apiKey,
     apiSecret,
     endpoint,
     hash,
-    buffer,
     logger,
     project,
   });
@@ -267,12 +220,11 @@ async function generateScreenshots(
           if (VERBOSE === 'true') {
             console.log(`${logTag(project)}Uploading assets package ${hash}`);
           }
-          assetsPackage = await uploadAssets({
+          assetsPackage = await uploadAssets(buffer, {
             endpoint,
             apiKey,
             apiSecret,
             hash,
-            buffer,
             logger,
             project,
           });
@@ -286,25 +238,25 @@ async function generateScreenshots(
         });
 
         const promise = (async () => {
-            const startTime = Date.now();
-            const result = await executeTargetWithPrerender({
-              name,
-              globalCSS,
-              snapPayloads,
-              targets,
-              assetsPackage,
-              viewport: targets[name].viewport,
-              apiKey,
-              apiSecret,
-              endpoint,
-              logger,
-              isAsync,
-              project,
-            });
-            logger.start(`  - ${logTag(project)}${name}`, { startTime });
-            logger.success();
-            return { name, result };
-          })();
+          const startTime = Date.now();
+          const result = await executeTargetWithPrerender({
+            name,
+            globalCSS,
+            snapPayloads,
+            targets,
+            assetsPackage,
+            viewport: targets[name].viewport,
+            apiKey,
+            apiSecret,
+            endpoint,
+            logger,
+            isAsync,
+            project,
+          });
+          logger.start(`  - ${logTag(project)}${name}`, { startTime });
+          logger.success();
+          return { name, result };
+        })();
 
         prerenderPromises.push(promise);
         if (isAsync) {
