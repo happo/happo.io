@@ -38,15 +38,20 @@ export default async function makeRequest(
   { HTTP_PROXY } = process.env,
 ) {
   const { url, method = 'GET', formData, body: jsonBody } = requestAttributes;
-  const body = formData
-    ? prepareFormData(formData)
-    : jsonBody
-    ? JSON.stringify(jsonBody)
-    : undefined;
 
   return asyncRetry(
     async () => {
       const start = Date.now();
+
+      // We must avoid reusing FormData instances when retrying requests
+      // because they are consumed and cannot be reused.
+      // More info: https://github.com/node-fetch/node-fetch/issues/1743
+      const body = formData
+        ? prepareFormData(formData)
+        : jsonBody
+        ? JSON.stringify(jsonBody)
+        : undefined;
+
       const signed = jwt.sign({ key: apiKey }, apiSecret, {
         header: { kid: apiKey },
       });
