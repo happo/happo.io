@@ -35,7 +35,7 @@ beforeAll(async () => {
           result: 'Hello world!',
         }),
       );
-    } else if (req.url === '/form-data') {
+    } else if (req.url === '/form-data' || (req.url === '/form-data-failure-retry' && errorTries > 2)) {
       const form = new multiparty.Form();
 
       form.parse(req, (err, fields, files) => {
@@ -145,6 +145,47 @@ it('can upload form data with buffers', async () => {
     },
   });
 });
+
+it('can retry uploading form data with buffers', async () => {
+  props.url = 'http://localhost:8990/form-data-failure-retry';
+  props.method = 'POST';
+  props.formData = {
+    type: 'browser-chrome',
+    targetName: 'chrome',
+    payloadHash: 'foobar',
+    payload: {
+      options: {
+        filename: 'payload.json',
+        contentType: 'application/json',
+      },
+      value: Buffer.from('{"foo": "bar"}'),
+    },
+  };
+  const response = await subject();
+  expect(response).toEqual({
+    fields: {
+      payloadHash: ['foobar'],
+      targetName: ['chrome'],
+      type: ['browser-chrome'],
+    },
+    files: {
+      payload: [
+        {
+          fieldName: 'payload',
+          headers: {
+            'content-disposition':
+              'form-data; name="payload"; filename="payload.json"',
+            'content-type': 'application/json',
+          },
+          originalFilename: 'payload.json',
+          path: expect.any(String),
+          size: 14,
+        },
+      ],
+    },
+  });
+});
+
 
 it('can upload form data with streams', async () => {
   props.url = 'http://localhost:8990/form-data';
