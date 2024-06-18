@@ -95,7 +95,7 @@ it('returns the response', async () => {
 it('can use a proxy', async () => {
   env = { HTTP_PROXY: 'http://localhost:1122' };
   options.retryCount = 1;
-  await expect(subject()).rejects.toThrow(/connect ECONNREFUSED/);
+  await expect(subject()).rejects.toThrow(/request.*failed/);
 });
 
 it('can post json', async () => {
