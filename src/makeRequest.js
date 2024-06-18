@@ -3,7 +3,7 @@ import FormData from 'form-data';
 import HttpsProxyAgent from 'https-proxy-agent';
 import asyncRetry from 'async-retry';
 import fetch from 'node-fetch';
-import jwt from 'jsonwebtoken';
+import { SignJWT } from 'jose';
 
 import { version } from '../package.json';
 
@@ -52,9 +52,11 @@ export default async function makeRequest(
         ? JSON.stringify(jsonBody)
         : undefined;
 
-      const signed = jwt.sign({ key: apiKey }, apiSecret, {
-        header: { kid: apiKey },
-      });
+      const encodedSecret = new TextEncoder().encode(apiSecret);
+      // https://github.com/panva/jose/blob/main/docs/classes/jwt_sign.SignJWT.md
+      const signed = await new SignJWT({ key: apiKey })
+        .setProtectedHeader({ alg: 'HS256', kid: apiKey })
+        .sign(encodedSecret);
 
       const headers = {
         Authorization: `Bearer ${signed}`,
