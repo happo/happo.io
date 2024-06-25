@@ -8,10 +8,10 @@ import imageSrc from './static/1x1.png';
 
 const dynamicImportPromise = import('./dynamically-imported');
 
-export default () => {
+export default function () {
   window.injectCSS('button { color: red }');
   return <Button />;
-};
+}
 
 export const anotherVariant = () => {
   const style = document.createElement('style');
@@ -36,10 +36,10 @@ export const portalExample = () => (
 );
 
 export const innerPortal = () => (
-  <React.Fragment>
+  <>
     <div>Outside portal</div>
     <PortalComponent>Inside portal</PortalComponent>
-  </React.Fragment>
+  </>
 );
 
 class AsyncComponent extends React.Component {
@@ -103,14 +103,24 @@ export const dynamicImportExample = () => <DynamicImportExample />;
 
 export const themedExample = () => (
   <ThemeContext.Consumer>
-    {(theme) => <button>I am {theme}</button>}
+    {(theme) => (
+      <button>
+        I am
+        {theme}
+      </button>
+    )}
   </ThemeContext.Consumer>
 );
 
 export const themedExampleAsync = (renderInDom) => {
   renderInDom(
     <ThemeContext.Consumer>
-      {(theme) => <button>I am {theme}</button>}
+      {(theme) => (
+        <button>
+          I am
+          {theme}
+        </button>
+      )}
     </ThemeContext.Consumer>,
   );
   return new Promise((resolve) => setTimeout(resolve, 20));

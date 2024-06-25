@@ -25,7 +25,8 @@ beforeEach(() => {
     return Promise.resolve({});
   });
   sha = 'foobar';
-  config = Object.assign({}, defaultConfig, {
+  config = {
+    ...defaultConfig,
     project: 'the project',
     targets: { chrome: new MockTarget() },
     plugins: [
@@ -37,7 +38,7 @@ beforeEach(() => {
       },
     ],
     stylesheets: [path.resolve(__dirname, 'styles.css')],
-  });
+  };
   subject = () => runCommand(sha, config, {});
 });
 

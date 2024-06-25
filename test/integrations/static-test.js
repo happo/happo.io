@@ -57,14 +57,15 @@ afterAll(async () => {
 beforeEach(async () => {
   mockPkgExists = false;
   sha = 'foobar';
-  config = Object.assign({}, defaultConfig, {
+  config = {
+    ...defaultConfig,
     apiKey: 'foobar',
     apiSecret: 'barfoo',
     endpoint: 'http://localhost:8990',
     project: 'the project',
     targets: { chrome: new MockTarget() },
     generateStaticPackage: () => ({ path: path.join(__dirname, 'static-files') }),
-  });
+  };
   subject = () => runCommand(sha, config, {});
 });
 

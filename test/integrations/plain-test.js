@@ -16,7 +16,8 @@ let sha;
 beforeEach(() => {
   makeRequest.mockImplementation(() => Promise.resolve({}));
   sha = 'foobar';
-  config = Object.assign({}, defaultConfig, {
+  config = {
+    ...defaultConfig,
     targets: { firefox: new MockTarget() },
     include: 'test/integrations/examples/*-plain-happo.js*',
     stylesheets: [
@@ -26,7 +27,7 @@ beforeEach(() => {
     type: 'plain',
     rootElementSelector: '.custom-root',
     plugins: [happoPluginPuppeteer({ launchOptions: { args: ['--no-sandbox'] } })],
-  });
+  };
   subject = () => runCommand(sha, config, {});
 });
 
@@ -40,12 +41,14 @@ beforeEach(() => {
 
     it('produces the right html', async () => {
       await subject();
-      expect(config.targets.firefox.snapPayloads.sort((a, b) => {
-        if ((a.component + a.variant) < (b.component + b.variant)) {
-          return -1;
-        }
-        return 1;
-      })).toEqual([
+      expect(
+        config.targets.firefox.snapPayloads.sort((a, b) => {
+          if (a.component + a.variant < b.component + b.variant) {
+            return -1;
+          }
+          return 1;
+        }),
+      ).toEqual([
         {
           component: 'Foo-plain',
           css: '',

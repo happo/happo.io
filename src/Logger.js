@@ -19,7 +19,7 @@ export function logTag(project) {
 
 function printDuration(print, startTime) {
   if (startTime) {
-    print(dim(` (${(Date.now() - startTime)}ms)`));
+    print(dim(` (${Date.now() - startTime}ms)`));
   }
 }
 

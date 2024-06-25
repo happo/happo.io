@@ -72,19 +72,14 @@ export default async function makeRequest(
         controller.abort();
       }, timeout);
       try {
-        const response = await fetch(
-          url,
-          Object.assign(
-            {
-              headers,
-              compress: true,
-              agent: HTTP_PROXY ? new HttpsProxyAgent(HTTP_PROXY) : undefined,
-              signal: controller.signal,
-            },
-            requestAttributes,
-            { body },
-          ),
-        );
+        const response = await fetch(url, {
+          headers,
+          compress: true,
+          agent: HTTP_PROXY ? new HttpsProxyAgent(HTTP_PROXY) : undefined,
+          signal: controller.signal,
+          ...requestAttributes,
+          body,
+        });
         if (!response.ok) {
           const e = new Error(
             `Request to ${method} ${url} failed: ${

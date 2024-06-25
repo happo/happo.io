@@ -48,5 +48,6 @@ class ErrorBoundary extends React.Component {
     return children;
   }
 }
-export default (result, { component, variant }) =>
-  React.createElement(ErrorBoundary, { component, variant }, result);
+export default function (result, { component, variant }) {
+  return React.createElement(ErrorBoundary, { component, variant }, result);
+}

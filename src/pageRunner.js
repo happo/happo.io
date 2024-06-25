@@ -13,7 +13,11 @@ export default async function pagesRunner(
     const outerStartTime = Date.now();
     const targetNames = Object.keys(targets);
     const tl = targetNames.length;
-    logger.info(`${logTag(project)}Generating screenshots in ${tl} target${tl > 1 ? 's' : ''}...`);
+    logger.info(
+      `${logTag(project)}Generating screenshots in ${tl} target${
+        tl > 1 ? 's' : ''
+      }...`,
+    );
     const results = await Promise.all(
       targetNames.map(async (name) => {
         const startTime = Date.now();

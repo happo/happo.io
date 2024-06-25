@@ -19,7 +19,10 @@ beforeEach(() => {
   makeRequest.mockImplementation((req) => {
     if (/\/assets\//.test(req.url) && req.method === 'POST') {
       // uploading assets
-      return Promise.resolve({ path: req.formData.payload.value, uploadedAt: new Date() });
+      return Promise.resolve({
+        path: req.formData.payload.value,
+        uploadedAt: new Date(),
+      });
     }
     if (/\/assets-data\//.test(req.url) && req.method === 'GET') {
       // checking if assets exist
@@ -30,7 +33,8 @@ beforeEach(() => {
     return Promise.resolve({});
   });
   sha = 'foobar';
-  config = Object.assign({}, defaultConfig, {
+  config = {
+    ...defaultConfig,
     project: 'the project',
     targets: { chrome: new MockTarget() },
     include: 'test/integrations/examples/*-react-happo.js*',
@@ -73,7 +77,7 @@ beforeEach(() => {
       },
     ],
     tmpdir: path.join(os.tmpdir(), 'happo-test-tmpdir'),
-  });
+  };
   subject = () => runCommand(sha, config, {});
 });
 
@@ -149,8 +153,7 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
-      html:
-        '<div id="happo-root" data-happo-ignore="true"><div>Outside portal</div></div><div>Inside portal</div>',
+      html: '<div id="happo-root" data-happo-ignore="true"><div>Outside portal</div></div><div>Inside portal</div>',
       variant: 'innerPortal',
     },
     {
@@ -255,39 +258,35 @@ it('resolves assets correctly', async () => {
 
 it('produces the right css', async () => {
   await subject();
-  expect(config.targets.chrome.globalCSS[0]).toEqual(
-    {
-      css: '.a { b: c }\n',
-      source: path.resolve(__dirname, 'styles.css'),
-    },
-  );
-  expect(config.targets.chrome.globalCSS[1]).toEqual(
-    {
-      id: 'one',
-      conditional: true,
-      source: path.resolve(__dirname, 'one.css'),
-      css: `button {
+  expect(config.targets.chrome.globalCSS[0]).toEqual({
+    css: '.a { b: c }\n',
+    source: path.resolve(__dirname, 'styles.css'),
+  });
+  expect(config.targets.chrome.globalCSS[1]).toEqual({
+    id: 'one',
+    conditional: true,
+    source: path.resolve(__dirname, 'one.css'),
+    css: `button {
   background-image: url(assets/one.jpg);
   border: 2px solid black;
   border-radius: 5px;
 }
 `,
-    },
-  );
-  expect(config.targets.chrome.globalCSS[2]).toEqual(
-    {
-      css: `button {
+  });
+  expect(config.targets.chrome.globalCSS[2]).toEqual({
+    css: `button {
   background-color: green;
   color: white;
 }
 `,
-      source: path.resolve(__dirname, 'two.css'),
-    },
+    source: path.resolve(__dirname, 'two.css'),
+  });
+  expect(config.targets.chrome.globalCSS[3]).toEqual({
+    css: '.plugin-injected { color: red }',
+  });
+  expect(config.targets.chrome.globalCSS[4].css).toMatch(
+    'button {text-align: center;}',
   );
-  expect(config.targets.chrome.globalCSS[3]).toEqual(
-    { css: '.plugin-injected { color: red }' },
-  );
-  expect(config.targets.chrome.globalCSS[4].css).toMatch('button {text-align: center;}');
   expect(config.targets.chrome.globalCSS[4].css).toMatch('button { color: red }');
 });
 

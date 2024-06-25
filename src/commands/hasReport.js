@@ -1,6 +1,9 @@
 import fetchReport from '../fetchReport';
 
-export default async function hasReport(sha, { apiKey, apiSecret, endpoint, project }) {
+export default async function hasReport(
+  sha,
+  { apiKey, apiSecret, endpoint, project },
+) {
   try {
     await fetchReport({
       sha,

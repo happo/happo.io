@@ -29,7 +29,9 @@ it('strips hashes', () => {
 
 it('finds svg', () => {
   css = '.body { background-image: url(circle.svg);';
-  expect(subject()).toEqual([{ assetPath: 'circle.svg', resolvePath: 'circle.svg' }]);
+  expect(subject()).toEqual([
+    { assetPath: 'circle.svg', resolvePath: 'circle.svg' },
+  ]);
 });
 
 it('finds jpg', () => {
@@ -78,9 +80,11 @@ describe('when there is a source', () => {
   });
 
   it('returns absolute paths', () => {
-    expect(subject()).toEqual([{
-      assetPath: path.join(__dirname, 'foo/bar/baz/1x1.png'),
-      resolvePath: 'baz/1x1.png',
-    }]);
+    expect(subject()).toEqual([
+      {
+        assetPath: path.join(__dirname, 'foo/bar/baz/1x1.png'),
+        resolvePath: 'baz/1x1.png',
+      },
+    ]);
   });
 });
