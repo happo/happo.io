@@ -45,7 +45,9 @@ it('creates deterministic hashes when content has not changed', async () => {
 
 it('creates consistent results', async () => {
   const first = await subject();
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  await new Promise((resolve) => {
+    setTimeout(resolve, 2000);
+  });
   const filename = path.resolve(__dirname, 'inlineResources/1x1.png');
   fs.utimesSync(filename, new Date(), new Date());
   const second = await subject();

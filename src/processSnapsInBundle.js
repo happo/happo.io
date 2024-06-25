@@ -28,8 +28,6 @@ export default async function processSnapsInBundle(
     }
 
     result.css = await domProvider.extractCSS();
-  } catch (e) {
-    throw e;
   } finally {
     await domProvider.close();
   }

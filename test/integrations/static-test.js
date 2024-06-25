@@ -47,11 +47,15 @@ beforeAll(async () => {
       );
     }
   });
-  await new Promise((resolve) => httpServer.listen(8990, resolve));
+  await new Promise((resolve) => {
+    httpServer.listen(8990, resolve);
+  });
 });
 
 afterAll(async () => {
-  await new Promise((resolve) => httpServer.close(resolve));
+  await new Promise((resolve) => {
+    httpServer.close(resolve);
+  });
 });
 
 beforeEach(async () => {

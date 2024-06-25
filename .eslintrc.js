@@ -24,6 +24,7 @@ module.exports = {
     'no-nested-ternary': 0,
     'no-mixed-operators': 0,
     'react/prop-types': 0,
+    'max-classes-per-file': 0,
     indent: 0,
   },
 

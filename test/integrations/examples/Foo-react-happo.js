@@ -1,4 +1,3 @@
-/* global window */
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -8,7 +7,7 @@ import imageSrc from './static/1x1.png';
 
 const dynamicImportPromise = import('./dynamically-imported');
 
-export default function () {
+export default function Foo() {
   window.injectCSS('button { color: red }');
   return <Button />;
 }
@@ -17,7 +16,7 @@ export const anotherVariant = () => {
   const style = document.createElement('style');
   document.head.appendChild(style);
   style.sheet.insertRule('button { text-align: center }');
-  return <button>Click meish</button>;
+  return <button type="button">Click meish</button>;
 };
 
 const PortalComponent = ({ children }) => {
@@ -31,7 +30,7 @@ export const portalExample = () => (
     {window.navigator.userAgent === 'happo-puppeteer'
       ? 'forbidden'
       : window.localStorage.getItem('foobar')}
-    <button>I am in a portal</button>
+    <button type="button">I am in a portal</button>
   </PortalComponent>
 );
 
@@ -63,17 +62,22 @@ class AsyncComponent extends React.Component {
   }
 
   render() {
-    if (!this.state.ready) {
+    const { ready, label } = this.state;
+
+    if (!ready) {
       return null;
     }
-    return <button>{this.state.label}</button>;
+
+    return <button type="button">{label}</button>;
   }
 }
 
 export const asyncExample = (render) => {
   render(<AsyncComponent />);
   window.dispatchEvent(new CustomEvent('set-label', { detail: 'Ready' })); // eslint-disable-line no-undef
-  return new Promise((resolve) => setTimeout(resolve, 11));
+  return new Promise((resolve) => {
+    setTimeout(resolve, 11);
+  });
 };
 
 export const asyncWithoutPromise = () => <AsyncComponent />;
@@ -95,7 +99,8 @@ class DynamicImportExample extends React.Component {
   }
 
   render() {
-    return <div>{this.state.text}</div>;
+    const { text } = this.state;
+    return <div>{text}</div>;
   }
 }
 
@@ -104,7 +109,7 @@ export const dynamicImportExample = () => <DynamicImportExample />;
 export const themedExample = () => (
   <ThemeContext.Consumer>
     {(theme) => (
-      <button>
+      <button type="button">
         I am
         {theme}
       </button>
@@ -116,14 +121,16 @@ export const themedExampleAsync = (renderInDom) => {
   renderInDom(
     <ThemeContext.Consumer>
       {(theme) => (
-        <button>
+        <button type="button">
           I am
           {theme}
         </button>
       )}
     </ThemeContext.Consumer>,
   );
-  return new Promise((resolve) => setTimeout(resolve, 20));
+  return new Promise((resolve) => {
+    setTimeout(resolve, 20);
+  });
 };
 
 class RAFExample extends React.Component {
@@ -137,7 +144,10 @@ class RAFExample extends React.Component {
     if (!this.state) {
       return null;
     }
-    return <div>{this.state.label}</div>;
+
+    const { label } = this.state;
+
+    return <div>{label}</div>;
   }
 }
 
@@ -158,7 +168,10 @@ class RAFUnmountExample extends React.Component {
     if (!this.state) {
       return <div>Not loaded</div>;
     }
-    return <div>{this.state.label}</div>;
+
+    const { label } = this.state;
+
+    return <div>{label}</div>;
   }
 }
 

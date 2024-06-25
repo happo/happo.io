@@ -20,7 +20,9 @@ beforeAll(async () => {
   httpServer = createServer({
     root: path.join(__dirname, 'assets'),
   });
-  await new Promise((resolve) => httpServer.listen(8990, resolve));
+  await new Promise((resolve) => {
+    httpServer.listen(8990, resolve);
+  });
 });
 
 afterAll(() => {
