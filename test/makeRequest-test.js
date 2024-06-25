@@ -35,7 +35,10 @@ beforeAll(async () => {
           result: 'Hello world!',
         }),
       );
-    } else if (req.url === '/form-data' || (req.url === '/form-data-failure-retry' && errorTries > 2)) {
+    } else if (
+      req.url === '/form-data' ||
+      (req.url === '/form-data-failure-retry' && errorTries > 2)
+    ) {
       const form = new multiparty.Form();
 
       form.parse(req, (err, fields, files) => {
@@ -185,7 +188,6 @@ it('can retry uploading form data with buffers', async () => {
     },
   });
 });
-
 
 it('can upload form data with streams', async () => {
   props.url = 'http://localhost:8990/form-data';

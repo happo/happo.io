@@ -107,9 +107,7 @@ export default class Processor {
     }
     if (Array.isArray(exportsFromFile)) {
       window.verbose(`Found ${exportsFromFile.length} component(s) in ${fileName}`);
-      this.addExamples(
-        exportsFromFile.map((obj) => Object.assign({ fileName }, obj)),
-      );
+      this.addExamples(exportsFromFile.map((obj) => ({ fileName, ...obj })));
     } else {
       const component = getComponentNameFromFileName(fileName);
       window.verbose(

@@ -167,7 +167,12 @@ it('finds assets in picture source srcset attributes', () => {
       <img src="/medium.jpg">
     </picture>
   `;
-  expect(subject()).toEqual(['/medium.jpg', '/wide.jpg', '/medium.jpg', '/narrow.jpg']);
+  expect(subject()).toEqual([
+    '/medium.jpg',
+    '/wide.jpg',
+    '/medium.jpg',
+    '/narrow.jpg',
+  ]);
 });
 
 it('does not find assets in audio source srcset attributes', () => {

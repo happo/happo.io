@@ -9,7 +9,7 @@ export default function validateArchive(totalBytes, entries) {
   ];
   const fileSizes = entries.map((entry) => ({
     name: entry.name,
-    size: entry.stats ? entry.stats.size : (entry.size || 0),
+    size: entry.stats ? entry.stats.size : entry.size || 0,
   }));
   fileSizes
     .sort((a, b) => b.size - a.size)

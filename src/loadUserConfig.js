@@ -31,7 +31,9 @@ async function getPullRequestSecret({ endpoint }, prUrl) {
   });
 
   if (!res.ok) {
-    throw new Error(`Failed to get pull request secret: ${res.status} - ${await res.text()}`);
+    throw new Error(
+      `Failed to get pull request secret: ${res.status} - ${await res.text()}`,
+    );
   }
   const { secret } = await res.json();
   return secret;

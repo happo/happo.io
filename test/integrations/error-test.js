@@ -25,11 +25,12 @@ beforeEach(() => {
   console.log.mockReset();
   makeRequest.mockImplementation(() => Promise.resolve({}));
   sha = 'foobar';
-  config = Object.assign({}, defaultConfig, {
+  config = {
+    ...defaultConfig,
     targets: { firefox: new MockTarget() },
     include: 'test/integrations/examples/*-error-happo.js*',
     type: 'plain',
-  });
+  };
   subject = () => runCommand(sha, config, {});
 });
 

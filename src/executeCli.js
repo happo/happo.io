@@ -105,9 +105,11 @@ commander
   .command('empty <sha>')
   .description('mark a report as empty')
   .action(async (sha) => {
-    await uploadReport(
-      Object.assign({ snaps: [], sha }, await loadUserConfig(commander.config)),
-    );
+    await uploadReport({
+      snaps: [],
+      sha,
+      ...(await loadUserConfig(commander.config)),
+    });
     process.exit(0);
   });
 

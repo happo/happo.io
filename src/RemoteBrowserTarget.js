@@ -14,7 +14,7 @@ async function waitFor({ requestId, endpoint, apiKey, apiSecret }) {
     { apiKey, apiSecret, retryCount: 5 },
   );
   if (status === 'done') {
-    return result.map((i) => Object.assign({}, i, { snapRequestId: requestId }));
+    return result.map((i) => ({ ...i, snapRequestId: requestId }));
   }
   await new Promise((r) => setTimeout(r, POLL_INTERVAL));
   return waitFor({ requestId, endpoint, apiKey, apiSecret });

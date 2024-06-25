@@ -7,7 +7,8 @@ function injectCSS(css) {
 export default () => {
   injectCSS('button { color: red }');
   // write straight to body
-  document.body.innerHTML = '<div class="custom-root"><button>Click me</button></div>';
+  document.body.innerHTML =
+    '<div class="custom-root"><button>Click me</button></div>';
 };
 
 export const anotherVariant = () => {
@@ -17,7 +18,9 @@ export const anotherVariant = () => {
 };
 
 export const asyncVariant = (renderInDOM) => {
-  const root = renderInDOM('<div class="custom-root"><button style="width: 100px"></button></div>');
+  const root = renderInDOM(
+    '<div class="custom-root"><button style="width: 100px"></button></div>',
+  );
   setTimeout(() => {
     const button = root.querySelector('button');
     button.innerHTML = 'Ready';
