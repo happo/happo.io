@@ -113,19 +113,19 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
-      html: '<button>Click meish</button>',
+      html: '<button type="button">Click meish</button>',
       variant: 'anotherVariant',
     },
     {
       component: 'Foo-react',
       css: '',
-      html: '<button>Ready</button>',
+      html: '<button type="button">Ready</button>',
       variant: 'asyncExample',
     },
     {
       component: 'Foo-react',
       css: '',
-      html: '<button></button>',
+      html: '<button type="button"></button>',
       variant: 'asyncWithoutPromise',
     },
     {
@@ -161,7 +161,7 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
-      html: '<button>I am in a portal</button>',
+      html: '<button type="button">I am in a portal</button>',
       variant: 'portalExample',
     },
     {
@@ -179,38 +179,38 @@ it('produces the right html', async () => {
     {
       component: 'Foo-react',
       css: '',
-      html: '<button>I am dark</button>',
+      html: '<button type="button">I am dark</button>',
       variant: 'themedExample',
     },
     {
       component: 'Foo-react',
       css: '',
-      html: '<button>I am dark</button>',
+      html: '<button type="button">I am dark</button>',
       variant: 'themedExampleAsync',
     },
     {
       component: 'Generated',
       css: '',
-      html: '<button>Four</button>',
+      html: '<button type="button">Four</button>',
       variant: '_four',
     },
     {
       component: 'Generated',
       css: '',
-      html: '<button>One</button>',
+      html: '<button type="button">One</button>',
       variant: 'one',
       stylesheets: ['one'],
     },
     {
       component: 'Generated',
       css: '',
-      html: '<button>Three</button>',
+      html: '<button type="button">Three</button>',
       variant: 'three',
     },
     {
       component: 'Generated',
       css: '',
-      html: '<button>Two</button>',
+      html: '<button type="button">Two</button>',
       variant: 'two',
       stylesheets: ['two'],
     },
@@ -261,7 +261,7 @@ it('resolves assets correctly', async () => {
 it('produces the right css', async () => {
   await subject();
   expect(config.targets.chrome.globalCSS[0]).toEqual({
-    css: '.a { b: c }\n',
+    css: expect.stringMatching(/\.a \{\s*b: c;\s*}\n/),
     source: path.resolve(__dirname, 'styles.css'),
   });
   expect(config.targets.chrome.globalCSS[1]).toEqual({
@@ -298,7 +298,7 @@ it('works with prerender=false', async () => {
   await subject();
   expect(config.targets.chrome.globalCSS).toEqual([
     {
-      css: '.a { b: c }\n',
+      css: expect.stringMatching(/\.a \{\s*b: c;\s*}\n/),
       source: path.resolve(__dirname, 'styles.css'),
     },
     {

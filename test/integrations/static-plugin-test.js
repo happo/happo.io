@@ -57,11 +57,11 @@ it('produces the static package', async () => {
 
 it('includes css', async () => {
   await subject();
-  expect(config.targets.chrome.globalCSS).toEqual('.a { b: c }.foo { color: red }');
+  expect(config.targets.chrome.globalCSS).toEqual('.a {  b: c;}.foo { color: red }');
 });
 
 it('includes external css', async () => {
   config.stylesheets.push('http://andybrewer.github.io/mvp/mvp.css');
   await subject();
-  expect(config.targets.chrome.globalCSS).toMatch(/\.a { b: c }.*MVP\.css v/);
+  expect(config.targets.chrome.globalCSS).toMatch(/\.a {\s*b: c;}.*MVP\.css v/);
 });

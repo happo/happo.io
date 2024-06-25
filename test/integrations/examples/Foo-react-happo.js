@@ -108,24 +108,14 @@ export const dynamicImportExample = () => <DynamicImportExample />;
 
 export const themedExample = () => (
   <ThemeContext.Consumer>
-    {(theme) => (
-      <button type="button">
-        I am
-        {theme}
-      </button>
-    )}
+    {(theme) => <button type="button">I am {theme}</button>}
   </ThemeContext.Consumer>
 );
 
 export const themedExampleAsync = (renderInDom) => {
   renderInDom(
     <ThemeContext.Consumer>
-      {(theme) => (
-        <button type="button">
-          I am
-          {theme}
-        </button>
-      )}
+      {(theme) => <button type="button">I am {theme}</button>}
     </ThemeContext.Consumer>,
   );
   return new Promise((resolve) => {
