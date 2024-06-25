@@ -1,4 +1,3 @@
-/* global window */
 window.injectCSS = (css) => {
   const style = document.createElement('style');
   style.innerHTML = css;

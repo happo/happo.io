@@ -5,24 +5,24 @@ export default [
     component: 'Generated',
     variants: {
       one: {
-        render: () => <button>One</button>,
+        render: () => <button type="button">One</button>,
         stylesheets: ['one'],
         targets: ['chrome', 'chromeSmall'],
       },
       two: {
-        render: () => <button>Two</button>,
+        render: () => <button type="button">Two</button>,
         stylesheets: ['two'],
       },
-      three: () => <button>Three</button>,
-      _four: () => <button>Four</button>,
+      three: () => <button type="button">Three</button>,
+      _four: () => <button type="button">Four</button>,
       _ignored:
         'Build tools sometimes add extra exports. There are usually prefixed with an underscore',
       optedOut: {
-        render: () => <button>Opted out</button>,
+        render: () => <button type="button">Opted out</button>,
         targets: ['firefox'],
       },
       optedOutOfAll: {
-        render: () => <button>Opted out</button>,
+        render: () => <button type="button">Opted out</button>,
         targets: [],
       },
     },

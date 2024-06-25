@@ -1,4 +1,3 @@
-/* global window */
 /* eslint-disable no-continue */
 import WrappedError from '../WrappedError';
 import findAssetPaths from '../findAssetPaths';
@@ -190,9 +189,9 @@ export default class Processor {
     const html = elem.innerHTML.trim();
     const duration = new Date().getTime() - start;
     if (html === '' && duration < this.asyncTimeout) {
-      return new Promise((resolve) =>
-        setTimeout(() => resolve(this.waitForHTML(elem, start, attempt + 1)), 10),
-      );
+      return new Promise((resolve) => {
+        setTimeout(() => resolve(this.waitForHTML(elem, start, attempt + 1)), 10);
+      });
     }
     if (attempt > 0) {
       window.verbose(

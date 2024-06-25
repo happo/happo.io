@@ -28,5 +28,7 @@ export const asyncVariant = (renderInDOM) => {
     button.style = `width: ${width * 2.5}px`;
   }, 10);
 
-  return new Promise((resolve) => setTimeout(resolve, 11));
+  return new Promise((resolve) => {
+    setTimeout(resolve, 11);
+  });
 };

@@ -72,7 +72,9 @@ beforeEach(() => {
               publicPath: '_/',
             },
           });
-          return new Promise((resolve) => setTimeout(() => resolve(cfg), 50));
+          return new Promise((resolve) => {
+            setTimeout(() => resolve(cfg), 50);
+          });
         },
       },
     ],
