@@ -4,7 +4,7 @@
   "description": "Visual diffing for UI components",
   "main": "./build/index.js",
   "engines": {
-    "node": ">=12"
+    "node": ">=16"
   },
   "bin": {
     "happo": "./build/cli.js",
