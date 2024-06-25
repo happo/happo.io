@@ -80,7 +80,7 @@ beforeEach(() => {
       await subject();
       const css = config.targets.firefox.globalCSS;
       // styles.css
-      expect(css[0].css.trim()).toEqual('.a { b: c }');
+      expect(css[0].css.trim()).toMatch(/\.a {\s*b: c;\s*}/);
 
       // https://meyerweb.com/eric/tools/css/reset/reset.css
       expect(css[1].css.slice(0, 44)).toEqual(
