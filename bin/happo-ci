@@ -38,6 +38,19 @@ echo "HAPPO_GIT_COMMAND: ${HAPPO_GIT_COMMAND}"
 echo "HAPPO_COMMAND: ${HAPPO_COMMAND}"
 echo "HAPPO_FALLBACK_SHAS_COUNT: ${HAPPO_FALLBACK_SHAS_COUNT}"
 
+echo "Using Node version: $(node -v)"
+
+set +e
+HAPPO_VERSION=$("$HAPPO_COMMAND" version)
+if [ $? -eq 0 ]; then
+  echo "Using happo CLI version: ${HAPPO_VERSION}"
+else
+  echo "Failed to execute ${HAPPO_COMMAND}. Are you running from a subdirectory in the repository perhaps? To resolve this, you could either run from the repository root or set the environment variable HAPPO_COMMAND to override where Happo looks for the the cli.js script." >&2
+  exit 1
+fi
+set -e
+
+
 NPM_CLIENT="npm"
 NPM_CLIENT_FLAGS="--no-save"
 CHECK_FOR_HAPPO="npm ls happo.io"
