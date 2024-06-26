@@ -49,8 +49,8 @@ export default async function makeRequest(
       const body = formData
         ? prepareFormData(formData)
         : jsonBody
-        ? JSON.stringify(jsonBody)
-        : undefined;
+          ? JSON.stringify(jsonBody)
+          : undefined;
 
       const encodedSecret = new TextEncoder().encode(apiSecret);
       // https://github.com/panva/jose/blob/main/docs/classes/jwt_sign.SignJWT.md
