@@ -2,52 +2,52 @@ name: Run Unit tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   node16:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Test using Node.js 16.x
-      uses: actions/setup-node@v2
-      with:
-        node-version: 16.x
-    - run: yarn install --frozen-lockfile --ignore-engines
-    - run: yarn lint
-    - run: yarn test
+      - uses: actions/checkout@v2
+      - name: Test using Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+      - run: yarn install --frozen-lockfile --ignore-engines
+      - run: yarn lint
+      - run: yarn test
 
   node18:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Test using Node.js 18.x
-      uses: actions/setup-node@v2
-      with:
-        node-version: 18.x
-    - run: yarn install --frozen-lockfile --ignore-engines
-    - run: yarn test
+      - uses: actions/checkout@v2
+      - name: Test using Node.js 18.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18.x
+      - run: yarn install --frozen-lockfile --ignore-engines
+      - run: yarn test
 
   node20:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Test using Node.js 20.x
-      uses: actions/setup-node@v2
-      with:
-        node-version: 20.x
-    - run: yarn install --frozen-lockfile --ignore-engines
-    - run: yarn test
+      - uses: actions/checkout@v2
+      - name: Test using Node.js 20.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20.x
+      - run: yarn install --frozen-lockfile --ignore-engines
+      - run: yarn test
 
   node22:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Test using Node.js 22.x
-      uses: actions/setup-node@v2
-      with:
-        node-version: 22.x
-    - run: yarn install --frozen-lockfile --ignore-engines
-    - run: yarn test
+      - uses: actions/checkout@v2
+      - name: Test using Node.js 22.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 22.x
+      - run: yarn install --frozen-lockfile --ignore-engines
+      - run: yarn test

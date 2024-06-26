@@ -1,11 +1,9 @@
 module.exports = {
   logLevel: 'debug',
   environments: ['node'],
-  excludes: [
-    './build/**',
-  ],
+  excludes: ['./build/**'],
   aliases: {
-    'fetch': 'node-fetch',
+    fetch: 'node-fetch',
   },
   declarationKeyword: 'import',
   importDevDependencies: true,

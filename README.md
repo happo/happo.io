@@ -5,6 +5,6 @@ compare the visual appearance of UI components before and after a change.
 Screenshots are taken in different browsers and across different screen sizes
 to ensure consistent cross-browser and responsive styling of your application.
 
-*See [docs.happo.io](https://docs.happo.io/) for up-to-date documentation*
+_See [docs.happo.io](https://docs.happo.io/) for up-to-date documentation_
 
 ## https://docs.happo.io/
