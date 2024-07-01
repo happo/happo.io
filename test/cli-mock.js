@@ -26,7 +26,7 @@ if (/compare fail bar/.test(cmd)) {
   process.exit(1);
 }
 
-if (/version/.test(cmd)) {
+if (/--version/.test(cmd)) {
   console.log('v0.0.999');
   process.exit(0);
 }
