@@ -41,7 +41,7 @@ echo "HAPPO_FALLBACK_SHAS_COUNT: ${HAPPO_FALLBACK_SHAS_COUNT}"
 echo "Using Node version: $(node -v)"
 
 set +e
-HAPPO_VERSION=$("$HAPPO_COMMAND" version)
+HAPPO_VERSION=$("$HAPPO_COMMAND" --version)
 if [ $? -eq 0 ]; then
   echo "Using happo CLI version: ${HAPPO_VERSION}"
 else

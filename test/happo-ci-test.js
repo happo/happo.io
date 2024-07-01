@@ -94,7 +94,7 @@ describe('when CURRENT_SHA and PREVIOUS_SHA is the same', () => {
   it('runs a single report', () => {
     subject();
     expect(getCliLog()).toEqual([
-      'version',
+      '--version',
       'run bar --link http://foo.bar/ --message Commit message',
     ]);
     expect(getGitLog()).toEqual([
@@ -110,7 +110,7 @@ describe('when there is a report for PREVIOUS_SHA', () => {
   it('runs the right happo commands', () => {
     subject();
     expect(getCliLog()).toEqual([
-      'version',
+      '--version',
       'start-job foo bar --link http://foo.bar/ --message Commit message',
       'run bar --link http://foo.bar/ --message Commit message',
       'compare foo bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
@@ -133,7 +133,7 @@ describe('when there is a report for PREVIOUS_SHA', () => {
     it('runs the right happo commands', () => {
       subject();
       expect(getCliLog()).toEqual([
-        'version',
+        '--version',
         'start-job foo bar --link http://foo.bar/ --message Commit message',
         'run bar --link http://foo.bar/ --message Commit message',
         'has-report foo',
@@ -159,7 +159,7 @@ describe('when there is a report for PREVIOUS_SHA', () => {
     it('runs the right happo commands', () => {
       subject();
       expect(getCliLog()).toEqual([
-        'version',
+        '--version',
         'run bar --link http://foo.bar/ --message Commit message',
         'compare foo bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
       ]);
@@ -234,7 +234,7 @@ describe('when there is no report for PREVIOUS_SHA', () => {
   it('does not checkout anything, runs a single report', () => {
     subject();
     expect(getCliLog()).toEqual([
-      'version',
+      '--version',
       'start-job no-report bar --link http://foo.bar/ --message Commit message',
       'run bar --link http://foo.bar/ --message Commit message',
       'compare no-report bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
@@ -256,7 +256,7 @@ describe('when there is no report for PREVIOUS_SHA', () => {
     it('runs the right happo commands', () => {
       subject();
       expect(getCliLog()).toEqual([
-        'version',
+        '--version',
         'start-job no-report bar --link http://foo.bar/ --message Commit message',
         'run bar --link http://foo.bar/ --message Commit message',
         'has-report no-report',
@@ -288,7 +288,7 @@ describe('when the compare call fails', () => {
   it('fails the script', () => {
     expect(subject).toThrow();
     expect(getCliLog()).toEqual([
-      'version',
+      '--version',
       'start-job fail bar --link http://foo.bar/ --message Commit message',
       'run bar --link http://foo.bar/ --message Commit message',
       'compare fail bar --link http://foo.bar/ --message Commit message --author Tom Dooner <tom@dooner.com>',
@@ -313,7 +313,7 @@ describe('when happo.io is not installed for the PREVIOUS_SHA and HAPPO_IS_ASYNC
   it('runs the right happo commands', () => {
     subject();
     expect(getCliLog()).toEqual([
-      'version',
+      '--version',
       'start-job no-happo bar --link http://foo.bar/ --message Commit message',
       'run bar --link http://foo.bar/ --message Commit message',
       'has-report no-happo',
