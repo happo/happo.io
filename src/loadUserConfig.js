@@ -60,17 +60,25 @@ export default async function loadUserConfig(pathToConfigFile, env = process.env
 
   const config = await load(pathToConfigFile);
   if (!config.apiKey || !config.apiSecret) {
+    const missing = [
+      !config.apiKey ? 'apiKey' : null,
+      !config.apiSecret ? 'apiSecret' : null,
+    ]
+      .filter(Boolean)
+      .map((key) => `\`${key}\``)
+      .join(' and ');
+
     const prUrl = CHANGE_URL || resolvePRLink(env);
     if (!prUrl) {
       throw new Error(
-        'You need an `apiKey` and `apiSecret` in your config. ' +
-          'To obtain one, go to https://happo.io/settings',
+        `Missing ${missing} in your Happo config. Reference yours at https://happo.io/settings`,
       );
     }
+
     try {
-      // Reassign api tokens to temporary ones provided for the PR
+      // Reassign API tokens to temporary ones provided for the PR
       new Logger().info(
-        'No `apiKey` or `apiSecret` found in config. Falling back to pull-request authentication.',
+        `Missing ${missing} in Happo config. Falling back to pull-request authentication.`,
       );
       config.apiKey = prUrl;
       config.apiSecret = await getPullRequestSecret(config, prUrl);
@@ -78,12 +86,13 @@ export default async function loadUserConfig(pathToConfigFile, env = process.env
       throw new WrappedError('Failed to obtain temporary pull-request token', e);
     }
   }
+
   if (!config.targets || Object.keys(config.targets).length === 0) {
     throw new Error(
-      'You need at least one target defined under `targets`. ' +
-        'See https://github.com/happo/happo.io#targets for more info.',
+      'You need at least one target defined under `targets` in your Happo config. See https://github.com/happo/happo.io#targets for more info.',
     );
   }
+
   const defaultKeys = Object.keys(defaultConfig);
   const usedKeys = Object.keys(config);
   usedKeys.forEach((key) => {
@@ -91,6 +100,7 @@ export default async function loadUserConfig(pathToConfigFile, env = process.env
       new Logger().warn(`Unknown config key used in .happo.js: "${key}"`);
     }
   });
+
   config.publicFolders.push(config.tmpdir);
   config.plugins.forEach(({ publicFolders }) => {
     if (publicFolders) {

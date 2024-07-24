@@ -26,9 +26,25 @@ beforeEach(() => {
   }));
 });
 
-it('yells if api tokens are missing', async () => {
+it('yells if both API tokens are missing', async () => {
   requireRelative.mockImplementation(() => ({}));
-  await expect(loadUserConfig('bogus', {})).rejects.toThrow(/You need an `apiKey`/);
+  await expect(loadUserConfig('bogus', {})).rejects.toThrow(/Missing `apiKey` and `apiSecret` in your Happo config/);
+});
+
+it('yells if apiKey is missing', async () => {
+  requireRelative.mockImplementation(() => ({
+    apiSecret: '2',
+    targets: {},
+  }));
+  await expect(loadUserConfig('bogus', {})).rejects.toThrow(/Missing `apiKey` in your Happo config/);
+});
+
+it('yells if apiSecret is missing', async () => {
+  requireRelative.mockImplementation(() => ({
+    apiKey: '1',
+    targets: {},
+  }));
+  await expect(loadUserConfig('bogus', {})).rejects.toThrow(/Missing `apiSecret` in your Happo config/);
 });
 
 it('yells if targets are missing', async () => {
@@ -101,7 +117,7 @@ describe('when CHANGE_URL is defined', () => {
   it('adds a log', async () => {
     await loadUserConfig('bogus', { CHANGE_URL: 'foo.bar' });
     expect(info.mock.calls[0][0]).toEqual(
-      'No `apiKey` or `apiSecret` found in config. Falling back to pull-request authentication.',
+      'Missing `apiKey` and `apiSecret` in Happo config. Falling back to pull-request authentication.',
     );
   });
 
@@ -146,7 +162,7 @@ describe('when GITHUB_EVENT_PATH is defined', () => {
         loadUserConfig('bogus', {
           GITHUB_EVENT_PATH: path.resolve(__dirname, 'github_push_event.json'),
         }),
-      ).rejects.toThrow(/You need an.*apiSecret/);
+      ).rejects.toThrow(/Missing `apiKey` and `apiSecret`/);
     });
   });
 });
