@@ -13,7 +13,11 @@ const FILE_CREATION_DATE = new Date('Fri Feb 08 2019 13:31:55 GMT+0100 (CET)');
 
 function makePackage({ paths, publicFolders }) {
   return new Promise((resolve, reject) => {
-    const archive = new Archiver('zip');
+    const archive = new Archiver('zip', {
+      // Concurrency in the stat queue leads to non-deterministic output.
+      // https://github.com/archiverjs/node-archiver/issues/383#issuecomment-2253139948
+      statConcurrency: 1,
+    });
 
     const stream = new Writable();
     const data = [];

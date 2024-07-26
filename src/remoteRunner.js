@@ -16,7 +16,12 @@ import validateArchive from './validateArchive';
 
 function staticDirToZipFile(dir) {
   return new Promise((resolve, reject) => {
-    const archive = new Archiver('zip');
+    const archive = new Archiver('zip', {
+      // Concurrency in the stat queue leads to non-deterministic output.
+      // https://github.com/archiverjs/node-archiver/issues/383#issuecomment-2253139948
+      statConcurrency: 1,
+    });
+
     const rnd = crypto.randomBytes(4).toString('hex');
     const pathToZipFile = path.join(os.tmpdir(), `happo-static-${rnd}.zip`);
     const output = fs.createWriteStream(pathToZipFile);
