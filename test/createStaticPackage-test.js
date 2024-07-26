@@ -14,8 +14,7 @@ beforeEach(() => {
     'test/integrations/assets', // relative
   ];
   tmpdir = path.resolve(__dirname, 'assets');
-  subject = () =>
-    createStaticPackage({
+  subject = () => createStaticPackage({
       tmpdir,
       publicFolders,
     });
@@ -28,7 +27,12 @@ it('creates a package', async () => {
 });
 
 it('creates deterministic hashes when content has not changed', async () => {
-  expect((await subject()).hash).toEqual((await subject()).hash);
+  const first = (await subject()).hash;
+  const second = (await subject()).hash;
+
+  expect(first).not.toBeUndefined();
+  expect(second).not.toBeUndefined();
+  expect(first).toEqual(second);
 });
 
 it('picks out the right files', async () => {
