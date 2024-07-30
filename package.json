@@ -79,10 +79,10 @@
     "supports-color": "^7.1.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.16.0",
-    "@babel/core": "^7.16.5",
-    "@babel/eslint-parser": "^7.16.5",
-    "@babel/preset-env": "^7.16.5",
+    "@babel/cli": "^7.24.8",
+    "@babel/core": "^7.25.2",
+    "@babel/eslint-parser": "^7.25.1",
+    "@babel/preset-env": "^7.25.2",
     "adm-zip": "^0.4.13",
     "babel-jest": "^27.4.5",
     "babel-loader": "^9.1.0",
