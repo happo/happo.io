@@ -27,12 +27,15 @@ it('creates a package', async () => {
 });
 
 it('creates deterministic hashes when content has not changed', async () => {
-  const first = (await subject()).hash;
-  const second = (await subject()).hash;
+  const promises = Array.from({ length: 20 }).map(() => subject());
+  const results = await Promise.all(promises);
+  const hashes = results.map(({ hash }) => hash);
 
-  expect(first).not.toBeUndefined();
-  expect(second).not.toBeUndefined();
-  expect(first).toEqual(second);
+  expect(hashes).toHaveLength(20);
+  expect(hashes[0]).not.toBeUndefined();
+  expect(typeof hashes[0]).toBe('string');
+  expect(hashes[0].length).toBeGreaterThan(0);
+  expect(hashes.every((hash) => hash === hashes[0])).toBe(true);
 });
 
 it('picks out the right files', async () => {
