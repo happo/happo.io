@@ -19,7 +19,7 @@ export const targets = {
   }),
 };
 export const asyncTimeout = 200;
-export const configFile = './.happo.js';
+export const configFilename = '.happo';
 export const type = 'react';
 export const plugins = [];
 export const prerender = true;

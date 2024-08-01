@@ -6,21 +6,12 @@ import WrappedError from './WrappedError';
 import * as defaultConfig from './DEFAULTS';
 
 async function load(pathToConfigFile) {
-  try {
-    let userConfig = requireRelative(pathToConfigFile, process.cwd());
-    // await if the config is a function, async or not
-    if (typeof userConfig === 'function') {
-      userConfig = await userConfig();
-    }
-    return { ...defaultConfig, ...userConfig };
-  } catch (e) {
-    // We only check for the default config file here, so that a missing custom
-    // config path isn't ignored.
-    if (e.message && /Cannot find.*\.happo\.js/.test(e.message)) {
-      return defaultConfig;
-    }
-    throw new Error(e);
+  let userConfig = requireRelative(pathToConfigFile, process.cwd());
+  // await if the config is a function, async or not
+  if (typeof userConfig === 'function') {
+    userConfig = await userConfig();
   }
+  return { ...defaultConfig, ...userConfig };
 }
 
 async function getPullRequestSecret({ endpoint }, prUrl) {
@@ -53,12 +44,41 @@ function resolvePRLink(env = process.env) {
 
 export default async function loadUserConfig(pathToConfigFile, env = process.env) {
   const { CHANGE_URL, HAPPO_CONFIG_FILE } = env;
+  let config;
 
   if (HAPPO_CONFIG_FILE) {
     pathToConfigFile = HAPPO_CONFIG_FILE;
   }
 
-  const config = await load(pathToConfigFile);
+  // if provided path, attempt to load config. otherwise, attempt to load
+  // config from default file (in either .js or .cjs).
+  if (pathToConfigFile) {
+    config = await load(pathToConfigFile);
+  } else {
+    const defaultFilePaths = ['js', 'cjs'].map(
+      (ext) => `./${defaultConfig.configFilename}.${ext}`,
+    );
+    for (const filePath of defaultFilePaths) {
+      try {
+        config = await load(filePath);
+
+        if (config != null) {
+          break;
+        }
+      } catch (e) {
+        // Throw error if not a "Cannot find" type
+        if (!e.message || !/Cannot find.*\.happo\.c?js/.test(e.message)) {
+          throw new Error(`Unable to load config from ${filePath}: ${e.message}`);
+        }
+      }
+    }
+
+    // No default file found so use the default config
+    if (config == null) {
+      config = { ...defaultConfig };
+    }
+  }
+
   if (!config.apiKey || !config.apiSecret) {
     const missing = [
       !config.apiKey ? 'apiKey' : null,
