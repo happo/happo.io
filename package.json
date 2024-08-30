@@ -8,11 +8,11 @@
   },
   "bin": {
     "happo": "./build/cli.js",
-    "happo-ci-travis": "./bin/happo-ci-travis",
+    "happo-ci": "./bin/happo-ci",
+    "happo-ci-azure-pipelines": "./bin/happo-ci-azure-pipelines",
     "happo-ci-circleci": "./bin/happo-ci-circleci",
     "happo-ci-github-actions": "./bin/happo-ci-github-actions",
-    "happo-ci-azure-pipelines": "./bin/happo-ci-azure-pipelines",
-    "happo-ci": "./bin/happo-ci"
+    "happo-ci-travis": "./bin/happo-ci-travis"
   },
   "scripts": {
     "update-toc": "./scripts/gh-md-toc --insert README.md",

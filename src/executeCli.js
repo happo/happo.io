@@ -1,6 +1,5 @@
 import commander from 'commander';
 
-import { configFile } from './DEFAULTS';
 import Logger from './Logger';
 import compareReportsCommand from './commands/compareReports';
 import devCommand from './commands/dev';
@@ -23,7 +22,7 @@ const HAPPO_IS_ASYNC = RAW_HAPPO_IS_ASYNC === 'true';
 
 commander
   .version(packageJson.version)
-  .option('-c, --config <path>', 'set config path', configFile)
+  .option('-c, --config <path>', 'set config path')
   .option('-o, --only <component>', 'limit to one component')
   .option('-l, --link <url>', 'provide a link back to the commit')
   .option('-a, --async', 'process reports/comparisons asynchronously')
