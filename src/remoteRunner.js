@@ -31,7 +31,7 @@ function staticDirToZipFile(dir) {
       entries.push(entry);
     });
 
-    output.on('finish', async () => {
+    output.on('close', async () => {
       validateArchive(archive.pointer(), entries);
       resolve(pathToZipFile);
     });
