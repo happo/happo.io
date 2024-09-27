@@ -3,7 +3,7 @@
 # Make the whole script fail on errors
 set -euo pipefail
 
-BASE_BRANCH=${BASE_BRANCH:-"origin/master"}
+BASE_BRANCH=${BASE_BRANCH:-"origin/main"}
 echo "Using ${BASE_BRANCH} as the default branch (change this with the BASE_BRANCH environment variable)"
 PREVIOUS_SHA=$(git merge-base "${BASE_BRANCH}" "${CIRCLE_SHA1}")
 
