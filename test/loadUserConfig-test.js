@@ -186,3 +186,22 @@ it('warns when using an unknown config key', async () => {
     'Unknown config key used in .happo.js: "foobar"',
   );
 });
+
+it('handles an ESM-style config', async () => {
+  requireRelative.mockImplementation(() => ({
+    __esModule: true,
+    default: {
+      apiKey: '1',
+      apiSecret: '2',
+      targets: {
+        firefox: new RemoteBrowserTarget('firefox', { viewport: '800x600' }),
+      },
+    },
+  }));
+  const config = await loadUserConfig('bogus', {});
+  expect(config.apiKey).toEqual('1');
+  expect(config.apiSecret).toEqual('2');
+  expect(config.targets).toEqual({
+    firefox: new RemoteBrowserTarget('firefox', { viewport: '800x600' }),
+  });
+});
