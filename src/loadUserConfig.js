@@ -11,6 +11,9 @@ async function load(pathToConfigFile) {
     // await if the config is a function, async or not
     if (typeof userConfig === 'function') {
       userConfig = await userConfig();
+    } else if (userConfig?.default) {
+      // handle esm
+      userConfig = userConfig.default;
     }
     return { ...defaultConfig, ...userConfig };
   } catch (e) {
