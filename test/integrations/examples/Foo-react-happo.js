@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createPortal } from 'react-dom';
 
 import Button from './Button.ffs';
 import ThemeContext from '../theme';
@@ -22,7 +22,7 @@ export const anotherVariant = () => {
 const PortalComponent = ({ children }) => {
   const element = document.createElement('div');
   document.body.appendChild(element);
-  return ReactDOM.createPortal(children, element);
+  return createPortal(children, document.body);
 };
 
 export const portalExample = () => (
@@ -44,7 +44,9 @@ export const innerPortal = () => (
 class AsyncComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      label: 'Not ready',
+    };
     this.setLabel = this.setLabel.bind(this);
   }
 
@@ -74,7 +76,7 @@ class AsyncComponent extends React.Component {
 
 export const asyncExample = (render) => {
   render(<AsyncComponent />);
-  window.dispatchEvent(new CustomEvent('set-label', { detail: 'Ready' })); // eslint-disable-line no-undef
+  window.dispatchEvent(new CustomEvent('set-label', { detail: 'Ready' }));
   return new Promise((resolve) => {
     setTimeout(resolve, 11);
   });
@@ -95,7 +97,7 @@ class DynamicImportExample extends React.Component {
 
   async componentDidMount() {
     const res = await dynamicImportPromise;
-    this.setState({ text: `${res.default} ${res.world}` }); // eslint-disable-line react/no-did-mount-set-state
+    this.setState({ text: `${res.default} ${res.world}` });
   }
 
   render() {
