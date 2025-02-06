@@ -83,7 +83,7 @@
     "@babel/core": "^7.25.2",
     "@babel/eslint-parser": "^7.25.1",
     "@babel/preset-env": "^7.25.2",
-    "adm-zip": "^0.4.13",
+    "adm-zip": "^0.5.16",
     "babel-jest": "^27.4.5",
     "babel-loader": "^9.1.0",
     "eslint": "^8.57.0",
