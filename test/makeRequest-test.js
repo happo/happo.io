@@ -5,8 +5,6 @@ import multiparty from 'multiparty';
 
 import makeRequest from '../src/makeRequest';
 
-jest.setTimeout(30000);
-
 let subject;
 let props;
 let options;
@@ -14,6 +12,10 @@ let env;
 
 let httpServer;
 let errorTries;
+
+// Suppress console.warn logs, so we don't see the retry logs when running these
+// tests.
+jest.spyOn(console, 'warn').mockImplementation(() => {});
 
 beforeAll(async () => {
   httpServer = http.createServer((req, res) => {
@@ -28,6 +30,7 @@ beforeAll(async () => {
       }, 1000);
       return;
     }
+
     if (req.url === '/success' || (req.url === '/failure-retry' && errorTries > 2)) {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(
@@ -101,7 +104,7 @@ it('returns the response', async () => {
 
 it('can use a proxy', async () => {
   env = { HTTP_PROXY: 'http://localhost:1122' };
-  options.retryCount = 1;
+  options.retryCount = 0;
   await expect(subject()).rejects.toThrow(/request.*failed/);
 });
 
@@ -226,7 +229,7 @@ it('can upload form data with streams', async () => {
   });
 });
 
-describe('when the request fails twice', () => {
+describe('when the request fails twice and then succeeds', () => {
   beforeEach(() => {
     props.url = 'http://localhost:8990/failure-retry';
   });
@@ -236,32 +239,59 @@ describe('when the request fails twice', () => {
     expect(response).toEqual({ result: 'Hello world!' });
   });
 
-  describe('and we do not allow retries', () => {
+  describe('when retryMinTimeout is not set', () => {
+    beforeEach(() => {
+      // Setting retryCount to 1 so the test doesn't take a long time
+      options.retryCount = 1;
+      delete options.retryMinTimeout;
+      delete options.retryMaxTimeout;
+    });
+
+    it('waits the default amount of time before retrying', async () => {
+      const start = Date.now();
+
+      await expect(subject()).rejects.toThrow(/Nope/);
+
+      const duration = Date.now() - start;
+
+      // The default timeout is 1000ms, which is defined by the `retry` package.
+      expect(duration).toBeGreaterThan(1000);
+    });
+  });
+
+  describe('when retryCount is not set', () => {
     beforeEach(() => {
       delete options.retryCount;
     });
 
-    it('throws', async () => {
+    it('throws without retrying', async () => {
       await expect(subject()).rejects.toThrow(/Nope/);
     });
+  });
 
-    describe('when using maxTries instead of retryCount', () => {
-      // legacy, there are clients out there using this name
-      //
-      beforeEach(() => {
-        options.maxTries = 3;
-      });
+  describe('when retryCount is undefined', () => {
+    beforeEach(() => {
+      options.retryCount = undefined;
+    });
 
-      it('retries and succeeds', async () => {
-        const response = await subject();
-        expect(response).toEqual({ result: 'Hello world!' });
-      });
+    it('throws without retrying', async () => {
+      await expect(subject()).rejects.toThrow(/Nope/);
+    });
+  });
+
+  describe('when retryCount is 0', () => {
+    beforeEach(() => {
+      options.retryCount = 0;
+    });
+
+    it('throws without retrying', async () => {
+      await expect(subject()).rejects.toThrow(/Nope/);
     });
   });
 });
 
 describe('can have a timeout', () => {
-  it('cancels the request after the alotted time', async () => {
+  it('cancels the request after the allotted time', async () => {
     props.url = 'http://localhost:8990/timeout';
     delete props.method;
     options.timeout = 1;
