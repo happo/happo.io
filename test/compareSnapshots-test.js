@@ -32,7 +32,7 @@ afterAll(() => {
 beforeEach(() => {
   fetchPng.mockImplementation(realFetchPng);
   before = {
-    url: 'https://happo.io/img/happo-io/93eb2d9e57d43b0b5ca5527587484f18',
+    url: 'http://localhost:8990/solid-black.png',
     component: 'Foo',
     variant: 'bar',
     target: 'chrome',
@@ -40,7 +40,7 @@ beforeEach(() => {
     height: 178,
   };
   after = {
-    url: 'https://happo.io/img/happo-io/4a340716fa580b80d9f87330d79903dc',
+    url: 'http://localhost:8990/solid-white.png',
     component: 'Foo',
     variant: 'bar',
     target: 'chrome',
@@ -60,7 +60,7 @@ beforeEach(() => {
 });
 
 it('returns the diff value when diff is above threshold between images', async () => {
-  expect(await subject()).toEqual(0.20549884392955664);
+  expect(await subject()).toEqual(0.9330436790328738);
 });
 
 describe('when images are completely different', () => {
@@ -164,8 +164,10 @@ describe('when images are equal', () => {
 });
 
 describe('when fetchPng fails', () => {
+  let tries = 0;
+
   beforeEach(() => {
-    let tries = 0;
+    tries = 0;
     fetchPng.mockImplementation((...args) => {
       if (tries > 1) {
         return realFetchPng(...args);
@@ -176,6 +178,8 @@ describe('when fetchPng fails', () => {
   });
 
   it('retries until it passes', async () => {
-    expect(await subject()).toEqual(0.20549884392955664);
+    expect(tries).toEqual(0);
+    expect(await subject()).toEqual(0.9330436790328738);
+    expect(tries).toEqual(2);
   });
 });
