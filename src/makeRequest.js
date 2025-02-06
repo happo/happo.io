@@ -1,4 +1,3 @@
-import AbortController from 'abort-controller';
 import FormData from 'form-data';
 import HttpsProxyAgent from 'https-proxy-agent';
 import asyncRetry from 'async-retry';
@@ -66,17 +65,13 @@ export default async function makeRequest(
       if (jsonBody) {
         headers['Content-Type'] = 'application/json';
       }
-      const controller = new AbortController();
-      const abortTimeout = setTimeout(() => {
-        console.error(`Timing out request ${method} ${url} after ${timeout} ms.`);
-        controller.abort();
-      }, timeout);
+
       try {
         const response = await fetch(url, {
           headers,
           compress: true,
           agent: HTTP_PROXY ? new HttpsProxyAgent(HTTP_PROXY) : undefined,
-          signal: controller.signal,
+          signal: AbortSignal.timeout(timeout),
           ...requestAttributes,
           body,
         });
@@ -97,8 +92,6 @@ export default async function makeRequest(
         }
         e.message = `${e.message} (took ${Date.now() - start} ms)`;
         throw e;
-      } finally {
-        clearTimeout(abortTimeout);
       }
     },
     {
