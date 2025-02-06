@@ -54,6 +54,12 @@ export default async function makeRequest(
     retryOpts.maxTimeout = retryMaxTimeout;
   }
 
+  const encodedSecret = new TextEncoder().encode(apiSecret);
+  // https://github.com/panva/jose/blob/main/docs/classes/jwt_sign.SignJWT.md
+  const signed = await new SignJWT({ key: apiKey })
+    .setProtectedHeader({ alg: 'HS256', kid: apiKey })
+    .sign(encodedSecret);
+
   return asyncRetry(async () => {
     const start = Date.now();
 
@@ -65,12 +71,6 @@ export default async function makeRequest(
       : jsonBody
         ? JSON.stringify(jsonBody)
         : undefined;
-
-    const encodedSecret = new TextEncoder().encode(apiSecret);
-    // https://github.com/panva/jose/blob/main/docs/classes/jwt_sign.SignJWT.md
-    const signed = await new SignJWT({ key: apiKey })
-      .setProtectedHeader({ alg: 'HS256', kid: apiKey })
-      .sign(encodedSecret);
 
     const headers = {
       Authorization: `Bearer ${signed}`,
