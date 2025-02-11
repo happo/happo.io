@@ -17,8 +17,6 @@ export default async function processSnapsInBundle(
   try {
     await domProvider.init({ targetName });
 
-    // Disabling eslint here because we actually want to run things serially.
-    /* eslint-disable no-await-in-loop */
     while (await domProvider.next()) {
       if (VERBOSE === 'true') {
         console.log(`Viewport ${viewport}`);

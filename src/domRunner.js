@@ -185,7 +185,6 @@ async function generateScreenshots(
       for (const name of targetNames) {
         // These tasks are CPU-bound, and we need to be careful about how much
         // memory we are using at one time, so we want to run them serially.
-        /* eslint-disable no-await-in-loop */
         const { css, snapPayloads } = await processSnapsInBundle(bundleFile, {
           targetName: name,
           publicFolders,
@@ -231,8 +230,6 @@ async function generateScreenshots(
           knownAssetPackagePaths[hash] = assetsPackage;
         }
 
-        /* eslint-enable no-await-in-loop */
-
         snapPayloads.forEach((item) => {
           delete item.assetPaths;
         });
@@ -263,7 +260,6 @@ async function generateScreenshots(
           // If we're processing things asynchronously, we wait for the request
           // to finish before moving to the next. This will ease up on
           // concurrency which will help large payloads.
-          // eslint-disable-next-line no-await-in-loop
           await promise;
         }
       }

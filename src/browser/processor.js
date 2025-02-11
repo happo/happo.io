@@ -1,4 +1,3 @@
-/* eslint-disable no-continue */
 import WrappedError from '../WrappedError';
 import findAssetPaths from '../findAssetPaths';
 import getComponentNameFromFileName from '../getComponentNameFromFileName';

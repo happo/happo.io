@@ -13,7 +13,7 @@ export default async function hasReport(
       project,
     });
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 }

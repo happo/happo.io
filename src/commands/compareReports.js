@@ -69,12 +69,11 @@ export default async function compareReports(
 
   const diffsClone = firstCompareResult.diffs.slice(0);
   let batch;
-  // eslint-disable-next-line no-cond-assign
+
   while ((batch = diffsClone.splice(0, 10)).length > 0) {
     // Batch logs to help avoid running out of file descriptors
     const linesToLog = [];
 
-    // eslint-disable-next-line no-await-in-loop
     await Promise.all(
       batch.map(async ([before, after]) => {
         const firstDiffDistance = await compareSnapshots({

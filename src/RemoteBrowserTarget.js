@@ -140,7 +140,7 @@ export default class RemoteBrowserTarget {
       for (let i = 0; i < this.chunks; i += 1) {
         // We allow one `await` inside the loop here to avoid POSTing all payloads
         // to the server at the same time (thus reducing load a little).
-        // eslint-disable-next-line no-await-in-loop
+
         const { requestId } = await boundMakeRequest({
           chunk: { index: i, total: this.chunks },
         });
@@ -154,7 +154,6 @@ export default class RemoteBrowserTarget {
       for (const pageSlice of getPageSlices(pages, this.chunks)) {
         // We allow one `await` inside the loop here to avoid POSTing all payloads
         // to the server at the same time (thus reducing load a little).
-        // eslint-disable-next-line no-await-in-loop
         const { requestId } = await boundMakeRequest({ pageSlice });
         if (asyncResults) {
           requestIds.push(requestId);
@@ -171,7 +170,6 @@ export default class RemoteBrowserTarget {
         );
         // We allow one `await` inside the loop here to avoid POSTing all payloads
         // to the server at the same time (thus reducing load a little).
-        // eslint-disable-next-line no-await-in-loop
         const { requestId } = await boundMakeRequest({ slice });
         if (asyncResults) {
           requestIds.push(requestId);

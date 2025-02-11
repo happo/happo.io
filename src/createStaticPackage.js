@@ -71,7 +71,6 @@ export default function createStaticPackage({ tmpdir, publicFolders }) {
     const stream = new Writable();
     const data = [];
 
-    // eslint-disable-next-line no-underscore-dangle
     stream._write = (chunk, _enc, done) => {
       data.push(...chunk);
       done();
