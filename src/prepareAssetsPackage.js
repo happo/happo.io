@@ -22,7 +22,6 @@ function makePackage({ paths, publicFolders }) {
     const stream = new Writable();
     const data = [];
 
-    // eslint-disable-next-line no-underscore-dangle
     stream._write = (chunk, enc, done) => {
       data.push(...chunk);
       done();

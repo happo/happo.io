@@ -8,7 +8,7 @@
 // /* In a plain-js project */
 // export default (html) => '<div>' + html + '</div>';
 //
-import React from 'react'; // eslint-disable-line import/no-extraneous-dependencies
+import React from 'react';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {

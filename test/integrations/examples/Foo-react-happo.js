@@ -74,7 +74,7 @@ class AsyncComponent extends React.Component {
 
 export const asyncExample = (render) => {
   render(<AsyncComponent />);
-  window.dispatchEvent(new CustomEvent('set-label', { detail: 'Ready' })); // eslint-disable-line no-undef
+  window.dispatchEvent(new CustomEvent('set-label', { detail: 'Ready' }));
   return new Promise((resolve) => {
     setTimeout(resolve, 11);
   });
@@ -95,7 +95,7 @@ class DynamicImportExample extends React.Component {
 
   async componentDidMount() {
     const res = await dynamicImportPromise;
-    this.setState({ text: `${res.default} ${res.world}` }); // eslint-disable-line react/no-did-mount-set-state
+    this.setState({ text: `${res.default} ${res.world}` });
   }
 
   render() {

@@ -74,7 +74,7 @@ export default async function createWebpackBundle(
   let config = generateBaseConfig({ entry, type, tmpdir, webpack });
   for (const plugin of plugins) {
     if (typeof plugin.customizeWebpackConfig === 'function') {
-      config = await plugin.customizeWebpackConfig(config); // eslint-disable-line no-await-in-loop
+      config = await plugin.customizeWebpackConfig(config);
     }
   }
   config = await customizeWebpackConfig(config);

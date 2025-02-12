@@ -18,7 +18,7 @@ sourceMaps.install({
 
     try {
       return fs.readFileSync(realPath, 'utf-8');
-    } catch (e) {
+    } catch {
       // If the file does not exist (e.g. if `devtool: false` is used in
       // webpack config), just let source-map-support do its normal thing
       // without erroring out here. This should work because
