@@ -29,7 +29,6 @@ export default async function makeRequest(
     apiKey,
     apiSecret,
     retryCount = 0,
-    /* legacy */ maxTries,
     timeout = 60000,
     retryMinTimeout,
     retryMaxTimeout,
@@ -38,70 +37,78 @@ export default async function makeRequest(
 ) {
   const { url, method = 'GET', formData, body: jsonBody } = requestAttributes;
 
-  return asyncRetry(
-    async () => {
-      const start = Date.now();
+  const retryOpts = {
+    onRetry: (e) => {
+      console.warn(`Failed ${method} ${url}. Retrying...`);
+      console.warn(e);
+    },
+  };
 
-      // We must avoid reusing FormData instances when retrying requests
-      // because they are consumed and cannot be reused.
-      // More info: https://github.com/node-fetch/node-fetch/issues/1743
-      const body = formData
-        ? prepareFormData(formData)
-        : jsonBody
-          ? JSON.stringify(jsonBody)
-          : undefined;
+  if (retryCount != null) {
+    retryOpts.retries = retryCount;
+  }
+  if (retryMinTimeout != null) {
+    retryOpts.minTimeout = retryMinTimeout;
+  }
+  if (retryMaxTimeout != null) {
+    retryOpts.maxTimeout = retryMaxTimeout;
+  }
 
-      const encodedSecret = new TextEncoder().encode(apiSecret);
-      // https://github.com/panva/jose/blob/main/docs/classes/jwt_sign.SignJWT.md
-      const signed = await new SignJWT({ key: apiKey })
-        .setProtectedHeader({ alg: 'HS256', kid: apiKey })
-        .sign(encodedSecret);
+  const encodedSecret = new TextEncoder().encode(apiSecret);
+  // https://github.com/panva/jose/blob/main/docs/classes/jwt_sign.SignJWT.md
+  const signed = await new SignJWT({ key: apiKey })
+    .setProtectedHeader({ alg: 'HS256', kid: apiKey })
+    .sign(encodedSecret);
 
-      const headers = {
-        Authorization: `Bearer ${signed}`,
-        'User-Agent': `happo.io@${version}`,
-      };
+  return asyncRetry(async () => {
+    const start = Date.now();
 
-      if (jsonBody) {
-        headers['Content-Type'] = 'application/json';
-      }
+    // We must avoid reusing FormData instances when retrying requests
+    // because they are consumed and cannot be reused.
+    // More info: https://github.com/node-fetch/node-fetch/issues/1743
+    const body = formData
+      ? prepareFormData(formData)
+      : jsonBody
+        ? JSON.stringify(jsonBody)
+        : undefined;
 
-      try {
-        const response = await fetch(url, {
-          headers,
-          compress: true,
-          agent: HTTP_PROXY ? new HttpsProxyAgent(HTTP_PROXY) : undefined,
-          signal: AbortSignal.timeout(timeout),
-          ...requestAttributes,
-          body,
-        });
-        if (!response.ok) {
-          const e = new Error(
-            `Request to ${method} ${url} failed: ${
-              response.status
-            } - ${await response.text()}`,
-          );
-          e.statusCode = response.status;
-          throw e;
-        }
-        const result = await response.json();
-        return result;
-      } catch (e) {
-        if (e.type === 'aborted') {
-          e.message = `Timeout when fetching ${url} using method ${method}`;
-        }
-        e.message = `${e.message} (took ${Date.now() - start} ms)`;
+    const headers = {
+      Authorization: `Bearer ${signed}`,
+      'User-Agent': `happo.io@${version}`,
+    };
+
+    if (jsonBody) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    try {
+      const response = await fetch(url, {
+        headers,
+        compress: true,
+        agent: HTTP_PROXY ? new HttpsProxyAgent(HTTP_PROXY) : undefined,
+        signal: AbortSignal.timeout(timeout),
+        ...requestAttributes,
+        body,
+      });
+
+      if (!response.ok) {
+        const e = new Error(
+          `Request to ${method} ${url} failed: ${
+            response.status
+          } - ${await response.text()}`,
+        );
+        e.statusCode = response.status;
         throw e;
       }
-    },
-    {
-      retries: retryCount || maxTries,
-      minTimeout: retryMinTimeout,
-      maxTimeout: retryMaxTimeout,
-      onRetry: (e) => {
-        console.warn(`Failed ${method} ${url}. Retrying...`);
-        console.warn(e);
-      },
-    },
-  );
+
+      const result = await response.json();
+      return result;
+    } catch (e) {
+      if (e.type === 'aborted') {
+        e.message = `Timeout when fetching ${url} using method ${method}`;
+      }
+      e.message = `${e.message} (took ${Date.now() - start} ms)`;
+      throw e;
+    }
+  }, retryOpts);
 }
