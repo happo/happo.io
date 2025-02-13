@@ -1,5 +1,4 @@
 import fs from 'fs';
-import rimraf from 'rimraf';
 
 import Logger, { logTag } from '../Logger';
 import domRunner from '../domRunner';
@@ -32,8 +31,8 @@ export default async function runCommand(
   const logger = new Logger();
   const { apiKey, apiSecret, endpoint, project, plugins, pages } = config;
 
-  rimraf.sync(config.tmpdir);
-  fs.mkdirSync(config.tmpdir, { recursive: true });
+  await fs.promises.rm(config.tmpdir, { recursive: true, force: true });
+  await fs.promises.mkdir(config.tmpdir, { recursive: true });
 
   const staticPlugin = getStaticPlugin(plugins, config);
   let result;

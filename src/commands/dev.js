@@ -1,5 +1,4 @@
 import fs from 'fs';
-import rimraf from 'rimraf';
 
 import Logger from '../Logger';
 import compareReportsCommand from './compareReports';
@@ -15,8 +14,10 @@ export default async function devCommand(config, { only }) {
   const { apiKey, apiSecret, endpoint, project } = config;
   let baselineSha;
   const logger = new Logger();
-  rimraf.sync(config.tmpdir);
-  fs.mkdirSync(config.tmpdir, { recursive: true });
+
+  await fs.promises.rm(config.tmpdir, { recursive: true, force: true });
+  await fs.promises.mkdir(config.tmpdir, { recursive: true });
+
   domRunner(config, {
     only,
     onReady: async (snaps) => {
