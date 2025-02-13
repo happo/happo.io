@@ -1,5 +1,5 @@
 import asyncRetry from 'async-retry';
-import colorDelta from 'lcs-image-diff/src/colorDelta';
+import { colorDeltaChannels } from 'lcs-image-diff/src/colorDelta';
 
 import fetchPng from './fetchPng';
 
@@ -12,21 +12,21 @@ function makeAbsolute(url, endpoint) {
 
 function imageDiff({ bitmap1, bitmap2, compareThreshold }) {
   const len = bitmap1.width * bitmap1.height * 4;
+
   for (let i = 0; i < len; i += 4) {
-    const distance = colorDelta(
-      [
+    const distance = Math.abs(
+      colorDeltaChannels(
         bitmap1.data[i],
         bitmap1.data[i + 1],
         bitmap1.data[i + 2],
         bitmap1.data[i + 3],
-      ],
-      [
         bitmap2.data[i],
         bitmap2.data[i + 1],
         bitmap2.data[i + 2],
         bitmap2.data[i + 3],
-      ],
+      ),
     );
+
     if (distance > compareThreshold) {
       return distance;
     }
