@@ -65,3 +65,9 @@ test/
 
 # Unnecessary images
 *.png
+
+.ackrc
+.importjs.js
+.projections.json
+.github/
+.happo.js
