@@ -1,19 +1,8 @@
-import glob from 'glob';
+import { glob } from 'glob';
 
-export default function findTestFiles(pattern) {
-  return new Promise((resolve, reject) => {
-    glob(
-      pattern,
-      {
-        ignore: ['**/node_modules/**', '**/dist/**', '**/build/**'],
-      },
-      (err, files) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(files);
-      },
-    );
+export default async function findTestFiles(pattern) {
+  const files = await glob(pattern, {
+    ignore: ['**/node_modules/**', '**/dist/**', '**/build/**'],
   });
+  return files;
 }
