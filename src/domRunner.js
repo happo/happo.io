@@ -110,6 +110,7 @@ async function uploadStaticPackage({
     tmpdir,
     publicFolders,
   });
+
   const assetsPath = await uploadAssets(buffer, {
     apiKey,
     apiSecret,

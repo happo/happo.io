@@ -1,53 +1,16 @@
-import crypto from 'crypto';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
-
-import Archiver from 'archiver';
-
-import { FILE_CREATION_DATE } from './createStaticPackage';
 import Logger, { logTag } from './Logger';
 import constructReport from './constructReport';
 import createHash from './createHash';
 import ensureTarget from './ensureTarget';
 import loadCSSFile from './loadCSSFile';
 import uploadAssets from './uploadAssets';
-import validateArchive from './validateArchive';
-
-function staticDirToZipFile(dir) {
-  return new Promise((resolve, reject) => {
-    const archive = new Archiver('zip', {
-      // Concurrency in the stat queue leads to non-deterministic output.
-      // https://github.com/archiverjs/node-archiver/issues/383#issuecomment-2253139948
-      statConcurrency: 1,
-      zlib: { level: 6 },
-    });
-
-    const rnd = crypto.randomBytes(4).toString('hex');
-    const pathToZipFile = path.join(os.tmpdir(), `happo-static-${rnd}.zip`);
-    const output = fs.createWriteStream(pathToZipFile);
-    const entries = [];
-
-    archive.on('entry', (entry) => {
-      entries.push(entry);
-    });
-
-    output.on('close', async () => {
-      validateArchive(archive.pointer(), entries);
-      resolve(pathToZipFile);
-    });
-    archive.pipe(output);
-    archive.directory(dir, false, { date: FILE_CREATION_DATE });
-    archive.on('error', reject);
-    archive.finalize();
-  });
-}
+import deterministicArchive from './deterministicArchive';
 
 async function resolvePackageData(staticPackage) {
   if (typeof staticPackage === 'string') {
     // legacy plugins
     const buffer = Buffer.from(staticPackage, 'base64');
-    return { value: buffer, hash: createHash(buffer) };
+    return { buffer, hash: createHash(buffer) };
   }
 
   if (!staticPackage.path) {
@@ -56,20 +19,8 @@ async function resolvePackageData(staticPackage) {
     );
   }
 
-  const file = await staticDirToZipFile(staticPackage.path);
-
-  const readStream = fs.createReadStream(file);
-  const hash = await new Promise((resolve) => {
-    const hashCreator = crypto.createHash('md5');
-    readStream.pipe(hashCreator);
-    hashCreator.setEncoding('hex');
-    readStream.on('end', () => {
-      hashCreator.end();
-      resolve(hashCreator.read());
-    });
-  });
-  readStream.destroy();
-  return { value: fs.createReadStream(file), hash };
+  const archive = await deterministicArchive([staticPackage.path]);
+  return archive;
 }
 
 export default async function remoteRunner(
@@ -83,8 +34,8 @@ export default async function remoteRunner(
     logger.info(`${logTag(project)}Generating static package...`);
     const staticPackage = await generateStaticPackage();
 
-    const { value, hash } = await resolvePackageData(staticPackage);
-    const staticPackagePath = await uploadAssets(value, {
+    const { buffer, hash } = await resolvePackageData(staticPackage);
+    const staticPackagePath = await uploadAssets(buffer, {
       hash,
       endpoint,
       apiSecret,

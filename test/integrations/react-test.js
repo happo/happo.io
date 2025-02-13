@@ -336,8 +336,6 @@ it('works with prerender=false', async () => {
     'iframe.html',
     'index.html',
     'one.jpg',
-    'static/',
-    'static/media/',
     'static/media/1x1.f9992a90.png',
   ]);
   // require('fs').writeFileSync('staticPackage.zip',
