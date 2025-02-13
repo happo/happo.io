@@ -1,7 +1,5 @@
 import path from 'path';
 
-import matchAll from 'string.prototype.matchall';
-
 import stripQueryStringAndHash from './stripQueryStringAndHash';
 
 const URL_PATTERN = /url\(['"]?(\/?[^)"']+)['"]?\)/g;
@@ -16,7 +14,7 @@ const URL_PATTERN = /url\(['"]?(\/?[^)"']+)['"]?\)/g;
  *   path where we should attempt to locate the file in the filesystem.
  */
 export default function findCSSAssetPaths({ css, source }) {
-  const paths = Array.from(matchAll(css, URL_PATTERN))
+  const paths = Array.from(css.matchAll(URL_PATTERN))
     .map((match) => match[1])
     .filter((url) => !/^http|\/\//.test(url))
     .map(stripQueryStringAndHash);
