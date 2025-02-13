@@ -415,6 +415,7 @@ export default async function domRunner(
     { type, customizeWebpackConfig, plugins, tmpdir, webpack },
     {},
   );
+
   logger.success();
   return boundGenerateScreenshots(bundleFile, logger);
 }

@@ -1948,6 +1948,11 @@ arraybuffer.prototype.slice@^1.0.4:
     get-intrinsic "^1.2.6"
     is-array-buffer "^3.0.4"
 
+asap@^2.0.0:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/asap/-/asap-2.0.6.tgz#e50347611d7e690943208bbdafebcbc2fb866d46"
+  integrity sha512-BSHWgDSAiKs50o2Re8ppvp3seVHXSRM44cdSsT9FfNEUUZLOGWVCsiWaRPWM1Znn+mqZ1OfVZ3z3DWEzSp7hRA==
+
 async-limiter@~1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/async-limiter/-/async-limiter-1.0.1.tgz#dd379e94f0db8310b08291f9d64c3209766617fd"
@@ -2539,6 +2544,14 @@ detect-newline@^3.0.0:
   resolved "https://registry.yarnpkg.com/detect-newline/-/detect-newline-3.1.0.tgz#576f5dfc63ae1a192ff192d8ad3af6308991b651"
   integrity sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==
 
+dezalgo@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/dezalgo/-/dezalgo-1.0.4.tgz#751235260469084c132157dfa857f386d4c33d81"
+  integrity sha512-rXSP0bf+5n0Qonsb+SVVfNfIsimO4HEtmnIpPHY8Q1UCzKlQrDMfdobr8nJOOsRgWCyMRqeSBQzmWUMq7zvVig==
+  dependencies:
+    asap "^2.0.0"
+    wrappy "1"
+
 diff-sequences@^29.6.3:
   version "29.6.3"
   resolved "https://registry.yarnpkg.com/diff-sequences/-/diff-sequences-29.6.3.tgz#4deaf894d11407c51efc8418012f9e70b84ea921"
@@ -3129,6 +3142,15 @@ form-data@^4.0.0:
     combined-stream "^1.0.8"
     mime-types "^2.1.12"
 
+formidable@^3.5.2:
+  version "3.5.2"
+  resolved "https://registry.yarnpkg.com/formidable/-/formidable-3.5.2.tgz#207c33fecdecb22044c82ba59d0c63a12fb81d77"
+  integrity sha512-Jqc1btCy3QzRbJaICGwKcBfGWuLADRerLzDqi2NwSt/UkXLsHJw2TVResiaoBufHVHy9aSgClOHCeJsSsFLTbg==
+  dependencies:
+    dezalgo "^1.0.4"
+    hexoid "^2.0.0"
+    once "^1.4.0"
+
 fs-readdir-recursive@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/fs-readdir-recursive/-/fs-readdir-recursive-1.1.0.tgz#e32fc030a2ccee44a6b5371308da54be0b397d27"
@@ -3361,6 +3383,11 @@ he@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
+
+hexoid@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/hexoid/-/hexoid-2.0.0.tgz#fb36c740ebbf364403fa1ec0c7efd268460ec5b9"
+  integrity sha512-qlspKUK7IlSQv2o+5I7yhUd7TxlOG2Vr5LTa3ve2XSNVKAL/n/u/7KLvKmFNimomDIKvZFXWHv0T12mv7rT8Aw==
 
 html-encoding-sniffer@^2.0.1:
   version "2.0.1"
@@ -4661,7 +4688,7 @@ object.values@^1.2.1:
     define-properties "^1.2.1"
     es-object-atoms "^1.0.0"
 
-once@^1.3.0:
+once@^1.3.0, once@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/once/-/once-1.4.0.tgz#583b1aa775961d4b113ac17d9c50baef9dd76bd1"
   integrity sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==

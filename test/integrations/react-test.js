@@ -1,41 +1,133 @@
 import os from 'os';
 import path from 'path';
+import http from 'http';
 
+import formidable from 'formidable';
 import AdmZip from 'adm-zip';
 import happoPluginPuppeteer from 'happo-plugin-puppeteer';
 
 import MockTarget from './MockTarget';
 import * as defaultConfig from '../../src/DEFAULTS';
-import makeRequest from '../../src/makeRequest';
-import runCommand from '../../src/commands/run';
 
-jest.mock('../../src/makeRequest');
-
-let subject;
 let config;
-let sha;
+const sha = 'foobar';
+
+const subject = () => {
+  // The run command has some local state (e.g. `knownAssetPackagePaths`) that
+  // we want to make sure is reset between each test.
+  jest.resetModules();
+  const runCommand = require('../../src/commands/run').default;
+  return runCommand(sha, config, {});
+};
+
+async function parseFormData(req) {
+  const form = formidable({});
+  const [fields, files] = await form.parse(req);
+  return { fields, files };
+}
+
+function sendJson(res, data, statusCode = 200) {
+  res.writeHead(statusCode, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(data));
+}
+
+let server;
+let receivedRequests = [];
+let mockResponses = {};
 
 beforeEach(() => {
-  makeRequest.mockImplementation((req) => {
-    if (/\/assets\//.test(req.url) && req.method === 'POST') {
-      // uploading assets
-      return Promise.resolve({
-        path: req.formData.payload.value,
-        uploadedAt: new Date(),
-      });
+  mockResponses = {
+    'GET /assets-data/:hash': {
+      method: 'GET',
+      url: /\/assets-data\/[a-f0-9]+$/,
+      handler: (req, res) => {
+        res.statusCode = 404;
+        res.end('Not found');
+      },
+    },
+
+    'GET /assets/:hash/signed-url': {
+      method: 'GET',
+      url: /\/assets\/[a-f0-9]+\/signed-url$/,
+      handler: (req, res) => {
+        sendJson(res, {
+          // Normally this would be an S3 signed URL, but for testing here we
+          // are using localhost so we can control the response
+          signedUrl: 'http://localhost:3000/a-signed-url',
+        });
+      },
+    },
+
+    'PUT /a-signed-url': {
+      method: 'PUT',
+      url: /\/a-signed-url$/,
+      handler: (req, res) => {
+        res.statusCode = 200;
+        res.end('OK');
+      },
+    },
+
+    'POST /assets/:hash': {
+      method: 'POST',
+      url: /\/assets\/[a-f0-9]+$/,
+      handler: async (req, res) => {
+        req.formData = await parseFormData(req);
+        const parts = req.url.split('/');
+        const hash = parts[parts.length - 2];
+        sendJson(res, {
+          path: `a/1/${hash}.zip`,
+          isNew: true,
+        });
+      },
+    },
+
+    'POST /assets/:hash/finalize': {
+      method: 'POST',
+      url: /\/assets\/[a-f0-9]+\/finalize$/,
+      handler: (req, res) => {
+        const parts = req.url.split('/');
+        const hash = parts[parts.length - 2];
+        sendJson(res, {
+          path: `a/1/${hash}.zip`,
+          isNew: true,
+        });
+      },
+    },
+
+    'POST /api/reports/:sha': {
+      method: 'POST',
+      url: /\/api\/reports\/[^/]+$/,
+      handler: async (req, res) => {
+        req.formData = await parseFormData(req);
+        sendJson(res, {});
+      },
+    },
+  };
+
+  // Start an HTTP server so we can serve packages
+  receivedRequests = [];
+  server = http.createServer(async (req, res) => {
+    // Store the request for later inspection
+    receivedRequests.push(req);
+
+    const mockResponse = Object.values(mockResponses).find(
+      (mockResponse) =>
+        mockResponse.method === req.method && mockResponse.url.test(req.url),
+    );
+
+    if (!mockResponse) {
+      sendJson(res, {});
+      return;
     }
-    if (/\/assets-data\//.test(req.url) && req.method === 'GET') {
-      // checking if assets exist
-      const e = new Error();
-      e.statusCode = 404;
-      throw e;
-    }
-    return Promise.resolve({});
+
+    return mockResponse.handler(req, res);
   });
-  sha = 'foobar';
+  server.listen(3000);
+
   config = {
     ...defaultConfig,
-    project: 'the project',
+    endpoint: 'http://localhost:3000',
+    project: `the project`,
     targets: { chrome: new MockTarget() },
     include: 'test/integrations/examples/*-react-happo.js*',
     setupScript: path.resolve(__dirname, 'reactSetup.js'),
@@ -53,25 +145,27 @@ beforeEach(() => {
       },
       {
         customizeWebpackConfig: (cfg) => {
-          cfg.module.rules.push({
-            test: /\.ffs/,
-            use: [
-              {
-                loader: require.resolve('babel-loader'),
-                options: {
-                  presets: [require.resolve('@babel/preset-react')],
+          cfg.module.rules.push(
+            {
+              test: /\.ffs/,
+              use: [
+                {
+                  loader: require.resolve('babel-loader'),
+                  options: {
+                    presets: [require.resolve('@babel/preset-react')],
+                  },
                 },
-              },
-            ],
-          });
-          cfg.module.rules.push({
-            loader: require.resolve('file-loader'),
-            test: /\.(png|svg|jpg|gif)$/,
-            options: {
-              name: 'static/media/[name].[hash:8].[ext]',
-              publicPath: '_/',
+              ],
             },
-          });
+            {
+              loader: require.resolve('file-loader'),
+              test: /\.(png|svg|jpg|gif)$/,
+              options: {
+                name: 'static/media/[name].[hash:8].[ext]',
+                publicPath: '_/',
+              },
+            },
+          );
           return new Promise((resolve) => {
             setTimeout(() => resolve(cfg), 50);
           });
@@ -80,12 +174,17 @@ beforeEach(() => {
     ],
     tmpdir: path.join(os.tmpdir(), 'happo-test-tmpdir'),
   };
-  subject = () => runCommand(sha, config, {});
 });
 
-it('sends the project name in the request', async () => {
+afterEach(() => {
+  server.close();
+});
+
+it('sends the project name when posting the report', async () => {
   await subject();
-  expect(makeRequest.mock.calls[2][0].body.project).toEqual('the project');
+
+  expect(receivedRequests[2].url).toMatch(/\/api\/reports\/foobar$/);
+  expect(receivedRequests[2].formData.fields.project).toEqual('the project');
 });
 
 it('produces the right html', async () => {
@@ -252,7 +351,8 @@ describe('with multiple targets', () => {
 
 it('resolves assets correctly', async () => {
   await subject();
-  const zip = new AdmZip(config.targets.chrome.assetsPackage);
+  const zipLocation = receivedRequests[1].formData.files.payload[0].filepath;
+  const zip = new AdmZip(zipLocation);
   expect(zip.getEntries().map(({ entryName }) => entryName)).toEqual([
     'assets/one.jpg',
   ]);
@@ -323,7 +423,8 @@ it('works with prerender=false', async () => {
     { css: '.plugin-injected { color: red }' },
   ]);
 
-  const zip = new AdmZip(config.targets.chrome.staticPackage);
+  const zipLocation = receivedRequests[1].formData.files.payload[0].filepath;
+  const zip = new AdmZip(zipLocation);
   expect(
     zip
       .getEntries()
@@ -340,4 +441,61 @@ it('works with prerender=false', async () => {
   ]);
   // require('fs').writeFileSync('staticPackage.zip',
   //   Buffer.from(config.targets.chrome.staticPackage, 'base64'));
+});
+
+describe('when HAPPO_SIGNED_URL is set', () => {
+  beforeEach(() => {
+    process.env.HAPPO_SIGNED_URL = 'true';
+  });
+
+  afterEach(() => {
+    delete process.env.HAPPO_SIGNED_URL;
+  });
+
+  it('uploads assets to the signed URL', async () => {
+    await subject();
+
+    expect(receivedRequests[0].method).toBe('GET');
+    expect(receivedRequests[0].url).toMatch(/\/assets\/[a-f0-9]+\/signed-url$/);
+
+    expect(receivedRequests[1].method).toBe('PUT');
+    expect(receivedRequests[1].url).toMatch(/\/a-signed-url$/);
+
+    expect(receivedRequests[2].method).toBe('POST');
+    expect(receivedRequests[2].url).toMatch(/\/assets\/[a-f0-9]+\/finalize$/);
+
+    // The request after the asset has been finalized is posting the report
+    expect(receivedRequests[3].method).toBe('POST');
+    expect(receivedRequests[3].url).toEqual('/api/reports/foobar');
+
+    expect(receivedRequests.length).toBe(4);
+  });
+
+  describe('when the asset has already been uploaded', () => {
+    beforeEach(() => {
+      mockResponses['GET /assets/:hash/signed-url'] = {
+        method: 'GET',
+        url: /\/assets\/[a-f0-9]+\/signed-url$/,
+        handler: (req, res) => {
+          sendJson(res, {
+            path: 'a/123.zip',
+            isNew: false,
+          });
+        },
+      };
+    });
+
+    it('does not upload or finalize the asset again', async () => {
+      await subject();
+
+      expect(receivedRequests[0].method).toBe('GET');
+      expect(receivedRequests[0].url).toMatch(/\/assets\/[a-f0-9]+\/signed-url$/);
+
+      // The request after the asset has been finalized is posting the report
+      expect(receivedRequests[1].method).toBe('POST');
+      expect(receivedRequests[1].url).toEqual('/api/reports/foobar');
+
+      expect(receivedRequests.length).toBe(2);
+    });
+  });
 });
