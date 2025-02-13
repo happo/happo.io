@@ -39,7 +39,9 @@ export default async function makeRequest(
 
   const retryOpts = {
     onRetry: (e) => {
-      console.warn(`Failed ${method} ${url}. Retrying...`);
+      console.warn(
+        `Failed ${method} ${url}. Retrying (at ${new Date().toISOString()}) ...`,
+      );
       console.warn(e);
     },
   };
