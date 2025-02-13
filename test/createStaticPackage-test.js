@@ -52,7 +52,6 @@ it('picks out the right files', async () => {
   expect(entries).not.toContain('one.jpg');
 
   expect(entries).toEqual([
-    'iframe.html',
     '.happo-alternate-async.js',
     '.happo-alternate.js',
     '000-f7f7f7.png',
@@ -136,5 +135,6 @@ it('picks out the right files', async () => {
     'solid-white-120px.png',
     'solid-white.png',
     'validateArchive-test.js',
+    'iframe.html',
   ]);
 });

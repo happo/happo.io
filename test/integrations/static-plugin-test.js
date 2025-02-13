@@ -1,5 +1,7 @@
 import path from 'path';
 
+import AdmZip from 'adm-zip';
+
 import MockTarget from './MockTarget';
 import * as defaultConfig from '../../src/DEFAULTS';
 import makeRequest from '../../src/makeRequest';
@@ -31,7 +33,7 @@ beforeEach(() => {
     targets: { chrome: new MockTarget() },
     plugins: [
       {
-        generateStaticPackage: () => Promise.resolve('a base64-encoded string'),
+        generateStaticPackage: () => Promise.reject(new Error('not implemented')),
       },
       {
         css: '.foo { color: red }',
@@ -42,26 +44,71 @@ beforeEach(() => {
   subject = () => runCommand(sha, config, {});
 });
 
-it('sends the project name in the request', async () => {
-  await subject();
-  expect(makeRequest.mock.calls[2][0].body.project).toEqual('the project');
+describe('when generateStaticPackage resolves to a string', () => {
+  beforeEach(() => {
+    config.plugins[0].generateStaticPackage = () =>
+      Promise.resolve('a base64-encoded string');
+  });
+
+  it('sends the project name in the request', async () => {
+    await subject();
+    expect(makeRequest.mock.calls[2][0].body.project).toEqual('the project');
+  });
+
+  it('produces the static package', async () => {
+    await subject();
+    expect(makeRequest.mock.calls[1][0].formData.payload.value).toEqual(
+      Buffer.from('a base64-encoded string', 'base64'),
+    );
+    expect(config.targets.chrome.staticPackage).toEqual('staticpkg/foobar.zip');
+  });
+
+  it('includes css', async () => {
+    await subject();
+    expect(config.targets.chrome.globalCSS).toEqual(
+      '.a {  b: c;}.foo { color: red }',
+    );
+  });
+
+  it('includes external css', async () => {
+    config.stylesheets.push('http://andybrewer.github.io/mvp/mvp.css');
+    await subject();
+    expect(config.targets.chrome.globalCSS).toMatch(/\.a {\s*b: c;}.*MVP\.css v/);
+  });
 });
 
-it('produces the static package', async () => {
-  await subject();
-  expect(makeRequest.mock.calls[1][0].formData.payload.value).toEqual(
-    Buffer.from('a base64-encoded string', 'base64'),
-  );
-  expect(config.targets.chrome.staticPackage).toEqual('staticpkg/foobar.zip');
-});
+describe('when generateStaticPackage resolves to an object with a path', () => {
+  beforeEach(() => {
+    config.plugins[0].generateStaticPackage = () =>
+      Promise.resolve({ path: path.join(__dirname, 'static-files') });
+  });
 
-it('includes css', async () => {
-  await subject();
-  expect(config.targets.chrome.globalCSS).toEqual('.a {  b: c;}.foo { color: red }');
-});
+  it('sends the project name in the request', async () => {
+    await subject();
+    expect(makeRequest.mock.calls[2][0].body.project).toEqual('the project');
+  });
 
-it('includes external css', async () => {
-  config.stylesheets.push('http://andybrewer.github.io/mvp/mvp.css');
-  await subject();
-  expect(config.targets.chrome.globalCSS).toMatch(/\.a {\s*b: c;}.*MVP\.css v/);
+  it('produces the static package', async () => {
+    await subject();
+    expect(config.targets.chrome.staticPackage).toEqual('staticpkg/foobar.zip');
+
+    const zip = new AdmZip(makeRequest.mock.calls[1][0].formData.payload.value);
+    expect(zip.getEntries().map(({ entryName }) => entryName)).toEqual([
+      'bundle.js',
+      'iframe.html',
+    ]);
+  });
+
+  it('includes css', async () => {
+    await subject();
+    expect(config.targets.chrome.globalCSS).toEqual(
+      '.a {  b: c;}.foo { color: red }',
+    );
+  });
+
+  it('includes external css', async () => {
+    config.stylesheets.push('http://andybrewer.github.io/mvp/mvp.css');
+    await subject();
+    expect(config.targets.chrome.globalCSS).toMatch(/\.a {\s*b: c;}.*MVP\.css v/);
+  });
 });

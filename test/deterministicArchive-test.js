@@ -77,3 +77,17 @@ it('can include in-memory content', async () => {
   const myFile = zip.getEntry('my-in-memory-file.txt');
   expect(myFile.getData().toString()).toBe(content);
 });
+
+it('handles relative paths', async () => {
+  const result = await deterministicArchive(['test/integrations/assets']);
+  const zip = new AdmZip(result.buffer);
+
+  const entries = zip
+    .getEntries()
+    .map(({ entryName }) => entryName)
+    // This file is gitignored, so we want to filter it out to make local and CI
+    // runs consistent.
+    .filter((entryName) => !entryName.includes('.DS_Store'));
+
+  expect(entries).toEqual(['one.jpg']);
+});
