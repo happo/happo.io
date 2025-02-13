@@ -15,13 +15,14 @@ const FILE_CREATION_DATE = new Date('Fri Feb 08 2019 13:31:55 GMT+0100 (CET)');
  * Resolves all files in a directory and all of its subdirectories
  *
  * @param {string} dirOrFile
- * @returns {Promise<Array<{name: string, path: string}>>}
+ * @returns {Promise<Array<{name: string, stream: ReadableStream}>>}
  */
 async function resolveFilesRecursiveForDir(dirOrFile) {
-  const isDir = (await fs.promises.lstat(dirOrFile)).isDirectory();
+  const resolvedDirOrFile = path.resolve(dirOrFile);
+  const isDir = (await fs.promises.lstat(resolvedDirOrFile)).isDirectory();
 
   if (isDir) {
-    const files = await fs.promises.readdir(dirOrFile, {
+    const files = await fs.promises.readdir(resolvedDirOrFile, {
       withFileTypes: true,
       recursive: true,
     });
@@ -29,18 +30,18 @@ async function resolveFilesRecursiveForDir(dirOrFile) {
     return files
       .filter((dirent) => dirent.isFile())
       .map((dirent) => {
-        const fullPath = path.resolve(dirent.path, dirent.name);
+        const fullPath = path.join(dirent.path, dirent.name);
         return {
-          name: fullPath.slice(dirOrFile.length + 1),
-          path: fullPath,
+          name: fullPath.slice(resolvedDirOrFile.length + 1),
+          stream: fs.createReadStream(fullPath),
         };
       });
   }
 
   return [
     {
-      name: path.basename(dirOrFile),
-      path: path.resolve(dirOrFile),
+      name: path.basename(resolvedDirOrFile),
+      stream: fs.createReadStream(resolvedDirOrFile),
     },
   ];
 }
@@ -49,7 +50,7 @@ async function resolveFilesRecursiveForDir(dirOrFile) {
  * Resolves all files in all directories recursively
  *
  * @param {...string} dirsAndFiles
- * @returns {Promise<Array<{name: string, path: string}>>}
+ * @returns {Promise<Array<{name: string, stream: ReadableStream }>>}
  */
 async function resolveFilesRecursive(...dirsAndFiles) {
   const files = await Promise.all(
@@ -117,7 +118,7 @@ export default async function deterministicArchive(
     // https://github.com/archiverjs/node-archiver/issues/383#issuecomment-2252938075
     for (const file of filesToArchiveSorted) {
       if (!seenFiles.has(file.name)) {
-        archive.file(file.path, {
+        archive.append(file.stream, {
           name: file.name,
           prefix: '',
           date: FILE_CREATION_DATE,
