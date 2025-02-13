@@ -5295,10 +5295,10 @@ lazystream@^1.0.0:
   dependencies:
     readable-stream "^2.0.5"
 
-lcs-image-diff@^2.0.0:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/lcs-image-diff/-/lcs-image-diff-2.1.1.tgz#eaa88f344853500f0acbb3e1430f1339ee047ef0"
-  integrity sha512-pMsEXSN3GibFRxP5oH3b+3sJ6DA926XCeFLmkdxbp9QucwiAQ2nmMOaQECTP+NZ8+zo1ZIbs+Qqfa6Jm9Qtb0Q==
+lcs-image-diff@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/lcs-image-diff/-/lcs-image-diff-3.0.0.tgz#9f924f534d68b3d923a02215e6a61afc75c26ee7"
+  integrity sha512-ZzaqR8dVbA5ISLpKBnn3gV1M8TELWg81cFuQsTutf5IRCt93vV5yRuK2ZrIgOucOQhYeB6ml6o9+pefs1QD6mw==
   dependencies:
     imagetracerjs "^1.2.5"
 

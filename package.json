@@ -67,7 +67,7 @@
     "https-proxy-agent": "^5.0.0",
     "jose": "^5.4.1",
     "jsdom": "^16.4.0",
-    "lcs-image-diff": "^2.0.0",
+    "lcs-image-diff": "^3.0.0",
     "node-fetch": "^2.6.6",
     "parse-srcset": "^1.0.2",
     "pngjs": "^3.4.0",
