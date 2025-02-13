@@ -28,7 +28,9 @@ beforeEach(() => {
 
 it('yells if both API tokens are missing', async () => {
   requireRelative.mockImplementation(() => ({}));
-  await expect(loadUserConfig('bogus', {})).rejects.toThrow(/Missing `apiKey` and `apiSecret` in your Happo config/);
+  await expect(loadUserConfig('bogus', {})).rejects.toThrow(
+    /Missing `apiKey` and `apiSecret` in your Happo config/,
+  );
 });
 
 it('yells if apiKey is missing', async () => {
@@ -36,7 +38,9 @@ it('yells if apiKey is missing', async () => {
     apiSecret: '2',
     targets: {},
   }));
-  await expect(loadUserConfig('bogus', {})).rejects.toThrow(/Missing `apiKey` in your Happo config/);
+  await expect(loadUserConfig('bogus', {})).rejects.toThrow(
+    /Missing `apiKey` in your Happo config/,
+  );
 });
 
 it('yells if apiSecret is missing', async () => {
@@ -44,7 +48,9 @@ it('yells if apiSecret is missing', async () => {
     apiKey: '1',
     targets: {},
   }));
-  await expect(loadUserConfig('bogus', {})).rejects.toThrow(/Missing `apiSecret` in your Happo config/);
+  await expect(loadUserConfig('bogus', {})).rejects.toThrow(
+    /Missing `apiSecret` in your Happo config/,
+  );
 });
 
 it('yells if targets are missing', async () => {
