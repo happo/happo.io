@@ -66,6 +66,7 @@ export default function createStaticPackage({ tmpdir, publicFolders }) {
       // Concurrency in the stat queue leads to non-deterministic output.
       // https://github.com/archiverjs/node-archiver/issues/383#issuecomment-2253139948
       statConcurrency: 1,
+      zlib: { level: 6 },
     });
 
     const stream = new Writable();
