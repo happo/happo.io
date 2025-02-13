@@ -1,5 +1,5 @@
 import FormData from 'form-data';
-import HttpsProxyAgent from 'https-proxy-agent';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 import asyncRetry from 'async-retry';
 import fetch from 'node-fetch';
 import { SignJWT } from 'jose';
