@@ -70,7 +70,7 @@
     "lcs-image-diff": "^3.0.0",
     "node-fetch": "^2.6.6",
     "parse-srcset": "^1.0.2",
-    "pngjs": "^3.4.0",
+    "pngjs": "^7.0.0",
     "require-relative": "^0.8.7",
     "rimraf": "^6.0.1",
     "source-map-support": "^0.5.9",
