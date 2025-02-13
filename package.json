@@ -74,7 +74,6 @@
     "require-relative": "^0.8.7",
     "rimraf": "^3.0.0",
     "source-map-support": "^0.5.9",
-    "string.prototype.matchall": "^4.0.0",
     "supports-color": "^7.1.0"
   },
   "devDependencies": {
