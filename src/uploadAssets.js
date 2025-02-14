@@ -122,7 +122,7 @@ async function uploadAssetsWithSignedUrl(
   // Finally, we need to tell Happo that we've uploaded the assets.
   const finalizeRes = await makeRequest(
     {
-      url: `${endpoint}/api/snap-requests/assets/${hash}/finalize`,
+      url: `${endpoint}/api/snap-requests/assets/${hash}/signed-url/finalize`,
       method: 'POST',
       json: true,
     },

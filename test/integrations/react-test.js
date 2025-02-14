@@ -81,9 +81,9 @@ beforeEach(() => {
       },
     },
 
-    'POST /assets/:hash/finalize': {
+    'POST /assets/:hash/signed-url/finalize': {
       method: 'POST',
-      url: /\/assets\/[a-f0-9]+\/finalize$/,
+      url: /\/assets\/[a-f0-9]+\/signed-url\/finalize$/,
       handler: (req, res) => {
         const parts = req.url.split('/');
         const hash = parts[parts.length - 2];
@@ -462,7 +462,9 @@ describe('when HAPPO_SIGNED_URL is set', () => {
     expect(receivedRequests[1].url).toMatch(/\/a-signed-url$/);
 
     expect(receivedRequests[2].method).toBe('POST');
-    expect(receivedRequests[2].url).toMatch(/\/assets\/[a-f0-9]+\/finalize$/);
+    expect(receivedRequests[2].url).toMatch(
+      /\/assets\/[a-f0-9]+\/signed-url\/finalize$/,
+    );
 
     // The request after the asset has been finalized is posting the report
     expect(receivedRequests[3].method).toBe('POST');
