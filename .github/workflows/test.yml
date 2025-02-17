@@ -22,7 +22,10 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: 'yarn'
 
-      - run: yarn install --frozen-lockfile --ignore-engines
+      - name: Install dependencies
+        run: |
+          yarn install --frozen-lockfile --production=true
+          yarn install --frozen-lockfile --ignore-engines
 
       - run: yarn test --colors
 
