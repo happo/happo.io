@@ -64,7 +64,7 @@ async function resolveFilesRecursive(...dirsAndFiles) {
  * Creates a deterministic archive of the given files
  *
  * @param {string[]} dirsAndFiles
- * @param {{name: string, content: string}[]} contentToArchive
+ * @param {{name: string, content: string | Buffer | ReadableStream}[]} contentToArchive
  * @returns {Promise<{buffer: Buffer, hash: string}>}
  */
 export default async function deterministicArchive(
