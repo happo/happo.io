@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 
+import { glob } from 'glob';
 import Archiver from 'archiver';
 
 import validateArchive from './validateArchive';
@@ -22,20 +23,19 @@ async function resolveFilesRecursiveForDir(dirOrFile) {
   const isDir = (await fs.promises.lstat(resolvedDirOrFile)).isDirectory();
 
   if (isDir) {
-    const files = await fs.promises.readdir(resolvedDirOrFile, {
-      withFileTypes: true,
-      recursive: true,
+    const files = await glob('**/*', {
+      cwd: resolvedDirOrFile,
+      nodir: true,
+      absolute: true,
+      dot: true,
     });
 
-    return files
-      .filter((dirent) => dirent.isFile())
-      .map((dirent) => {
-        const fullPath = path.join(dirent.path, dirent.name);
-        return {
-          name: fullPath.slice(resolvedDirOrFile.length + 1),
-          stream: fs.createReadStream(fullPath),
-        };
-      });
+    return files.map((fullPath) => {
+      return {
+        name: path.relative(resolvedDirOrFile, fullPath),
+        stream: fs.createReadStream(fullPath),
+      };
+    });
   }
 
   return [
