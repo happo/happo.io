@@ -500,4 +500,84 @@ describe('when HAPPO_SIGNED_URL is set', () => {
       expect(receivedRequests.length).toBe(2);
     });
   });
+
+  describe('when the signed URL 500s the first time', () => {
+    beforeEach(() => {
+      let counter = 0;
+      mockResponses['PUT /a-signed-url'] = {
+        method: 'PUT',
+        url: /\/a-signed-url$/,
+        handler: (req, res) => {
+          counter++;
+          if (counter === 1) {
+            res.statusCode = 500;
+            res.end('Internal Server Error');
+          } else {
+            res.statusCode = 200;
+            res.end('OK');
+          }
+        },
+      };
+    });
+
+    it('retries the request and proceeds', async () => {
+      await expect(subject()).resolves.not.toThrow();
+
+      expect(receivedRequests[0].method).toBe('GET');
+      expect(receivedRequests[0].url).toMatch(/\/assets\/[a-f0-9]+\/signed-url$/);
+
+      expect(receivedRequests[1].method).toBe('PUT');
+      expect(receivedRequests[1].url).toMatch(/\/a-signed-url$/);
+
+      expect(receivedRequests[2].method).toBe('PUT');
+      expect(receivedRequests[2].url).toMatch(/\/a-signed-url$/);
+
+      expect(receivedRequests[3].method).toBe('POST');
+      expect(receivedRequests[3].url).toMatch(
+        /\/assets\/[a-f0-9]+\/signed-url\/finalize$/,
+      );
+
+      // The request after the asset has been finalized is posting the report
+      expect(receivedRequests[4].method).toBe('POST');
+      expect(receivedRequests[4].url).toEqual('/api/reports/foobar');
+
+      expect(receivedRequests.length).toBe(5);
+    });
+  });
+
+  describe('when the signed URL 500s lots of times', () => {
+    beforeEach(() => {
+      mockResponses['PUT /a-signed-url'] = {
+        method: 'PUT',
+        url: /\/a-signed-url$/,
+        handler: (req, res) => {
+          res.statusCode = 500;
+          res.end('Internal Server Error');
+        },
+      };
+    });
+
+    it('retries the request a few times and then throws', async () => {
+      await expect(subject()).rejects.toThrow(
+        'Failed to upload assets to S3 signed URL',
+      );
+
+      expect(receivedRequests[0].method).toBe('GET');
+      expect(receivedRequests[0].url).toMatch(/\/assets\/[a-f0-9]+\/signed-url$/);
+
+      expect(receivedRequests[1].method).toBe('PUT');
+      expect(receivedRequests[1].url).toMatch(/\/a-signed-url$/);
+
+      expect(receivedRequests[2].method).toBe('PUT');
+      expect(receivedRequests[2].url).toMatch(/\/a-signed-url$/);
+
+      expect(receivedRequests[3].method).toBe('PUT');
+      expect(receivedRequests[3].url).toMatch(/\/a-signed-url$/);
+
+      expect(receivedRequests[4].method).toBe('PUT');
+      expect(receivedRequests[4].url).toMatch(/\/a-signed-url$/);
+
+      expect(receivedRequests.length).toBe(5);
+    }, 20000);
+  });
 });

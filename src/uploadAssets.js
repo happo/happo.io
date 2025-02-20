@@ -1,3 +1,5 @@
+import retry from 'async-retry';
+
 import { logTag } from './Logger';
 import makeRequest from './makeRequest';
 
@@ -104,20 +106,43 @@ async function uploadAssetsWithSignedUrl(
     return signedUrlRes.path;
   }
 
-  // Upload the assets to the signed URL using node's built-in fetch.
-  const putRes = await fetch(signedUrlRes.signedUrl, {
-    method: 'PUT',
-    body: streamOrBuffer,
-    headers: {
-      'Content-Type': 'application/zip',
-    },
-  });
+  // Upload the assets to the signed URL using node's built-in fetch with
+  // retries
+  await retry(
+    async (bail) => {
+      const res = await fetch(signedUrlRes.signedUrl, {
+        method: 'PUT',
+        body: streamOrBuffer,
+        headers: {
+          'Content-Type': 'application/zip',
+        },
+      });
 
-  if (!putRes.ok) {
-    throw new Error(
-      `Failed to upload assets to S3 signed URL: ${putRes.status} ${putRes.statusText}`,
-    );
-  }
+      if (!res.ok) {
+        const error = new Error(
+          `Failed to upload assets to S3 signed URL: ${res.status} ${res.statusText}`,
+        );
+
+        if (res.status < 500 || res.status >= 600) {
+          // If it's not a 5xx error, bail immediately instead of retrying
+          bail(error);
+          return;
+        }
+
+        throw error;
+      }
+
+      return res;
+    },
+    {
+      retries: 3,
+      onRetry: (error, attempt) => {
+        logger.warn(
+          `${logTag(project)}PUT request attempt ${attempt} failed: ${error.message}. Retrying...`,
+        );
+      },
+    },
+  );
 
   // Finally, we need to tell Happo that we've uploaded the assets.
   const finalizeRes = await makeRequest(
