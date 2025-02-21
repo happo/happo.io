@@ -51,25 +51,50 @@ export default async function createDynamicEntryPoint({
     'window.snaps = {};',
   ];
   if (type === 'react') {
-    const pathToReactDom = require.resolve('react-dom');
     const pathToRW = renderWrapperModule || require.resolve('./renderWrapperReact');
     strings.push(
       `let renderWrapper = require('${pathToRW}');`,
       'renderWrapper = renderWrapper.default || renderWrapper;',
     );
-    strings.push(
-      `
-      const ReactDOM = require('${pathToReactDom}');
-      window.happoRender = (reactComponent, { rootElement, component, variant }) =>
-        ReactDOM.render(renderWrapper(reactComponent, { component, variant }), rootElement);
 
-      window.happoCleanup = () => {
-        for (const element of document.body.children) {
-          ReactDOM.unmountComponentAtNode(element);
-        }
-      };
-    `.trim(),
-    );
+    const reactDomVersion = require('react-dom/package.json').version;
+    const reactDomMajorVersion = parseInt(reactDomVersion.split('.', 1)[0], 10);
+    if (reactDomMajorVersion >= 18) {
+      const pathToReactDom = require.resolve('react-dom/client');
+      strings.push(
+        `
+        const ReactDOM = require('${pathToReactDom}');
+        let root;
+        window.happoRender = (reactComponent, { rootElement, component, variant }) => {
+          root = ReactDOM.createRoot(rootElement);
+          root.render(renderWrapper(reactComponent, { component, variant }));
+        };
+
+        window.happoCleanup = () => {
+          if (root) {
+            root.unmount();
+          }
+        };
+        `.trim(),
+      );
+    } else {
+      // Older versions of React DOM
+      const pathToReactDom = require.resolve('react-dom');
+      strings.push(
+        `
+        const ReactDOM = require('${pathToReactDom}');
+        window.happoRender = (reactComponent, { rootElement, component, variant }) => {
+          ReactDOM.render(renderWrapper(reactComponent, { component, variant }), rootElement);
+        };
+
+        window.happoCleanup = () => {
+          for (const element of document.body.children) {
+            ReactDOM.unmountComponentAtNode(element);
+          }
+        };
+        `.trim(),
+      );
+    }
   } else {
     const pathToRW = renderWrapperModule || require.resolve('./renderWrapper');
     strings.push(
