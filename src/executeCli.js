@@ -53,14 +53,17 @@ commander
   .description('execute a full happo run')
   .action(async (sha) => {
     let usedSha = sha || generateDevSha();
+
     if (!sha) {
       new Logger().info(
         `No [sha] provided. A temporary one will be used in place: "${usedSha}".`,
       );
     }
+
     if (commander.only) {
       usedSha = `${usedSha}-${commander.only}`;
     }
+
     const isAsync = commander.async || HAPPO_IS_ASYNC;
     await runCommand(usedSha, await loadUserConfig(commander.config), {
       only: commander.only,
@@ -68,7 +71,8 @@ commander
       isAsync,
       message: commander.message,
     });
-    process.exit(0);
+
+    process.exitCode = 0;
   });
 
 commander
@@ -95,9 +99,9 @@ commander
   .description('check if there is a report for a specific sha')
   .action(async (sha) => {
     if (await hasReportCommand(sha, await loadUserConfig(commander.config))) {
-      process.exit(0);
+      process.exitCode = 0;
     } else {
-      process.exit(1);
+      process.exitCode = 1;
     }
   });
 
@@ -110,7 +114,8 @@ commander
       sha,
       ...(await loadUserConfig(commander.config)),
     });
-    process.exit(0);
+
+    process.exitCode = 0;
   });
 
 commander
@@ -130,10 +135,6 @@ commander
       isAsync,
       fallbackShas,
     });
-    if (isAsync) {
-      new Logger().info(`Async comparison created with ID=${result.id}`);
-      process.exit(0);
-    }
     if (commander.link && process.env.HAPPO_GITHUB_USER_CREDENTIALS) {
       await postGithubComment({
         link: commander.link,
@@ -142,11 +143,19 @@ commander
         githubApiUrl: config.githubApiUrl,
       });
     }
+
+    if (isAsync) {
+      new Logger().info(`Async comparison created with ID=${result.id}`);
+      process.exitCode = 0;
+      return;
+    }
+
     new Logger().info(result.summary);
+
     if (result.equal) {
-      process.exit(0);
+      process.exitCode = 0;
     } else {
-      process.exit(113);
+      process.exitCode = 113;
     }
   });
 
@@ -163,20 +172,22 @@ commander
       },
       await loadUserConfig(commander.config),
     );
+
     new Logger().info(result.id);
   });
 
 commander.on('command:*', (cmd) => {
   console.log(`Invalid command: "${cmd}"\n`);
   commander.outputHelp();
-  process.exit(1);
+  process.exitCode = 1;
 });
 
 export default function executeCli(argv) {
   if (!argv.slice(2).length) {
     commander.outputHelp();
-    process.exit(1);
+    process.exitCode = 1;
     return;
   }
+
   return commander.parse(argv);
 }
