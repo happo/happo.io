@@ -91,3 +91,33 @@ it('handles relative paths', async () => {
 
   expect(entries).toEqual(['one.jpg']);
 });
+
+it('keeps folder structure when adding single files', async () => {
+  const result = await deterministicArchive(['test/integrations/assets/one.jpg']);
+  const zip = new AdmZip(result.buffer);
+
+  const entries = zip
+    .getEntries()
+    .map(({ entryName }) => entryName)
+    // This file is gitignored, so we want to filter it out to make local and CI
+    // runs consistent.
+    .filter((entryName) => !entryName.includes('.DS_Store'));
+
+  expect(entries).toEqual(['test/integrations/assets/one.jpg']);
+});
+
+it('keeps folder structure when adding single files with absolute paths', async () => {
+  const result = await deterministicArchive([
+    path.resolve(__dirname, './integrations/assets/one.jpg'),
+  ]);
+  const zip = new AdmZip(result.buffer);
+
+  const entries = zip
+    .getEntries()
+    .map(({ entryName }) => entryName)
+    // This file is gitignored, so we want to filter it out to make local and CI
+    // runs consistent.
+    .filter((entryName) => !entryName.includes('.DS_Store'));
+
+  expect(entries).toEqual(['test/integrations/assets/one.jpg']);
+});
