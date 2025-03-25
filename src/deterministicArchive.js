@@ -40,7 +40,7 @@ async function resolveFilesRecursiveForDir(dirOrFile) {
 
   return [
     {
-      name: path.basename(resolvedDirOrFile),
+      name: path.relative(process.cwd(), resolvedDirOrFile),
       stream: fs.createReadStream(resolvedDirOrFile),
     },
   ];
