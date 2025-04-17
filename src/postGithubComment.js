@@ -50,9 +50,9 @@ async function deleteExistingComments({
   }
 
   await Promise.all(
-    happoComments.map((comment) =>
-      fetch(
-        `${normalizedGithubApiUrl}/repos/${owner}/${repo}/issues/${prNumber}/comments/${comment.id}`,
+    happoComments.map(async (comment) => {
+      const res = await fetch(
+        `${normalizedGithubApiUrl}/repos/${owner}/${repo}/issues/comments/${comment.id}`,
         {
           method: 'DELETE',
           headers: {
@@ -60,8 +60,12 @@ async function deleteExistingComments({
             Authorization: authHeader,
           },
         },
-      ),
-    ),
+      );
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+      }
+      return res;
+    }),
   );
 }
 
