@@ -11,11 +11,14 @@ let statusImageUrl;
 let legacyUserCredentials;
 let authToken;
 let link;
+let deleteOldComments;
 
 beforeEach(() => {
+  deleteOldComments = false;
   fetch.mockReset();
   fetch.mockImplementation(() => ({
     ok: true,
+    json: () => Promise.resolve([]),
   }));
   githubApiUrl = 'https://api.ghe.com';
   compareUrl = 'https://foo.bar/foo/bar';
@@ -31,43 +34,89 @@ beforeEach(() => {
       githubApiUrl,
       legacyUserCredentials,
       authToken,
+      deleteOldComments,
     });
 });
 
-it('posts a comment', async () => {
+it('posts a new comment', async () => {
   await subject();
-  const url = fetch.mock.calls[0][0];
-  const { headers, body, method } = fetch.mock.calls[0][1];
-  expect(url).toEqual(
+
+  const [
+    postCommentUrl,
+    {
+      headers: postCommentHeaders,
+      method: postCommentMethod,
+      body: postCommentBody,
+    },
+  ] = fetch.mock.calls[0];
+  expect(postCommentUrl).toEqual(
     'https://api.ghe.com/repos/happo/happo-view/issues/156/comments',
   );
-  expect(body).toEqual(
-    JSON.stringify({
-      body: '[![Happo status](https://foo.bar/foo/bar/status.svg)](https://foo.bar/foo/bar)',
-    }),
+
+  expect(postCommentBody).toEqual(
+    '{"body":"<!-- happo-comment -->\\n[![Happo status](https://foo.bar/foo/bar/status.svg)](https://foo.bar/foo/bar)"}',
   );
-  expect(headers).toEqual({
+  expect(postCommentHeaders).toEqual({
     Authorization: 'Bearer baz',
     'User-Agent': 'happo.io client',
   });
-  expect(method).toEqual('POST');
+  expect(postCommentMethod).toEqual('POST');
 });
 
 it('returns true', async () => {
   expect(await subject()).toBe(true);
 });
 
-describe('when githubApiUrl ends with a slash', () => {
+describe('when there are old comments', () => {
   beforeEach(() => {
-    githubApiUrl = 'https://ghe.com/api/v3/';
+    deleteOldComments = true;
+    fetch.mockImplementation(() => ({
+      ok: true,
+      json: () =>
+        Promise.resolve([
+          {
+            id: 1,
+            body: 'foo', // should not be deleted
+          },
+          {
+            id: 2,
+            body: '<!-- happo-comment --> foo bar', // should be deleted
+          },
+          {
+            id: 3,
+            body: 'foo <!-- happo-comment -->', // should not be deleted since the marker is not at the beginning of the line
+          },
+        ]),
+    }));
   });
 
-  it('constructs a correct URL', async () => {
+  it('deletes the ones matching the marker', async () => {
     await subject();
-    const url = fetch.mock.calls[0][0];
-    expect(url).toEqual(
-      'https://ghe.com/api/v3/repos/happo/happo-view/issues/156/comments',
+    const [
+      deleteCommentUrl,
+      { headers: deleteCommentHeaders, method: deleteCommentMethod },
+    ] = fetch.mock.calls[1];
+    expect(deleteCommentUrl).toEqual(
+      'https://api.ghe.com/repos/happo/happo-view/issues/156/comments/2',
     );
+    expect(deleteCommentHeaders).toEqual({
+      Authorization: 'Bearer baz',
+      'User-Agent': 'happo.io client',
+    });
+    expect(deleteCommentMethod).toEqual('DELETE');
+
+    const [
+      postCommentUrl,
+      { headers: postCommentHeaders, method: postCommentMethod },
+    ] = fetch.mock.calls[2];
+    expect(postCommentUrl).toEqual(
+      'https://api.ghe.com/repos/happo/happo-view/issues/156/comments',
+    );
+    expect(postCommentHeaders).toEqual({
+      Authorization: 'Bearer baz',
+      'User-Agent': 'happo.io client',
+    });
+    expect(postCommentMethod).toEqual('POST');
   });
 });
 
@@ -96,7 +145,7 @@ describe('when no auth token is provided', () => {
   });
 });
 
-describe('when a legacy user credentials are provided', () => {
+describe('when legacy user credentials are provided', () => {
   beforeEach(() => {
     legacyUserCredentials = 'foo:bar';
   });

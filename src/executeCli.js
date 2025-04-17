@@ -135,7 +135,10 @@ commander
       isAsync,
       fallbackShas,
     });
-    if (commander.link && process.env.HAPPO_GITHUB_USER_CREDENTIALS) {
+    if (
+      commander.link &&
+      (process.env.HAPPO_GITHUB_USER_CREDENTIALS || process.env.HAPPO_GITHUB_TOKEN)
+    ) {
       await postGithubComment({
         link: commander.link,
         statusImageUrl: result.statusImageUrl,
