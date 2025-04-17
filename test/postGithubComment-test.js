@@ -97,7 +97,7 @@ describe('when there are old comments', () => {
       { headers: deleteCommentHeaders, method: deleteCommentMethod },
     ] = fetch.mock.calls[1];
     expect(deleteCommentUrl).toEqual(
-      'https://api.ghe.com/repos/happo/happo-view/issues/156/comments/2',
+      'https://api.ghe.com/repos/happo/happo-view/issues/comments/2',
     );
     expect(deleteCommentHeaders).toEqual({
       Authorization: 'Bearer baz',
