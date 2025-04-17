@@ -5,14 +5,15 @@ import Logger from './Logger';
 const REPO_URL_MATCHER = /https?:\/\/[^/]+\/([^/]+)\/([^/]+)\/pull\/([0-9]+)/;
 // https://github.com/lightstep/lightstep/pull/6555
 
-const { HAPPO_GITHUB_USER_CREDENTIALS } = process.env;
+const { HAPPO_GITHUB_USER_CREDENTIALS, HAPPO_GITHUB_TOKEN } = process.env;
 
 export default async function postGithubComment({
   statusImageUrl,
   compareUrl,
   link,
   githubApiUrl,
-  userCredentials = HAPPO_GITHUB_USER_CREDENTIALS,
+  legacyUserCredentials = HAPPO_GITHUB_USER_CREDENTIALS,
+  authToken = HAPPO_GITHUB_TOKEN,
 }) {
   const matches = link.match(REPO_URL_MATCHER);
   if (!matches) {
@@ -22,15 +23,24 @@ export default async function postGithubComment({
     return false;
   }
 
-  const [user, pass] = userCredentials.split(':');
-
   const owner = matches[1];
   const repo = matches[2];
   const prNumber = matches[3];
 
   const normalizedGithubApiUrl = githubApiUrl.replace(/\/$/, '');
 
-  const auth = Buffer.from(`${user}:${pass}`).toString('base64');
+  let authHeader;
+  if (authToken) {
+    authHeader = `Bearer ${authToken}`;
+  } else if (legacyUserCredentials) {
+    const [user, pass] = legacyUserCredentials.split(':');
+    authHeader = `Basic ${Buffer.from(`${user}:${pass}`).toString('base64')}`;
+  } else {
+    throw new Error(
+      'Either HAPPO_GITHUB_TOKEN or HAPPO_GITHUB_USER_CREDENTIALS must be provided',
+    );
+  }
+
   const body = `[![Happo status](${statusImageUrl})](${compareUrl})`;
   const res = await fetch(
     `${normalizedGithubApiUrl}/repos/${owner}/${repo}/issues/${prNumber}/comments`,
@@ -39,7 +49,7 @@ export default async function postGithubComment({
       json: true,
       headers: {
         'User-Agent': 'happo.io client',
-        Authorization: `Basic ${auth}`,
+        Authorization: authHeader,
       },
       body: JSON.stringify({ body }),
     },
