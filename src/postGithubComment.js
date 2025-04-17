@@ -9,6 +9,7 @@ const {
   HAPPO_GITHUB_USER_CREDENTIALS,
   HAPPO_GITHUB_TOKEN,
   HAPPO_DELETE_OLD_COMMENTS,
+  VERBOSE,
 } = process.env;
 
 const HAPPO_COMMENT_MARKER = '<!-- happo-comment -->';
@@ -41,6 +42,12 @@ async function deleteExistingComments({
   const happoComments = comments.filter((comment) =>
     comment.body.startsWith(HAPPO_COMMENT_MARKER),
   );
+
+  if (VERBOSE) {
+    console.log(
+      `Found ${happoComments.length} happo comments to delete out of a total of ${comments.length} comments on the PR.`,
+    );
+  }
 
   await Promise.all(
     happoComments.map((comment) =>
@@ -97,6 +104,9 @@ export default async function postGithubComment({
   }
 
   if (deleteOldComments) {
+    if (VERBOSE) {
+      console.log('Deleting existing happo comments...');
+    }
     await deleteExistingComments({
       normalizedGithubApiUrl,
       owner,
@@ -104,6 +114,10 @@ export default async function postGithubComment({
       prNumber,
       authHeader,
     });
+  } else if (VERBOSE) {
+    console.log(
+      'Skipping deletion of existing happo comments since HAPPO_DELETE_OLD_COMMENTS is not true.',
+    );
   }
 
   const body = `${HAPPO_COMMENT_MARKER}\n[![Happo status](${statusImageUrl})](${compareUrl})`;
@@ -122,6 +136,13 @@ export default async function postGithubComment({
   if (!res.ok) {
     throw new Error(
       `Failed to post github comment: ${res.status} ${await res.text()}`,
+    );
+  }
+
+  if (VERBOSE) {
+    console.log(
+      'Posted github comment successfully. Response is ',
+      await res.json(),
     );
   }
 
