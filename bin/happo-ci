@@ -27,6 +27,9 @@ fi
 HAPPO_FALLBACK_SHAS_COUNT=${HAPPO_FALLBACK_SHAS_COUNT:-50}
 HAPPO_FALLBACK_SHAS=${HAPPO_FALLBACK_SHAS:-$(${HAPPO_GIT_COMMAND} log --format=%H --first-parent --max-count=${HAPPO_FALLBACK_SHAS_COUNT} "$PREVIOUS_SHA"^ || true)}
 
+# Make HAPPO_FALLBACK_SHAS available to sub commands (`happo compare`)
+export HAPPO_FALLBACK_SHAS
+
 echo "Using the following ENV variables:"
 echo "PREVIOUS_SHA: ${PREVIOUS_SHA}"
 echo "CURRENT_SHA: ${CURRENT_SHA}"
