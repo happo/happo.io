@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createPortal } from 'react-dom';
 
 import Button from './Button.ffs';
 import ThemeContext from '../theme';
@@ -22,7 +22,7 @@ export const anotherVariant = () => {
 const PortalComponent = ({ children }) => {
   const element = document.createElement('div');
   document.body.appendChild(element);
-  return ReactDOM.createPortal(children, element);
+  return createPortal(children, document.body);
 };
 
 export const portalExample = () => (
@@ -44,7 +44,9 @@ export const innerPortal = () => (
 class AsyncComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      label: 'Not ready',
+    };
     this.setLabel = this.setLabel.bind(this);
   }
 
