@@ -6,8 +6,9 @@ const FILE_CREATION_DATE = new Date('Fri Feb 08 2019 13:31:55 GMT+0100 (CET)');
 
 const IFRAME_CONTENT = `
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <title>Happo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
   <body>
