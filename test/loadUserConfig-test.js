@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import path from 'path';
 import requireRelative from 'require-relative';
 
@@ -8,7 +7,6 @@ import loadUserConfig from '../src/loadUserConfig';
 
 const actualRequireRelative = jest.requireActual('require-relative');
 
-jest.mock('node-fetch');
 jest.mock('require-relative');
 jest.mock('../src/Logger');
 
@@ -18,12 +16,16 @@ let info;
 beforeEach(() => {
   warn = jest.fn();
   info = jest.fn();
-  warn.mockReset();
-  info.mockReset();
   Logger.mockImplementation(() => ({
     warn,
     info,
   }));
+
+  jest.spyOn(global, 'fetch').mockImplementation(() => ({ ok: true }));
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
 });
 
 it('yells if both API tokens are missing', async () => {
@@ -109,6 +111,7 @@ describe('when CHANGE_URL is defined', () => {
         firefox: new RemoteBrowserTarget('firefox', { viewport: '800x600' }),
       },
     }));
+
     fetch.mockImplementation(() =>
       Promise.resolve({ ok: true, json: () => ({ secret: 'yay' }) }),
     );
@@ -147,6 +150,7 @@ describe('when GITHUB_EVENT_PATH is defined', () => {
         firefox: new RemoteBrowserTarget('firefox', { viewport: '800x600' }),
       },
     }));
+
     fetch.mockImplementation(() =>
       Promise.resolve({ ok: true, json: () => ({ secret: 'yay' }) }),
     );

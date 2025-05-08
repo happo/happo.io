@@ -1,5 +1,5 @@
+import { Readable } from 'stream';
 import { PNG } from 'pngjs';
-import fetch from 'node-fetch';
 import { SignJWT } from 'jose';
 
 export default async function fetchPng(url, { apiKey, apiSecret, endpoint }) {
@@ -36,7 +36,7 @@ export default async function fetchPng(url, { apiKey, apiSecret, endpoint }) {
   }
 
   return new Promise((resolve, reject) => {
-    response.body
+    Readable.fromWeb(response.body)
       .pipe(new PNG())
       .on('parsed', function handleParsed() {
         resolve(this);

@@ -1,8 +1,4 @@
-import fetch from 'node-fetch';
-
 import postGithubComment from '../src/postGithubComment';
-
-jest.mock('node-fetch');
 
 let subject;
 let githubApiUrl;
@@ -15,11 +11,12 @@ let deleteOldComments;
 
 beforeEach(() => {
   deleteOldComments = false;
-  fetch.mockReset();
-  fetch.mockImplementation(() => ({
+
+  jest.spyOn(global, 'fetch').mockImplementation(() => ({
     ok: true,
     json: () => Promise.resolve([]),
   }));
+
   githubApiUrl = 'https://api.ghe.com';
   compareUrl = 'https://foo.bar/foo/bar';
   statusImageUrl = 'https://foo.bar/foo/bar/status.svg';
@@ -36,6 +33,10 @@ beforeEach(() => {
       authToken,
       deleteOldComments,
     });
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
 });
 
 it('posts a new comment', async () => {

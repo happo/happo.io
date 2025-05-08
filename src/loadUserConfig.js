@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import requireRelative from 'require-relative';
 
 import Logger from './Logger';

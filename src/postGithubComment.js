@@ -1,5 +1,3 @@
-import fetch from 'node-fetch';
-
 import Logger from './Logger';
 
 const REPO_URL_MATCHER = /https?:\/\/[^/]+\/([^/]+)\/([^/]+)\/pull\/([0-9]+)/;

@@ -1,7 +1,5 @@
 import fs from 'fs';
 
-import fetch from 'node-fetch';
-
 export default async function loadCSSFile(cssFile) {
   if (cssFile.startsWith('/')) {
     // local file

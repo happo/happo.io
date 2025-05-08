@@ -1,7 +1,5 @@
-import FormData from 'form-data';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import asyncRetry from 'async-retry';
-import fetch from 'node-fetch';
 import { SignJWT } from 'jose';
 
 import { version } from '../package.json';
@@ -10,16 +8,17 @@ function prepareFormData(data) {
   if (!data) {
     return;
   }
+
   const form = new FormData();
-  Object.keys(data).forEach((key) => {
-    const value = data[key];
+  Object.entries(data).forEach(([key, value]) => {
     if (typeof value === 'object' && value.options) {
       // We have a file
-      form.append(key, value.value, value.options);
+      form.append(key, new Blob([value.value]), value.options);
     } else {
-      form.append(key, value);
+      form.append(key, new Blob([value]));
     }
   });
+
   return form;
 }
 
