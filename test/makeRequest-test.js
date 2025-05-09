@@ -5,7 +5,6 @@ import multiparty from 'multiparty';
 
 import makeRequest from '../src/makeRequest';
 
-let subject;
 let props;
 let options;
 let env;
@@ -93,26 +92,24 @@ beforeEach(() => {
     retryMaxTimeout: 1,
   };
   env = undefined;
-
-  subject = () => makeRequest(props, options, env);
 });
 
 it('returns the response', async () => {
-  const response = await subject();
+  const response = await makeRequest(props, options, env);
   expect(response).toEqual({ result: 'Hello world!' });
 });
 
 it('can use a proxy', async () => {
   env = { HTTP_PROXY: 'http://localhost:1122' };
   options.retryCount = 0;
-  await expect(subject()).rejects.toThrow(/request.*failed/);
+  await expect(makeRequest(props, options, env)).rejects.toThrow(/request.*failed/);
 });
 
 it('can post json', async () => {
   props.url = 'http://localhost:8990/body-data';
   props.method = 'POST';
   props.body = { foo: 'bar' };
-  const response = await subject();
+  const response = await makeRequest(props, options, env);
   expect(response).toEqual({ body: { foo: 'bar' } });
 });
 
@@ -131,7 +128,7 @@ it('can upload form data with buffers', async () => {
       value: Buffer.from('{"foo": "bar"}'),
     },
   };
-  const response = await subject();
+  const response = await makeRequest(props, options, env);
   expect(response).toEqual({
     fields: {
       payloadHash: ['foobar'],
@@ -171,7 +168,7 @@ it('can retry uploading form data with buffers', async () => {
       value: Buffer.from('{"foo": "bar"}'),
     },
   };
-  const response = await subject();
+  const response = await makeRequest(props, options, env);
   expect(response).toEqual({
     fields: {
       payloadHash: ['foobar'],
@@ -208,7 +205,7 @@ it('can upload form data with streams', async () => {
       value: fs.createReadStream('package.json'),
     },
   };
-  const response = await subject();
+  const response = await makeRequest(props, options, env);
   expect(response).toEqual({
     fields: {},
     files: {
@@ -235,7 +232,7 @@ describe('when the request fails twice and then succeeds', () => {
   });
 
   it('retries and succeeds', async () => {
-    const response = await subject();
+    const response = await makeRequest(props, options, env);
     expect(response).toEqual({ result: 'Hello world!' });
   });
 
@@ -250,7 +247,7 @@ describe('when the request fails twice and then succeeds', () => {
     it('waits the default amount of time before retrying', async () => {
       const start = Date.now();
 
-      await expect(subject()).rejects.toThrow(/Nope/);
+      await expect(makeRequest(props, options, env)).rejects.toThrow(/Nope/);
 
       const duration = Date.now() - start;
 
@@ -265,7 +262,7 @@ describe('when the request fails twice and then succeeds', () => {
     });
 
     it('throws without retrying', async () => {
-      await expect(subject()).rejects.toThrow(/Nope/);
+      await expect(makeRequest(props, options, env)).rejects.toThrow(/Nope/);
     });
   });
 
@@ -275,7 +272,7 @@ describe('when the request fails twice and then succeeds', () => {
     });
 
     it('throws without retrying', async () => {
-      await expect(subject()).rejects.toThrow(/Nope/);
+      await expect(makeRequest(props, options, env)).rejects.toThrow(/Nope/);
     });
   });
 
@@ -285,7 +282,7 @@ describe('when the request fails twice and then succeeds', () => {
     });
 
     it('throws without retrying', async () => {
-      await expect(subject()).rejects.toThrow(/Nope/);
+      await expect(makeRequest(props, options, env)).rejects.toThrow(/Nope/);
     });
   });
 });
@@ -296,7 +293,7 @@ describe('can have a timeout', () => {
     delete props.method;
     options.timeout = 1;
     options.retryCount = 0;
-    await expect(subject()).rejects.toThrow(
+    await expect(makeRequest(props, options, env)).rejects.toThrow(
       /Timeout when fetching http:\/\/localhost:8990\/timeout using method GET/,
     );
   });
@@ -308,6 +305,6 @@ describe('when the request fails repeatedly', () => {
   });
 
   it('gives up retrying', async () => {
-    await expect(subject()).rejects.toThrow(/Nope/);
+    await expect(makeRequest(props, options, env)).rejects.toThrow(/Nope/);
   });
 });
