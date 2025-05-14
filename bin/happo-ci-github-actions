@@ -9,16 +9,16 @@ ENV_VARS=$(echo "
   const json = require('$GITHUB_EVENT_PATH');
 
   if (!process.env.PREVIOUS_SHA) {
-    let baseRef;
+    let baseBranch;
 
     if (json.pull_request) {
-      baseRef = json.pull_request.base.ref;
+      baseBranch = \`origin/\${json.pull_request.base.ref}\`;
     } else {
       // fallback to default branch
-      baseRef = process.env.BASE_BRANCH || 'origin/main';
+      baseBranch = process.env.BASE_BRANCH || 'origin/main';
     }
 
-    const mergeBase = execSync(\`git merge-base origin/\${baseRef} HEAD\`).toString().trim();
+    const mergeBase = execSync(\`git merge-base \${baseBranch} HEAD\`).toString().trim();
     console.log(\`export PREVIOUS_SHA=\${mergeBase}\`);
   }
 
