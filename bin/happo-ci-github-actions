@@ -5,23 +5,14 @@ set -euo pipefail
 
 # Prepare environment variables found in the github event json file.
 ENV_VARS=$(echo "
-  const { execSync } = require('child_process');
   const json = require('$GITHUB_EVENT_PATH');
-
   if (!process.env.PREVIOUS_SHA) {
-    let baseBranch;
-
     if (json.pull_request) {
-      baseBranch = \`origin/\${json.pull_request.base.ref}\`;
+      console.log(\`export PREVIOUS_SHA=\${json.pull_request.base.sha}\`);
     } else {
-      // fallback to default branch
-      baseBranch = process.env.BASE_BRANCH || 'origin/main';
+      console.log(\`export PREVIOUS_SHA=\${json.before}\`);
     }
-
-    const mergeBase = execSync(\`git merge-base \${baseBranch} HEAD\`).toString().trim();
-    console.log(\`export PREVIOUS_SHA=\${mergeBase}\`);
   }
-
   if (!process.env.CURRENT_SHA) {
     if (json.pull_request) {
       console.log(\`export CURRENT_SHA=\${json.pull_request.head.sha}\`);
@@ -29,7 +20,6 @@ ENV_VARS=$(echo "
       console.log(\`export CURRENT_SHA=\${json.after}\`);
     }
   }
-
   if (!process.env.CHANGE_URL) {
     if (json.pull_request) {
       console.log(\`export CHANGE_URL=\${json.pull_request.html_url}\`);
