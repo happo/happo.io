@@ -36,7 +36,7 @@ export default [
   },
 
   {
-    files: ['test/**/*.js'],
+    files: ['test/**/*.js', '**/__tests__/*.test.js'],
     plugins: { jest: pluginJest },
     languageOptions: {
       globals: pluginJest.environments.globals.globals,

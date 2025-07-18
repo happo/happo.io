@@ -1,0 +1,17 @@
+{
+  "name": "@happo/check-major-bump",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "license": "UNLICENSED",
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "semver": "^7.7.2"
+  },
+  "devDependencies": {
+    "jest": "^30.0.4"
+  }
+}
