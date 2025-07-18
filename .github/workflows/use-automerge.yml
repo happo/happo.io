@@ -1,0 +1,13 @@
+name: Automerge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  automerge:
+    if: github.actor == 'dependabot[bot]'
+    uses: ./.github/workflows/automerge.yml
+    permissions:
+      pull-requests: write
+      contents: write
