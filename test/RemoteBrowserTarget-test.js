@@ -24,13 +24,13 @@ it('does not fail', () => {
 
 it('validates viewports', () => {
   viewport = '400x500px';
-  expect(subject).toThrowError(/Invalid viewport "400x500px"/);
+  expect(subject).toThrow(/Invalid viewport "400x500px"/);
 });
 
 it('finds viewports that cause issues for internet explorer', () => {
   viewport = '316x500';
   browserName = 'edge';
-  expect(subject).toThrowError(
+  expect(subject).toThrow(
     'Invalid viewport width for the "edge" target (you provided 316). Smallest width it can handle is 400.',
   );
 });
