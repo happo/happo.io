@@ -354,7 +354,7 @@ describe('when `afterSyncComparison` is set', () => {
     cliArgs.isAsync = false;
     await subject();
     expect(afterSyncComparisonMock).toHaveBeenCalledTimes(1);
-    expect(afterSyncComparisonMock).toBeCalledWith(compareResult);
+    expect(afterSyncComparisonMock).toHaveBeenCalledWith(compareResult);
   });
 
   it("and isAsync is enabled and compareThreshold is defined, afterSyncComparison shouldn't be run", async () => {
@@ -368,7 +368,7 @@ describe('when `afterSyncComparison` is set', () => {
     cliArgs.isAsync = false;
     await subject();
     expect(afterSyncComparisonMock).toHaveBeenCalledTimes(1);
-    expect(afterSyncComparisonMock).toBeCalledWith(compareResult);
+    expect(afterSyncComparisonMock).toHaveBeenCalledWith(compareResult);
   });
 
   it("and isAsync is enabled and compareThreshold is not defined, afterSyncComparison shouldn't be run", async () => {
