@@ -1,73 +1,21 @@
-name: Dependabot Automerge
+name: Automerge
 
 on:
-  workflow_call:
-    # No inputs/outputs defined for now, but can be added for flexibility
-
-# Permissions:
-# pull-requests: write - To enable automerge
-# contents: write - Required by enable-pull-request-automerge action for merge commit
-# contents: read - To checkout code and run git diff
-permissions:
-  pull-requests: write
-  contents: write
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
-  check-and-automerge:
-    runs-on: ubuntu-latest
-    # Crucial security check: only run for PRs authored by dependabot
+  automerge:
     if: github.actor == 'dependabot[bot]'
-    outputs:
-      automerge_enabled: ${{ steps.enable_automerge.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+      contents: write
+
     steps:
-      # Checkout code is required to run git diff and access the script
-      - name: Checkout PR Head
-        uses: actions/checkout@v4
+      - uses: fastify/github-action-merge-dependabot@v3
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0 # Fetch history to diff against base
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'yarn'
-
-      - name: Install script dependencies
-        run: |
-          npm install -g yarn
-          cd .github/scripts/checkMajorBump
-          yarn
-
-      - name: Check package.json for Major Version Bumps
-        id: check_major_bump
-        # Execute the external script using Node.js
-        run: node .github/scripts/checkMajorBump/index.js
-        env:
-          # Pass the base SHA needed by the script
-          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          # GITHUB_WORKSPACE is automatically available for accessing files
-
-      - name: Enable Automerge for Non-Major Bump
-        id: enable_automerge
-        if: >
-          steps.check_major_bump.outputs.contains_major_bump == 'false' &&
-          github.event.pull_request.state == 'open'
-        run: gh pr merge --merge --auto "${{ github.event.pull_request.number }}"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Automerge Skipped Report
-        if: steps.enable_automerge.conclusion != 'success'
-        run: |
-          echo "Automerge was not enabled."
-          echo "Reason:"
-          if [[ "${{ steps.check_major_bump.outputs.contains_major_bump }}" == 'true' ]]; then
-            echo "- PR contains a major version bump in package.json or a parsing error occurred."
-          elif [[ "${{ github.event.pull_request.state }}" != 'open' ]]; then
-            echo "- PR is not in an open state (${{ github.event.pull_request.state }})."
-          elif [[ "${{ github.actor }}" != 'dependabot[bot]' ]]; then
-             echo "- PR author is not dependabot[bot]."
-          else
-            echo "- Unknown reason (check previous steps logs)."
-          fi
+          merge-method: 'merge'
+          target: 'minor'
+          use-github-auto-merge: true
