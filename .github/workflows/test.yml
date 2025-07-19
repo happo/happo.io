@@ -12,7 +12,8 @@ jobs:
     strategy:
       matrix:
         node: ['18.16.0', 20, 22]
-    name: Node ${{ matrix.node }}
+        react: ['16', '17', '18', '19']
+    name: Node ${{ matrix.node }} / React ${{ matrix.react }}
     steps:
       - uses: actions/checkout@v4
 
@@ -23,6 +24,11 @@ jobs:
           cache: 'yarn'
 
       - run: yarn install --frozen-lockfile --ignore-engines
+
+      - name: Install react and react-dom at version ${{ matrix.react }}
+        run: |
+          yarn remove react react-dom --ignore-engines
+          yarn add react@${{ matrix.react }} react-dom@${{ matrix.react }} --ignore-engines
 
       - run: yarn test --colors
 
