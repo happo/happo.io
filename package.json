@@ -68,7 +68,7 @@
     "jose": "^5.4.1",
     "jsdom": "^26.0.0",
     "lcs-image-diff": "^3.0.0",
-    "node-fetch": "^2.6.6",
+    "node-fetch": "^3.3.2",
     "parse-srcset": "^1.0.2",
     "pngjs": "^7.0.0",
     "require-relative": "^0.8.7",
