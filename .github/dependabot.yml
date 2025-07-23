@@ -11,6 +11,8 @@ updates:
         patterns:
           - '@babel/*'
           - 'babel*'
+        exclude-patterns:
+          - 'babel-jest'
       eslint:
         patterns:
           - 'eslint'
@@ -18,6 +20,8 @@ updates:
           - '@eslint/*'
       jest:
         patterns:
+          - '@jest/*'
+          - 'babel-jest'
           - 'jest'
           - 'jest-*'
       react:
