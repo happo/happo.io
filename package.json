@@ -73,7 +73,7 @@
     "pngjs": "^7.0.0",
     "require-relative": "^0.8.7",
     "source-map-support": "^0.5.9",
-    "supports-color": "^7.1.0"
+    "supports-color": "^9.4.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.24.8",
