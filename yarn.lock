@@ -2569,7 +2569,7 @@ crc32-stream@^6.0.0:
     crc-32 "^1.2.0"
     readable-stream "^4.0.0"
 
-cross-spawn@^7.0.0, cross-spawn@^7.0.3, cross-spawn@^7.0.6:
+cross-spawn@^7.0.3, cross-spawn@^7.0.6:
   version "7.0.6"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-7.0.6.tgz#8a58fe78f00dcd70c370451759dfbfaf03e8ee9f"
   integrity sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==
@@ -3245,15 +3245,7 @@ for-each@^0.3.3:
   dependencies:
     is-callable "^1.1.3"
 
-foreground-child@^3.1.0:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/foreground-child/-/foreground-child-3.2.1.tgz#767004ccf3a5b30df39bed90718bab43fe0a59f7"
-  integrity sha512-PXUUyLqrR2XCWICfv6ukppP96sdFwWbNEnfEMt7jNsISjMsvaLNinAHNDYyvkyU+SZG2BTSbT5NjG+vZslfGTA==
-  dependencies:
-    cross-spawn "^7.0.0"
-    signal-exit "^4.0.1"
-
-foreground-child@^3.3.1:
+foreground-child@^3.1.0, foreground-child@^3.3.1:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/foreground-child/-/foreground-child-3.3.1.tgz#32e8e9ed1b68a3497befb9ac2b6adf92a638576f"
   integrity sha512-gIXjKqtFuWEgzFRJA9WCQeSJLZDjgJUOMCMzxtvFq/37KojM1BFGufqsCy0r4qSQmYLsZYMeyRqzIWOMup03sw==
@@ -3410,6 +3402,18 @@ glob@^11.0.3:
     foreground-child "^3.3.1"
     jackspeak "^4.1.1"
     minimatch "^10.0.3"
+    minipass "^7.1.2"
+    package-json-from-dist "^1.0.0"
+    path-scurry "^2.0.0"
+
+glob@^12.0.0:
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/glob/-/glob-12.0.0.tgz#4f75198719ab443ea433fdc023629b853532a443"
+  integrity sha512-5Qcll1z7IKgHr5g485ePDdHcNQY0k2dtv/bjYy0iuyGxQw2qSOiiXUXJ+AYQpg3HNoUMHqAruX478Jeev7UULw==
+  dependencies:
+    foreground-child "^3.3.1"
+    jackspeak "^4.1.1"
+    minimatch "^10.1.1"
     minipass "^7.1.2"
     package-json-from-dist "^1.0.0"
     path-scurry "^2.0.0"
@@ -4590,7 +4594,7 @@ mimic-fn@^2.1.0:
   resolved "https://registry.yarnpkg.com/mimic-fn/-/mimic-fn-2.1.0.tgz#7ed2c2ccccaf84d3ffcb7a69b57711fc2083401b"
   integrity sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==
 
-minimatch@^10.0.3:
+minimatch@^10.0.3, minimatch@^10.1.1:
   version "10.1.1"
   resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-10.1.1.tgz#e6e61b9b0c1dcab116b5a7d1458e8b6ae9e73a55"
   integrity sha512-enIvLvRAFZYXJzkCYG5RKmPfrFArdLv+R+lbQ53BmIMLIry74bjKzX6iHAm8WYamJkhSSEabrWN5D97XnKObjQ==
